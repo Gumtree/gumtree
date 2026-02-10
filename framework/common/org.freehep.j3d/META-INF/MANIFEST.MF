@@ -4,7 +4,7 @@ Bundle-Name: FreeHEP Java 3D
 Bundle-SymbolicName: org.freehep.j3d
 Bundle-Version: 2.0.0.qualifier
 Require-Bundle: com.sun.j3d;bundle-version="1.5.2";visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: org.freehep.j3d,
  org.freehep.j3d.plot
 Eclipse-BundleShape: jar

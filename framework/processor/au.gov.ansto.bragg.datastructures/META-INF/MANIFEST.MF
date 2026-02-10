@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Data Structures
 Bundle-SymbolicName: au.gov.ansto.bragg.datastructures
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.datastructures.internal.Activator
 Bundle-ActivationPolicy: lazy
 Export-Package: au.gov.ansto.bragg.datastructures.core;uses:="org.gumtree.data.interfaces",
@@ -19,7 +19,7 @@ Export-Package: au.gov.ansto.bragg.datastructures.core;uses:="org.gumtree.data.i
  au.gov.ansto.bragg.datastructures.math;uses:="org.gumtree.data.math,au.gov.ansto.bragg.datastructures.core.plot",
  au.gov.ansto.bragg.datastructures.nexus;uses:="org.gumtree.data.interfaces,au.gov.ansto.bragg.datastructures.core.plot,au.gov.ansto.bragg.datastructures.core",
  au.gov.ansto.bragg.datastructures.util;uses:="org.gumtree.data.interfaces,au.gov.ansto.bragg.datastructures.core.plot"
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: jar
 Require-Bundle: org.gumtree.core;bundle-version="1.7.0";visibility:=reexport,
  au.gov.ansto.bragg.errorpropagation;visibility:=reexport

@@ -2,7 +2,7 @@
 <feature
       id="org.gumtree.github.feature"
       label="Gumtree Extensions GitHub"
-      version="1.13.0.qualifier"
+      version="2.0.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">
@@ -22,115 +22,63 @@
          version="0.0.0"/>
 
    <includes
-         id="org.eclipse.mylyn_feature"
+         id="org.eclipse.mylyn.github.feature"
          version="0.0.0"/>
 
    <includes
-         id="org.eclipse.mylyn.commons"
+         id="org.eclipse.mylyn.tasks.feature"
          version="0.0.0"/>
 
    <includes
-         id="org.eclipse.mylyn.commons.identity"
+         id="org.eclipse.egit"
          version="0.0.0"/>
 
    <includes
-         id="org.eclipse.mylyn.commons.notifications"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.mylyn.commons.repositories"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.mylyn.monitor"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.mylyn.discovery"
+         id="org.eclipse.mylyn.commons.feature"
          version="0.0.0"/>
 
    <plugin
          id="org.eclipse.mylyn.commons.net"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.mylyn.context.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.mylyn.resources.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.mylyn.context.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.sun.syndication"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.egit"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.egit.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.egit.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.google.gson"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.egit.github.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.mylyn.github.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.mylyn.github.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
 </feature>

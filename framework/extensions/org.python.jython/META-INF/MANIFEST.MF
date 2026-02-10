@@ -209,6 +209,6 @@ Export-Package: com.google.common.base,
  org.xml.sax,
  org.xml.sax.ext,
  org.xml.sax.helpers
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BuddyPolicy: global
 Eclipse-BundleShape: dir

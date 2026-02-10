@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Cicada Algorithm Manager
 Bundle-SymbolicName: au.gov.ansto.bragg.cicada;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Export-Package: au.gov.ansto.bragg.cicada.core;
   uses:="au.gov.ansto.bragg.cicada.dam.core,
    au.gov.ansto.bragg.process.processor,
@@ -20,10 +20,10 @@ Export-Package: au.gov.ansto.bragg.cicada.core;
    au.gov.ansto.bragg.cicada.core"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: au.gov.ansto.bragg.cicada.core.internal.Activator
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: org.slf4j
 Require-Bundle: au.gov.ansto.bragg.cicada.dam;visibility:=reexport,
- au.gov.ansto.bragg.process;visibility:=reexport,
- org.dom4j;resolution:=optional
+ org.jdom2;bundle-version="2.0.6",
+ au.gov.ansto.bragg.process;visibility:=reexport
 Eclipse-BundleShape: jar
 Bundle-Vendor: Bragg Institute

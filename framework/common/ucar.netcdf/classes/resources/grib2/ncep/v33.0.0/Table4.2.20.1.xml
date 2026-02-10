@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parameterMap>
+  <table>Table4.2.20.1</table>
+  <title>Epidemiology</title>
+  <source>https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2-20-1.shtml</source>
+  <parameter code="0">
+    <shortName>MALACASE</shortName>
+    <description>Malaria Cases</description>
+    <units>Fraction</units>
+  </parameter>
+  <parameter code="1">
+    <shortName>MACPRATE</shortName>
+    <description>Malaria Circumsporozoite Protein Rate</description>
+    <units>Fraction</units>
+  </parameter>
+  <parameter code="2">
+    <shortName>PFEIRATE</shortName>
+    <description>Plasmodium Falciparum Entomological Inoculation Rate</description>
+    <units>Bites per day per person</units>
+  </parameter>
+  <parameter code="3">
+    <shortName>HBRATEAV</shortName>
+    <description>Human Bite Rate by Anopheles Vectors</description>
+    <units>Bites per day per person</units>
+  </parameter>
+  <parameter code="4">
+    <shortName>MALAIMM</shortName>
+    <description>Malaria Immunity</description>
+    <units>Fraction</units>
+  </parameter>
+  <parameter code="5">
+    <shortName>FALPRATE</shortName>
+    <description>Falciparum Parasite Rates</description>
+    <units>Fraction</units>
+  </parameter>
+  <parameter code="6">
+    <shortName>DFPRATIO</shortName>
+    <description>Detectable Falciparum Parasite Ratio (after day 10)</description>
+    <units>Fraction</units>
+  </parameter>
+  <parameter code="7">
+    <shortName>AVHRATIO</shortName>
+    <description>Anopheles Vector to Host Ratio</description>
+    <units>Fraction</units>
+  </parameter>
+  <parameter code="8">
+    <shortName>AVECTNUM</shortName>
+    <description>Anopheles Vector Number</description>
+    <units>Number m-2</units>
+  </parameter>
+  <parameter code="9">
+    <shortName>FMALVRH</shortName>
+    <description>Fraction of Malarial Vector Reproductive Habitat</description>
+    <units>Fraction</units>
+  </parameter>
+</parameterMap>

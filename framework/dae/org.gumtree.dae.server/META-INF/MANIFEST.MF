@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree DAE Server
 Bundle-SymbolicName: org.gumtree.dae.server;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.gumtree.dae.server.internal.Activator
 Require-Bundle: com.google.guava;bundle-version="11.0.1",
  org.restlet;bundle-version="2.0.3",
@@ -10,7 +10,7 @@ Require-Bundle: com.google.guava;bundle-version="11.0.1",
  org.eclipse.equinox.http.registry;bundle-version="1.1.1",
  org.gumtree.core;bundle-version="1.7.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: org.apache.commons.httpclient,
  org.apache.commons.httpclient.auth,
  org.apache.commons.httpclient.methods,

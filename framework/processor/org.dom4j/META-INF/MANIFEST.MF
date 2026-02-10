@@ -19,4 +19,4 @@ Export-Package: org.dom4j,
  org.dom4j.util,
  org.dom4j.xpath,
  org.dom4j.xpp
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-21

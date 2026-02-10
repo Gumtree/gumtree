@@ -26,16 +26,9 @@ import java.util.Map;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.osgi.baseadaptor.BaseData;
-import org.eclipse.osgi.baseadaptor.bundlefile.BundleFile;
-import org.eclipse.osgi.baseadaptor.bundlefile.DirBundleFile;
-import org.eclipse.osgi.baseadaptor.bundlefile.ZipBundleFile;
-import org.eclipse.osgi.framework.internal.core.AbstractBundle;
-import org.eclipse.osgi.framework.internal.core.InternalSystemBundle;
 import org.gumtree.core.internal.Activator;
 import org.gumtree.core.service.ServiceUtils;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 @SuppressWarnings({ "restriction", "deprecation" })
@@ -83,32 +76,44 @@ public final class OsgiUtils {
 
 	public static File[] getBundleClasspaths(Bundle bundle) {
 		// Special case: system bundle
-		if (bundle instanceof InternalSystemBundle) {
-			return getBundleClasspaths((BaseData) ((InternalSystemBundle) bundle)
-					.getBundleData());
-		}
-		if (bundle instanceof AbstractBundle) {
-			return getBundleClasspaths((BaseData) ((AbstractBundle) bundle)
-					.getBundleData());
+//		if (bundle instanceof InternalSystemBundle) {
+//			return getBundleClasspaths((BaseData) ((InternalSystemBundle) bundle)
+//					.getBundleData());
+//		}
+//		if (bundle instanceof AbstractBundle) {
+//			return getBundleClasspaths((BaseData) ((AbstractBundle) bundle)
+//					.getBundleData());
+//		}
+		Enumeration<URL> entries = bundle.findEntries("/", "*.class", true);
+		if (entries != null) {
+			List<File> files = new ArrayList<File>();
+			while (entries.hasMoreElements()) {
+				try {
+					URL url = FileLocator.toFileURL(entries.nextElement());
+					files.add(new File(url.toURI()));
+				} catch (Exception e) {
+				}
+			}
+			return files.toArray(new File[files.size()]);
 		}
 		return EMPTY_FILE_ARRAY;
 	}
 
-	private static File[] getBundleClasspaths(BaseData bundleData) {
-		List<File> files = new ArrayList<File>();
-		BundleFile bundleFile = bundleData.getBundleFile();
-		if (bundleFile instanceof ZipBundleFile) {
-			files.add(bundleFile.getBaseFile());
-		} else if (bundleFile instanceof DirBundleFile) {
-			try {
-				for (String classpath : bundleData.getClassPath()) {
-					files.add(new File(bundleFile.getBaseFile(), classpath));
-				}
-			} catch (BundleException e) {
-			}
-		}
-		return files.toArray(new File[files.size()]);
-	}
+//	private static File[] getBundleClasspaths(BaseData bundleData) {
+//		List<File> files = new ArrayList<File>();
+//		BundleFile bundleFile = bundleData.getBundleFile();
+//		if (bundleFile instanceof ZipBundleFile) {
+//			files.add(bundleFile.getBaseFile());
+//		} else if (bundleFile instanceof DirBundleFile) {
+//			try {
+//				for (String classpath : bundleData.getClassPath()) {
+//					files.add(new File(bundleFile.getBaseFile(), classpath));
+//				}
+//			} catch (BundleException e) {
+//			}
+//		}
+//		return files.toArray(new File[files.size()]);
+//	}
 
 	public static URI[] findBundleResources(String manifestHeader) {
 		// Find and select the newest bundles that declare GumTree-Properties
@@ -169,16 +174,15 @@ public final class OsgiUtils {
 		return uriList.toArray(new URI[uriList.size()]);
 	}
 
-	public static void sendOSGiFrameworkEvent(int type, Bundle bundle,
-			Exception e) {
-		AbstractBundle systemBundle = (AbstractBundle) Activator.getContext()
-				.getBundle(0);
-		if (systemBundle != null) {
-			systemBundle.getFramework().publishFrameworkEvent(type, bundle, e);
-		} else {
-			// logger.error("Cannot obtain system bundle for deliever framework event.");
-		}
-	}
+//	public static void sendOSGiFrameworkEvent(int type, Bundle bundle,
+//			Exception e) {
+//		Bundle systemBundle = Activator.getContext().getBundle(0);
+//		if (systemBundle != null) {
+//			systemBundle.getFramework().publishFrameworkEvent(type, bundle, e);
+//		} else {
+//			// logger.error("Cannot obtain system bundle for deliever framework event.");
+//		}
+//	}
 
 	public static void startBundle(String bundleId) throws Exception {
 		startBundle(bundleId, BUNDLE_ACTIVAION_TIME_OUT);

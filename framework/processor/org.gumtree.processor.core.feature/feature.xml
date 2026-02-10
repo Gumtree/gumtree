@@ -2,7 +2,7 @@
 <feature
       id="org.gumtree.processor.core.feature"
       label="Gumtree Processor Core"
-      version="1.13.0.qualifier"
+      version="2.0.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">
@@ -23,77 +23,42 @@
 
    <plugin
          id="au.gov.ansto.bragg.base.common"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="au.gov.ansto.bragg.process"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.gumtree.data.ansto"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="au.gov.ansto.bragg.cicada"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="au.gov.ansto.bragg.cicada.dam"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="au.gov.ansto.bragg.cicada.dra"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="au.gov.ansto.bragg.cicada.dom"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="au.gov.ansto.bragg.datastructures"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="au.gov.ansto.bragg.errorpropagation"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="au.gov.ansto.bragg.freehep.jas3"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.dom4j"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
 </feature>

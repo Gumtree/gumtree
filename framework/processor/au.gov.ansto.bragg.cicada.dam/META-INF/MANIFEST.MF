@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Data Access Manager
 Bundle-SymbolicName: au.gov.ansto.bragg.cicada.dam
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.cicada.dam.internal.Activator
 Bundle-ActivationPolicy: lazy
 Export-Package: au.gov.ansto.bragg.cicada.dam.core;uses:="org.gumtree.data.utils,org.gumtree.data.interfaces",
  au.gov.ansto.bragg.cicada.dam.core.exception
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: org.osgi.framework
 Require-Bundle: au.gov.ansto.bragg.datastructures;visibility:=reexport,
  org.gumtree.data.ansto;visibility:=reexport

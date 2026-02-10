@@ -2,29 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: UCAR NetCDF Patched
 Bundle-SymbolicName: ucar.netcdf
-Bundle-Version: 4.0.48.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: net.jcip.annotations,
- thredds.catalog,
- thredds.catalog.crawl,
- thredds.catalog.dl,
- thredds.catalog.parser.jdom,
- thredds.catalog.query,
- thredds.cataloggen,
- thredds.cataloggen.catalogrefexpander,
- thredds.cataloggen.config,
- thredds.cataloggen.datasetenhancer,
- thredds.cataloggen.inserter,
- thredds.crawlabledataset,
- thredds.crawlabledataset.filter,
- thredds.crawlabledataset.sorter,
- thredds.filesystem,
- thredds.util,
- thredds.wcs,
- thredds.wcs.v1_0_0_1,
- thredds.wcs.v1_0_0_Plus,
- thredds.wcs.v1_1_0,
- ucar.atd.dorade,
+Bundle-Vendor: Unidata
+Bundle-Version: 5.9.1.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Require-Bundle: org.jdom2;bundle-version="2.0.6"
+Bundle-ClassPath: .,
+ classes/
+Eclipse-BundleShape: jar
+Export-Package: ucar.atd.dorade,
  ucar.ma2,
  ucar.nc2,
  ucar.nc2.constants,
@@ -33,17 +18,10 @@ Export-Package: net.jcip.annotations,
  ucar.nc2.dataset.transform,
  ucar.nc2.dods,
  ucar.nc2.dt,
- ucar.nc2.dt.fmr,
- ucar.nc2.dt.fmrc,
  ucar.nc2.dt.grid,
  ucar.nc2.dt.image,
- ucar.nc2.dt.point,
- ucar.nc2.dt.point.decode,
  ucar.nc2.dt.radial,
- ucar.nc2.dt.trajectory,
  ucar.nc2.ft,
- ucar.nc2.ft.coordsys,
- ucar.nc2.ft.grid,
  ucar.nc2.ft.point,
  ucar.nc2.ft.point.collection,
  ucar.nc2.ft.point.remote,
@@ -53,7 +31,6 @@ Export-Package: net.jcip.annotations,
  ucar.nc2.ft.radial,
  ucar.nc2.geotiff,
  ucar.nc2.iosp,
- ucar.nc2.iosp.adde,
  ucar.nc2.iosp.bufr,
  ucar.nc2.iosp.bufr.tables,
  ucar.nc2.iosp.bufr.writer,
@@ -64,7 +41,6 @@ Export-Package: net.jcip.annotations,
  ucar.nc2.iosp.fysat.util,
  ucar.nc2.iosp.gempak,
  ucar.nc2.iosp.gini,
- ucar.nc2.iosp.grib,
  ucar.nc2.iosp.grid,
  ucar.nc2.iosp.hdf4,
  ucar.nc2.iosp.hdf5,
@@ -77,7 +53,6 @@ Export-Package: net.jcip.annotations,
  ucar.nc2.iosp.uf,
  ucar.nc2.ncml,
  ucar.nc2.stream,
- ucar.nc2.thredds,
  ucar.nc2.units,
  ucar.nc2.util,
  ucar.nc2.util.cache,
@@ -91,10 +66,6 @@ Export-Package: net.jcip.annotations,
  ucar.unidata.io.bzip2,
  ucar.unidata.io.http,
  ucar.unidata.util,
- ucar.units
-Require-Bundle: org.jdom;bundle-version="1.1.1",
- org.apache.commons.httpclient;bundle-version="3.1.0";visibility:=reexport
-Bundle-ClassPath: .,
- classes/
-Eclipse-BundleShape: jar
+ ucar.units,
+ com.google.common.collect
 Import-Package: org.slf4j

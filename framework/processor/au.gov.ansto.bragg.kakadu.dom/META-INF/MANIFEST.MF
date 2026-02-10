@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Kakadu Dom
 Bundle-SymbolicName: au.gov.ansto.bragg.kakadu.dom;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.kakadu.dom.Activator
 Bundle-Vendor: Bragg Institute
 Require-Bundle: au.gov.ansto.bragg.kakadu.ui;visibility:=reexport
 Bundle-ActivationPolicy: lazy
 Export-Package: au.gov.ansto.bragg.kakadu.dom
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: jar

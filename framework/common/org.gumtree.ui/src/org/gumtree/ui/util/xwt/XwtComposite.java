@@ -2,12 +2,12 @@ package org.gumtree.ui.util.xwt;
 
 import java.net.URL;
 
-import org.eclipse.e4.xwt.XWT;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.xwt.XWT;
 import org.gumtree.core.object.IConfigurable;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.widgets.swt.ExtendedComposite;

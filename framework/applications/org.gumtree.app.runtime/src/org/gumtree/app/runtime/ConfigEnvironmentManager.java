@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -24,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,6 +103,49 @@ public class ConfigEnvironmentManager implements IConfigEnvironmentManager {
 		return properties;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.gumtree.runtime.config.IConfigEnvironmentManager#resolveProperties(java.util.Properties)
+	 */
+	public Properties resolveConfigs(PropertiesConfiguration config) {
+		Map<String, List<ConfigEnvProperty>> buffer = new HashMap<String, List<ConfigEnvProperty>>();
+		Iterator<String> keys = config.getKeys();
+		while (keys.hasNext()) {
+			String key = keys.next();
+			// Take away "[", "]" and "@"
+			String[] tokens = key.split("[\\[\\]\\@]");
+
+			// Create new property holder
+			ConfigEnvProperty configEnvProperty = new ConfigEnvProperty();
+			configEnvProperty.key = tokens[0];
+			configEnvProperty.value = config.getString(key);
+
+			// Token patterns:
+			// xx(index:0)[xx(index:1)@xx(index:2)](index:3)[xx(index:4)@xx(index:5)]...
+			boolean skip = false;
+			for (int i = 1; i < tokens.length; i += 3) {
+				// Don't bother if the config env is not currently specified in
+				// the System property
+				if (!configEnvironments.containsKey(tokens[i])) {
+					skip = true;
+					break;
+				}
+				configEnvProperty.configEnv.put(tokens[i],
+						Arrays.asList(tokens[i + 1].split(",")));
+			}
+			if (skip) {
+				continue;
+			}
+
+			// Store result into buffer
+			if (!buffer.containsKey(configEnvProperty.key)) {
+				buffer.put(configEnvProperty.key,
+						new ArrayList<ConfigEnvProperty>(2));
+			}
+			buffer.get(configEnvProperty.key).add(configEnvProperty);
+		}
+		return resolveProperties(buffer);
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.gumtree.runtime.config.IConfigEnvironmentManager#resolveProperties(java.util.Properties)
 	 */

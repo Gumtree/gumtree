@@ -56,12 +56,22 @@ public final class WorkbenchUtils {
 	}
 
 	public static IEclipseContext getWorkbenchContext() {
-		E4Processor processor = Activator.getDefault().getEclipseContext()
-				.get(E4Processor.class);
-		if (processor != null) {
-			return processor.getEclipseContext();
-		}
-		return null;
+//		E4Processor processor = Activator.getDefault().getEclipseContext()
+//				.get(E4Processor.class);
+//		if (processor != null) {
+//			return processor.getEclipseContext();
+//		}
+//		return null;
+		if (PlatformUI.isWorkbenchRunning()) {
+	        MApplication app = (MApplication) PlatformUI.getWorkbench().getService(MApplication.class);
+	        if (app != null) {
+	            IEclipseContext context = app.getContext();
+	            if (context != null) {
+	                return context;
+	            }
+	        }
+	    }
+	    return null;
 	}
 
 	public static IWorkbenchWindow openEmptyWorkbenchWindow()

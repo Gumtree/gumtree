@@ -13,7 +13,7 @@ public class JmxRestletApplication extends Application {
 	}
 
 	@Override
-	public Restlet createRoot() {
+	public Restlet createInboundRoot() {
 		// Create a router Restlet that routes each call to a
 		Router router = new Router(getContext());
 

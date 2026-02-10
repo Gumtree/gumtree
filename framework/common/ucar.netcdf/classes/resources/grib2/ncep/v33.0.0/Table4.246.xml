@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<codeTable>
+  <table>Table 4.246</table>
+  <title>Thunderstorm Intensity</title>
+  <source>https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-246.shtml</source>
+  <parameter code="0">
+    <description>No thunderstorm occurrence</description>
+  </parameter>
+  <parameter code="1">
+    <description>Weak thunderstorm</description>
+  </parameter>
+  <parameter code="2">
+    <description>Moderate thunderstorm</description>
+  </parameter>
+  <parameter code="3">
+    <description>Severe thunderstorm</description>
+  </parameter>
+  <parameter code="255">
+    <description>Missing</description>
+  </parameter>
+</codeTable>

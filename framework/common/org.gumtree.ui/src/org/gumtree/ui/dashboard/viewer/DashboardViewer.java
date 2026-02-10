@@ -6,8 +6,6 @@ import java.beans.Statement;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map.Entry;
 
-import net.miginfocom.swt.MigLayout;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
@@ -30,6 +28,8 @@ import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.forms.FormControlWidget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.miginfocom.swt.MigLayout;
 
 public class DashboardViewer extends FormControlWidget implements IDashboardViewer {
 

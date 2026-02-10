@@ -54,6 +54,7 @@ import org.eclipse.swt.accessibility.AccessibleAdapter;
 import org.eclipse.swt.accessibility.AccessibleControlAdapter;
 import org.eclipse.swt.accessibility.AccessibleControlEvent;
 import org.eclipse.swt.accessibility.AccessibleEvent;
+import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
@@ -61,6 +62,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.MouseTrackListener;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
@@ -76,7 +78,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tracker;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.internal.DragCursors;
 import org.gumtree.workflow.ui.internal.Activator;
 import org.gumtree.workflow.ui.internal.SharedCursors;
 
@@ -810,21 +811,22 @@ private class TitleDragManager
 									Display.getCurrent().map(flyout, null, placeHolder);
 						}
 						// update the cursor
-						int cursor;
+//						int cursor;
+						Cursor cursor;
 						if (invalid)
-							cursor = DragCursors.INVALID;
+							cursor = Display.getCurrent().getSystemCursor(DND.ERROR_CANNOT_INIT_DRAG);
 						else if ((!switchDock && dock == PositionConstants.EAST)
 								|| (switchDock && dock == PositionConstants.WEST))
-							cursor = DragCursors.RIGHT;
+							cursor = Display.getCurrent().getSystemCursor(DND.DragEnter);
 						else
-							cursor = DragCursors.LEFT;
+							cursor = Display.getCurrent().getSystemCursor(DND.DragLeave);
 						if (isMirrored()) {
-							if (cursor == DragCursors.RIGHT)
-								cursor = DragCursors.LEFT;
-							else if (cursor == DragCursors.LEFT)
-								cursor = DragCursors.RIGHT;
+							if (cursor.equals(Display.getCurrent().getSystemCursor(DND.DragEnter)))
+								cursor = Display.getCurrent().getSystemCursor(DND.DragLeave);
+							else if (cursor.equals(Display.getCurrent().getSystemCursor(DND.DragLeave)))
+								cursor = Display.getCurrent().getSystemCursor(DND.DragEnter);
 						}
-						tracker.setCursor(DragCursors.getCursor(cursor));
+						tracker.setCursor(cursor);
 						// update the rectangle only if it has changed
 						if (!tracker.getRectangles()[0].equals(placeHolder))
 							tracker.setRectangles(new Rectangle[] {placeHolder});

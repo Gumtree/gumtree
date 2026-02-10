@@ -34,15 +34,15 @@
 
 package de.huxhorn.lilith.logback.encoder;
 
-import ch.qos.logback.classic.spi.LoggingEvent;
-import ch.qos.logback.core.recovery.ResilientFileOutputStream;
-import de.huxhorn.lilith.api.FileConstants;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+
+import ch.qos.logback.classic.spi.LoggingEvent;
+import de.huxhorn.lilith.api.FileConstants;
+import de.huxhorn.sulky.codec.filebuffer.DefaultFileHeaderStrategy;
+import de.huxhorn.sulky.codec.filebuffer.MetaData;
+import de.huxhorn.sulky.codec.filebuffer.MetaDataCodec;
 
 public class ClassicLilithEncoder
 	extends LilithEncoderBase<LoggingEvent>
@@ -67,28 +67,20 @@ public class ClassicLilithEncoder
 	}
 
 	@Override
-	public void init(OutputStream os) throws IOException
-	{
-		super.init(os);
-		if(os instanceof ResilientFileOutputStream)
-		{
-			ResilientFileOutputStream rfos = (ResilientFileOutputStream) os;
-			File file = rfos.getFile();
-			if(file.length() == 0)
-			{
-				// write header
-				Map<String, String> metaDataMap = new HashMap<String, String>();
-				metaDataMap.put(FileConstants.CONTENT_TYPE_KEY, FileConstants.CONTENT_TYPE_VALUE_LOGGING);
-				metaDataMap.put(FileConstants.CONTENT_FORMAT_KEY, FileConstants.CONTENT_FORMAT_VALUE_PROTOBUF);
-				metaDataMap.put(FileConstants.COMPRESSION_KEY, FileConstants.COMPRESSION_VALUE_GZIP);
-				writeHeader(metaDataMap);
-			}
-		}
-		else
-		{
-			throw new IOException("OutputStream wasn't instanceof ResilientFileOutputStream! "+os);
-		}
-		wrappingEncoder.reset();
+	public byte[] headerBytes() {
+		Map<String, String> metaDataMap = new HashMap<String, String>();
+		metaDataMap.put(FileConstants.CONTENT_TYPE_KEY, FileConstants.CONTENT_TYPE_VALUE_LOGGING);
+		metaDataMap.put(FileConstants.CONTENT_FORMAT_KEY, FileConstants.CONTENT_FORMAT_VALUE_PROTOBUF);
+		metaDataMap.put(FileConstants.COMPRESSION_KEY, FileConstants.COMPRESSION_VALUE_GZIP);
+		MetaDataCodec metaCodec = new MetaDataCodec();
+		MetaData metaData = new MetaData(metaDataMap, false);
+		byte[] buffer = metaCodec.encode(metaData);
+		ByteBuffer byteBuffer = ByteBuffer.allocate(buffer.length + 12);
+		byteBuffer.putInt(DefaultFileHeaderStrategy.CODEC_FILE_HEADER_MAGIC_VALUE);
+		byteBuffer.putInt(FileConstants.MAGIC_VALUE);
+		byteBuffer.putInt(buffer.length);
+		byteBuffer.put(buffer);
+		return byteBuffer.array();
 	}
 
 	@Override
@@ -102,4 +94,17 @@ public class ClassicLilithEncoder
 			}
 		}
 	}
+
+	@Override
+	public byte[] encode(LoggingEvent arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public byte[] footerBytes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -1,6 +1,6 @@
 package org.gumtree.ui.util.xwt;
 
-import org.eclipse.e4.xwt.DefaultLoadingContext;
+import org.eclipse.xwt.DefaultLoadingContext;
 import org.gumtree.core.object.ObjectFactory;
 
 public class LoadingContext extends DefaultLoadingContext {

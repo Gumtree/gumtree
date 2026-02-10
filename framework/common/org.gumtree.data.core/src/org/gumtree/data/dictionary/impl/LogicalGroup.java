@@ -7,7 +7,7 @@
  * 
  * Contributors: 
  *     Norman XIONG (Bragg Institute) - initial API and implementation
- *     Clément RODRIGUEZ (SOLEIL) - initial API and implementation
+ *     Clï¿½ment RODRIGUEZ (SOLEIL) - initial API and implementation
  *     Tony LAM (Bragg Institute) - implementation
  ******************************************************************************/
 
@@ -355,8 +355,9 @@ public class LogicalGroup implements ILogicalGroup, Cloneable {
     }
 
     @Override
-    public void setName(String name) {
+    public String setName(String name) {
         new NotImplementedException().printStackTrace();
+        return null;
     }
 
     @Override

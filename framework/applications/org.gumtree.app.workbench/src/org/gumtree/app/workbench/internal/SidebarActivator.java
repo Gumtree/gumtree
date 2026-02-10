@@ -25,6 +25,7 @@ import org.osgi.service.event.Event;
 public class SidebarActivator implements IStartup {
 
 	private static final String SIDEBAR_RATIO = "gumtree.cruise.widthRatio";
+	private static final String SIDEBAR_ID = "gumtree.cruise.sidebarPart";
 	private static final String DEFAULT_SIDEBAR_RATIO = "8500:1500";
 	private String ratioLeft;
 	private String ratioRight;
@@ -132,6 +133,7 @@ public class SidebarActivator implements IStartup {
 				(MPartSashContainerElement) originalContainer);
 		// Create cruise panel
 		MPart part = MBasicFactory.INSTANCE.createPart();
+		part.setElementId(SIDEBAR_ID);
 		part.setLabel("Sidebar");
 		part.setContributionURI(SystemProperties.SIDEBAR_PART_URI.getValue());
 		part.getProperties().put("type", "sidebar");

@@ -36,10 +36,6 @@
                value="1,280,573,15">
          </property>
          <property
-               name="preferenceCustomization"
-               value="plugin_customization.ini">
-         </property>
-         <property
                name="aboutImage"
                value="platform:/plugin/org.gumtree.app.runtime/images/earth.png">
          </property>
@@ -49,7 +45,11 @@
          </property>
          <property
                name="aboutText"
-               value="Gumtree&#x0A;&#x0A;(c) Copyright Bragg Institute and others 2012.  All rights reserved.&#x0A;Visit http://gumtree.codehaus.org/&#x0A;&#x0A;This product includes software developed by the&#x0A;Eclipse Foundation http://www.eclipse.org/">
+               value="Gumtree&#x0A;&#x0A;(c) Copyright ANSTO and others 2016.  All rights reserved.&#x0A;Visit https://github.com/Gumtree/gumtree&#x0A;&#x0A;This product includes software developed by the&#x0A;Eclipse Foundation http://www.eclipse.org/">
+         </property>
+         <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
          </property>
       </product>
    </extension>

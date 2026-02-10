@@ -246,7 +246,7 @@ public class IDEWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		// show the shortcut bar and progress indicator, which are hidden by
 		// default
 		configurer.setShowPerspectiveBar(true);
-		configurer.setShowFastViewBars(true);
+//		configurer.setShowFastViewBars(true);
 		configurer.setShowProgressIndicator(true);
 
 		// add the drag and drop support for the editor area
@@ -379,7 +379,10 @@ public class IDEWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 			if (activeEditor != null) {
 				lastEditorTitle = activeEditor.getTitleToolTip();
 				title = NLS.bind(
-						IDEWorkbenchMessages.WorkbenchWindow_shellTitle,
+//						IDEWorkbenchMessages.WorkbenchWindow_shellTitle,
+						Platform.getProduct() != null ?
+								Platform.getProduct().getName() :
+									"Gumtree Workbench", 
 						lastEditorTitle, title);
 			}
 			IPerspectiveDescriptor persp = currentPage.getPerspective();
@@ -393,14 +396,18 @@ public class IDEWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 			}
 			if (label != null && !label.equals("")) { //$NON-NLS-1$
 				title = NLS.bind(
-						IDEWorkbenchMessages.WorkbenchWindow_shellTitle, label,
+						Platform.getProduct() != null ?
+								Platform.getProduct().getName() :
+									"Gumtree Workbench", 
 						title);
 			}
 		}
 
 		String workspaceLocation = wbAdvisor.getWorkspaceLocation();
 		if (workspaceLocation != null) {
-			title = NLS.bind(IDEWorkbenchMessages.WorkbenchWindow_shellTitle,
+			title = NLS.bind(Platform.getProduct() != null ?
+					Platform.getProduct().getName() :
+						"Gumtree Workbench", 
 					title, workspaceLocation);
 		}
 		
@@ -409,7 +416,9 @@ public class IDEWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 				.getPreferenceStore().getString(
 						IDEInternalPreferences.WORKSPACE_NAME);
 		if (workspaceName != null && workspaceName.length() > 0) {
-			title = NLS.bind(IDEWorkbenchMessages.WorkbenchWindow_shellTitle,
+			title = NLS.bind(Platform.getProduct() != null ?
+					Platform.getProduct().getName() :
+						"Gumtree Workbench", 
 					workspaceName, title);
 		}
 

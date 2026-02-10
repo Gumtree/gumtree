@@ -63,7 +63,7 @@ public class NcRegionSet extends NcGroup implements RegionSet {
 	 */
 	public List<Region> getRegionList() {
 		List<Region> regionList = new ArrayList<Region>();
-		for (Iterator<?> iterator = getGroups().iterator(); iterator.hasNext();) {
+		for (Iterator<?> iterator = groups.iterator(); iterator.hasNext();) {
 			IGroup group = (IGroup) iterator.next();
 			if (group instanceof Region) {
 				regionList.add((Region) group);

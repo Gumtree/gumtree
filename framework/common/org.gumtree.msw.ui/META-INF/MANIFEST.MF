@@ -2,11 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Msw-Ui
 Bundle-SymbolicName: org.gumtree.msw.ui
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.gumtree.msw.ui.internal.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.databinding,
+ org.eclipse.core.databinding.property,
  org.eclipse.core.databinding.observable,
  org.eclipse.jface.databinding,
  org.gumtree.msw,
@@ -15,7 +16,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources,
  org.gumtree.msw.ui.ktable;bundle-version="2.2.0",
  org.apache.commons.io
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: org.gumtree.msw.ui;
   uses:="org.eclipse.core.databinding,

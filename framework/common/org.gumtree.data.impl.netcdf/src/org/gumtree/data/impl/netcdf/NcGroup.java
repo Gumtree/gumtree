@@ -92,8 +92,7 @@ public class NcGroup extends ucar.nc2.Group implements IGroup {
 			final String shortName, final boolean updateParent) {
 		super(dataset == null ? null : dataset.getNetcdfDataset(), parent,
 				shortName);
-		if (updateParent && parent != null
-				&& !parent.getGroups().contains(this)) {
+		if (updateParent && parent != null) {
 			insertGroup(parent, shortName);
 		}
 		this.dataset = dataset;
@@ -130,10 +129,10 @@ public class NcGroup extends ucar.nc2.Group implements IGroup {
 		}
 		for (Attribute a : from.getAttributes()) {
 			NcAttribute attribute = new NcAttribute(a);
-			attributes.add(attribute);
+			attributes.addAttribute(attribute);
 		}
 		if (from.isRoot()) {
-			this.parent = null;
+			this.setParent(null);
 		}
 	}
 
@@ -161,7 +160,7 @@ public class NcGroup extends ucar.nc2.Group implements IGroup {
 			addAttribute(new NcAttribute((NcAttribute) attribute));
 		}
 		if (isRoot()) {
-			this.parent = null;
+			this.setParent(null);
 		}
 	}
 
@@ -678,11 +677,12 @@ public class NcGroup extends ucar.nc2.Group implements IGroup {
 
 	@Override
 	public NcGroup getParentGroup() {
-		if (parent == null) {
+		Group parentGroup = super.getParentGroup();
+		if (parentGroup == null) {
 			return null;
 		}
-		if (parent instanceof NcGroup) {
-			return (NcGroup) parent;
+		if (parentGroup instanceof NcGroup) {
+			return (NcGroup) parentGroup;
 		} else {
 			return null;
 		}
@@ -753,7 +753,7 @@ public class NcGroup extends ucar.nc2.Group implements IGroup {
 		if (isRoot()) {
 			return false;
 		}
-		return parent.isRoot();
+		return getParentGroup().isRoot();
 	}
 
 	/**

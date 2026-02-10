@@ -19,7 +19,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.custom.TableTree;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.ImageData;
@@ -399,8 +398,8 @@ public final class Util extends au.gov.ansto.bragg.kakadu.core.Util {
 			extent = ((Table) w).getItemHeight() - 1;
 		} else if (w instanceof Tree) {
 			extent = ((Tree) w).getItemHeight() - 1;
-		} else if (w instanceof TableTree) {
-			extent = ((TableTree) w).getItemHeight() - 1;
+		} else if (w instanceof org.eclipse.swt.widgets.Tree) {
+			extent = ((org.eclipse.swt.widgets.Tree) w).getItemHeight() - 1;
 		}
 
         if (size > extent) {

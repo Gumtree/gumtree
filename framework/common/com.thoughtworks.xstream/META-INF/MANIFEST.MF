@@ -31,7 +31,7 @@ Export-Package: com.thoughtworks.xstream,
  org.kxml2.wap.wml,
  org.kxml2.wap.wv,
  org.xmlpull.v1
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: jar
 Bundle-Vendor: Codehaus
 Eclipse-BuddyPolicy: global

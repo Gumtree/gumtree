@@ -3,10 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree Framework Core
 Bundle-Vendor: Bragg Institute
 Bundle-SymbolicName: org.gumtree.core;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.gumtree.core.internal.Activator
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: org.gumtree.core,
  org.gumtree.core.management,
  org.gumtree.core.object,
@@ -14,8 +14,6 @@ Export-Package: org.gumtree.core,
  org.gumtree.scripting,
  org.gumtree.scripting.support,
  org.gumtree.security,
- org.gumtree.service.actorsystem,
- org.gumtree.service.actorsystem.support,
  org.gumtree.service.cli,
  org.gumtree.service.cli.support,
  org.gumtree.service.dataaccess,
@@ -37,7 +35,6 @@ Export-Package: org.gumtree.core,
  org.gumtree.service.preferences,
  org.gumtree.service.preferences.support,
  org.gumtree.util,
- org.gumtree.util.akka,
  org.gumtree.util.bean,
  org.gumtree.util.collection,
  org.gumtree.util.eclipse,
@@ -45,31 +42,26 @@ Export-Package: org.gumtree.core,
  org.gumtree.util.messaging,
  org.gumtree.util.string,
  org.gumtree.util.xml,
- org.gumtree.workflow,
- org.gumtree.workflow.model,
- org.gumtree.workflow.support,
- org.gumtree.workflow.tasks
+ org.gumtree.workflow.model
 Import-Package: javax.mail.internet;version="1.4.0";resolution:=optional,
  org.apache.commons.codec.binary;version="1.3.0";resolution:=optional
-Require-Bundle: org.slf4j.api;bundle-version="1.6.4";visibility:=reexport,
+Require-Bundle: slf4j.api;bundle-version="2.0.17";visibility:=reexport,
  javax.inject;bundle-version="1.0.0";visibility:=reexport,
  javax.annotation;bundle-version="1.0.0";visibility:=reexport,
- org.eclipse.osgi.services;bundle-version="3.3.0";visibility:=reexport,
  org.eclipse.e4.core.di;bundle-version="1.0.0";visibility:=reexport,
  org.eclipse.e4.core.contexts;bundle-version="1.0.0";visibility:=reexport,
  org.eclipse.e4.core.services;bundle-version="0.10.0";visibility:=reexport,
  org.eclipse.core.filesystem;bundle-version="1.3.100";visibility:=reexport,
  org.eclipse.core.runtime;bundle-version="3.7.0";visibility:=reexport,
+ org.osgi.service.event;bundle-version="1.4.1";visibility:=reexport,
  com.db4o.osgi;bundle-version="8.0.184";resolution:=optional,
  com.google.guava;bundle-version="11.0.1";resolution:=optional,
  com.thoughtworks.xstream;bundle-version="1.4.2";resolution:=optional,
- org.eclipse.core.resources;bundle-version="3.7.100";resolution:=optional,
- org.eclipse.core.net;bundle-version="1.2.100";resolution:=optional,
- org.apache.commons.httpclient;bundle-version="3.1.0";resolution:=optional,
+ org.eclipse.core.resources;bundle-version="3.22.200";resolution:=optional,
+ org.eclipse.core.net;bundle-version="1.5.700";resolution:=optional,
  org.gumtree.data.core;bundle-version="1.8.0";resolution:=optional,
- akka.remote;bundle-version="2.0.3";resolution:=optional,
- akka.slf4j;bundle-version="2.0.3";resolution:=optional,
  com.google.gson;bundle-version="2.2.0";resolution:=optional,
  com.itext.pdf;bundle-version="5.5.6";resolution:=optional;visibility:=reexport,
- org.json;bundle-version="1.0.0"
+ json;bundle-version="20250517.0.0",
+ org.apache.commons.httpclient;bundle-version="3.1.0"
 Eclipse-BuddyPolicy: global

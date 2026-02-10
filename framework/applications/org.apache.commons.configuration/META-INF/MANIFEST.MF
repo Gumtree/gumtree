@@ -14,7 +14,7 @@ Export-Package: org.apache.commons.configuration,
  org.apache.commons.configuration.tree,
  org.apache.commons.configuration.tree.xpath,
  org.apache.commons.configuration.web
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: javax.naming;resolution:=optional,
  javax.servlet;resolution:=optional,
  javax.sql;resolution:=optional,

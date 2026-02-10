@@ -30,6 +30,7 @@ import org.gumtree.data.utils.Utilities.ModelType;
 import ucar.ma2.DataType;
 import ucar.ma2.Range;
 import ucar.nc2.Attribute;
+import ucar.nc2.AttributeContainerMutable;
 import ucar.nc2.Dimension;
 import ucar.nc2.Variable;
 import ucar.nc2.dataset.NetcdfDataset;
@@ -56,14 +57,14 @@ public class NcDataItem extends VariableDS implements IDataItem {
 	 *            Netcdf Variable
 	 */
 	public NcDataItem(final VariableDS from) {
-		super(from);
-		Cache oldCache = cache;
-		cache = new Cache();
-		cache.cachingSet = oldCache.cachingSet;
-		cache.data = oldCache.data;
-		// make it caching all the time
-//		cache.isCaching = oldCache.isCaching;
-		cache.isCaching = true;
+		super(from, true);
+//		Cache oldCache = cache;
+//		cache = from.
+//		cache.cachingSet = oldCache.cachingSet;
+//		cache.data = oldCache.data;
+//		// make it caching all the time
+////		cache.isCaching = oldCache.isCaching;
+//		cache.isCaching = true;
 		// setCaching(true);
 		if (!(from instanceof NcDataItem)) {
 			ArrayList<Attribute> newAttributes = new ArrayList<Attribute>();
@@ -78,7 +79,7 @@ public class NcDataItem extends VariableDS implements IDataItem {
 				newDimensions.add(new NcDimension(dimension.getName(),
 						dimension));
 			}
-			attributes = newAttributes;
+			attributes = new AttributeContainerMutable("attributes", newAttributes);
 			dimensions = newDimensions;
 		}
 	}
@@ -98,7 +99,7 @@ public class NcDataItem extends VariableDS implements IDataItem {
 	public NcDataItem(final NcGroup group, final String shortName,
 			final IArray array) throws InvalidArrayTypeException {
 		super(null, group, null, shortName, DataType.getType(array
-				.getElementType()), null, null, null);
+				.getElementType(), ((NcArray) array).getArray().isUnsigned()), null, null, null);
 		// group.insertVariable(this);
 		setDataType(array.getElementType());
 		setCachedData(array, true);
@@ -124,7 +125,7 @@ public class NcDataItem extends VariableDS implements IDataItem {
 			final String shortName, final IArray array)
 			throws InvalidArrayTypeException {
 		super((NetcdfDataset) ncDataset.getNetcdfDataset(), group, null,
-				shortName, DataType.getType(array.getElementType()), null,
+				shortName, DataType.getType(array.getElementType(), ((NcArray) array).getArray().isUnsigned()), null,
 				null, null);
 		setDataType(array.getElementType());
 		// group.insertVariable(this);
@@ -171,15 +172,16 @@ public class NcDataItem extends VariableDS implements IDataItem {
 	 */
 	@Override
 	protected ucar.ma2.Array _read() throws IOException {
-		if (cache != null && cache.data != null) {
-			if (debugCaching) {
-				System.out.println("got data from cache " + getName());
-			}
-			return cache.data;
-		} else {
-			setCachedData(super._read(), false);
-			return cache.data;
-		}
+//		if (cache != null && cache.data != null) {
+//			if (debugCaching) {
+//				System.out.println("got data from cache " + getName());
+//			}
+//			return cache.data;
+//		} else {
+//			setCachedData(super._read(), false);
+//			return cache.data;
+//		}
+		return super._read();
 	}
 
 	@Override
@@ -257,12 +259,12 @@ public class NcDataItem extends VariableDS implements IDataItem {
 
 	@Override
 	public void setDataType(final Class<?> dataType) {
-		super.setDataType(ucar.ma2.DataType.getType(dataType));
+		super.setDataType(ucar.ma2.DataType.getType(dataType, false));
 	}
 
 	@Override
 	public Class<?> getType() {
-		return getDataType().getClassType();
+		return getDataType().getPrimitiveClassType();
 	}
 
 	@Override
@@ -489,6 +491,17 @@ public class NcDataItem extends VariableDS implements IDataItem {
 	@Override
 	public String getFactoryName() {
 		return NcFactory.NAME;
+	}
+
+	@Override
+	public boolean isUnsigned() {
+		return getDataType().isUnsigned();
+	}
+
+	@Override
+	public String writeCDL(String indent, boolean useFullName, boolean strict) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

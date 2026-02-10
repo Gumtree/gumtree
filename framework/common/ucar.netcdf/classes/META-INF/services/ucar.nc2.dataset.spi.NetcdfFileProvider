@@ -1,0 +1,5 @@
+dap4.dap4lib.cdm.nc2.DapNetcdfFileProvider
+ucar.nc2.dods.DODSNetcdfFileProvider
+thredds.client.catalog.tools.CatalogNetcdfFileProvider
+ucar.nc2.internal.ncml.NcmlNetcdfFileProvider
+ucar.nc2.stream.CdmRemoteNetcdfFileProvider

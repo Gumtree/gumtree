@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Cicada DOM
 Bundle-SymbolicName: au.gov.ansto.bragg.cicada.dom;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.cicada.dom.internal.Activator
 Require-Bundle: au.gov.ansto.bragg.cicada;visibility:=reexport
 Bundle-ActivationPolicy: lazy
 Export-Package: au.gov.ansto.bragg.cicada.dom.core
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: org.osgi.framework;version="1.5.0"
 Eclipse-BundleShape: jar
 Bundle-Vendor: Bragg Institute

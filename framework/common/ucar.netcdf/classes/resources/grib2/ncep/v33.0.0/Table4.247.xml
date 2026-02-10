@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<codeTable>
+  <table>Table 4.247</table>
+  <title>Precipitation Intensity</title>
+  <source>https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-247.shtml</source>
+  <parameter code="0">
+    <description>No precipitation occurrence</description>
+  </parameter>
+  <parameter code="1">
+    <description>Light precipitation</description>
+  </parameter>
+  <parameter code="2">
+    <description>Moderate precipitation</description>
+  </parameter>
+  <parameter code="3">
+    <description>Heavy precipitation</description>
+  </parameter>
+  <parameter code="255">
+    <description>Missing</description>
+  </parameter>
+</codeTable>

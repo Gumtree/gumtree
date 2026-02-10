@@ -24,7 +24,6 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.db4o.foundation.ObjectByRef;
 import com.google.common.base.Objects;
 
 public class ServiceManager implements IServiceManager {

@@ -1,12 +1,13 @@
 package org.gumtree.app.workbench.cruise;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -20,17 +21,17 @@ import org.gumtree.service.httpclient.IHttpClient;
 import org.gumtree.service.httpclient.IHttpClientFactory;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 import org.gumtree.ui.util.SafeUIRunner;
-import org.gumtree.util.xml.XMLUtils;
 import org.gumtree.widgets.swt.util.UIResources;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 public class WeatherCruiseWidget extends AbstractCruisePageWidget {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(WeatherCruiseWidget.class);
+	private static final Logger logger = LoggerFactory.getLogger(WeatherCruiseWidget.class);
+
+	// The old Google Weather API is defunct. Switched to wttr.in for a working alternative.
+	private static final String WEATHER_API_URL = "https://wttr.in/Sydney?format=j1";
 
 	private IHttpClientFactory httpClientFactory;
 
@@ -50,8 +51,7 @@ public class WeatherCruiseWidget extends AbstractCruisePageWidget {
 		// Icon
 		context.weatherIconLabel = getWidgetFactory().createLabel(this, "");
 		context.weatherIconLabel.setFont(UIResources.getDefaultFont(SWT.BOLD));
-		GridDataFactory.swtDefaults().span(1, 2)
-				.applyTo(context.weatherIconLabel);
+		GridDataFactory.swtDefaults().span(1, 2).applyTo(context.weatherIconLabel);
 
 		// Temperature
 		context.temperatureLabel = getWidgetFactory().createLabel(this, "-- C");
@@ -61,46 +61,49 @@ public class WeatherCruiseWidget extends AbstractCruisePageWidget {
 		context.locationLabel = getWidgetFactory().createLabel(this, "Sydney");
 
 		httpClient = getHttpClientFactory().createHttpClient();
-		httpClient.performGet(
-				URI.create("http://www.google.com/ig/api?weather=Sydney"),
-				new HttpClientAdapter() {
-					@Override
-					public void handleResponse(InputStream in) {
-						handleData(in);
-					}
-				});
+		httpClient.performGet(URI.create(WEATHER_API_URL), new HttpClientAdapter() {
+			@Override
+			public void handleResponse(InputStream in) {
+				handleData(in);
+			}
+		});
 	}
 
 	private void handleData(InputStream in) {
 		try {
-			DocumentBuilder builder = DocumentBuilderFactory.newInstance()
-					.newDocumentBuilder();
-			Document document = builder.parse(in);
-			Node weatherNode = document.getFirstChild().getFirstChild();
-			Node currentConditionNode = XMLUtils.getFirstChild(weatherNode,
-					"current_conditions");
-			Node temperatureNode = XMLUtils.getFirstChild(currentConditionNode,
-					"temp_c");
-			final String temperature = XMLUtils.getAttribute(temperatureNode,
-					"data");
+			// Read InputStream into a String
+			StringBuilder textBuilder = new StringBuilder();
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
+				int c;
+				while ((c = reader.read()) != -1) {
+					textBuilder.append((char) c);
+				}
+			}
+			String jsonString = textBuilder.toString();
+
+			// Parse the JSON response
+			JSONObject json = new JSONObject(jsonString);
+			JSONObject currentCondition = json.getJSONArray("current_condition").getJSONObject(0);
+
+			// Extract temperature
+			final String temperature = currentCondition.getString("temp_C");
 			SafeUIRunner.asyncExec(new SafeRunnable() {
 				@Override
 				public void run() throws Exception {
 					context.temperatureLabel.setText(temperature + " C");
 				}
 			});
-			Node iconNode = XMLUtils
-					.getFirstChild(currentConditionNode, "icon");
-			String icon = "http://www.google.com"
-					+ XMLUtils.getAttribute(iconNode, "data");
-			httpClient.performGet(URI.create(icon), new HttpClientAdapter() {
+
+			// Extract icon URL and fetch the image
+			String iconUrl = currentCondition.getJSONArray("weatherIconUrl").getJSONObject(0).getString("value");
+			httpClient.performGet(URI.create(iconUrl), new HttpClientAdapter() {
 				@Override
 				public void handleResponse(InputStream in) {
 					handleIcon(in);
 				}
 			});
 		} catch (Exception e) {
-			logger.error("Failed to parse weather data", e);
+			logger.error("Failed to parse weather JSON data", e);
 		}
 	}
 
@@ -108,6 +111,9 @@ public class WeatherCruiseWidget extends AbstractCruisePageWidget {
 		SafeUIRunner.asyncExec(new SafeRunnable() {
 			@Override
 			public void run() throws Exception {
+				if (isDisposed()) {
+					return;
+				}
 				if (context.icon != null) {
 					context.icon.dispose();
 				}

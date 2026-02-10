@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<codeTable>
+  <table>Table 4.249</table>
+  <title>Character of Precipitation</title>
+  <source>https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-249.shtml</source>
+  <parameter code="0">
+    <description>None</description>
+  </parameter>
+  <parameter code="1">
+    <description>Showers</description>
+  </parameter>
+  <parameter code="2">
+    <description>Intermittent</description>
+  </parameter>
+  <parameter code="3">
+    <description>Continuous</description>
+  </parameter>
+  <parameter code="255">
+    <description>Missing</description>
+  </parameter>
+</codeTable>

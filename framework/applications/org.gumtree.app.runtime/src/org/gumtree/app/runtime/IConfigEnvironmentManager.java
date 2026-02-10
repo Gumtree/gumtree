@@ -15,6 +15,8 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.configuration2.PropertiesConfiguration;
+
 /**
  * A config environment manager loads properties based current config
  * environment.
@@ -67,4 +69,14 @@ public interface IConfigEnvironmentManager {
 	 */
 	public Properties resolveProperties(Properties props);
 
+	/**
+	 * Resolves a given properties according to the config environment and
+	 * returns a new properties.
+	 * 
+	 * @param config
+	 *            PropertiesConfiguration object to resolve
+	 * @return new properties object
+	 */
+	public Properties resolveConfigs(PropertiesConfiguration config);
+	
 }

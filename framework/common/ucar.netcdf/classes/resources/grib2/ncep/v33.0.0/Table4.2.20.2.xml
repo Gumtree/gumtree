@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parameterMap>
+  <table>Table4.2.20.2</table>
+  <title>Socioeconomic Indicators</title>
+  <source>https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2-20-2.shtml</source>
+  <parameter code="0">
+    <shortName>POPDEN</shortName>
+    <description>Population Density</description>
+    <units>Person m-2</units>
+  </parameter>
+</parameterMap>

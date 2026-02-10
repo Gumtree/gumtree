@@ -10,7 +10,8 @@
 *******************************************************************************/
 package au.gov.ansto.bragg.process.factory;
 
-import org.dom4j.Document;
+
+import org.jdom2.Document;
 
 import au.gov.ansto.bragg.process.configuration.FrameworkConfiguration;
 import au.gov.ansto.bragg.process.exception.ProcessorChainException;
@@ -63,7 +64,7 @@ public class ProcessorFactory {
 		try {
 			frameworkConfiguration = ConfigurationFactory.createConfiguration(file);
 		} catch (Exception e) {
-			throw new ProcessorChainException("failed to read from the recipe file " + file.getName() + 
+			throw new ProcessorChainException("failed to read from the recipe file " + file.getBaseURI() + 
 					": " + e.getMessage(), e);
 		} 
 		frameworkHandle = new Framework_(frameworkConfiguration);

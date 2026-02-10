@@ -17,9 +17,10 @@ import java.io.IOException;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -115,12 +116,12 @@ public class TextFileReaderTask extends AbstractTask {
 				}
 			});
 			// Data binding
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
 					bindingContext.bindValue(
-							SWTObservables.observeText(fileLocationText, SWT.Modify),
-							BeansObservables.observeValue(getDataModel(), "string"),
+							WidgetProperties.text(SWT.Modify).observe(fileLocationText),
+							BeanProperties.value("string").observe(getDataModel()),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});

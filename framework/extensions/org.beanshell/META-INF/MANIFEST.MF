@@ -9,5 +9,5 @@ Export-Package: bsh,
  bsh.org.objectweb.asm,
  bsh.servlet,
  bsh.util
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: jar

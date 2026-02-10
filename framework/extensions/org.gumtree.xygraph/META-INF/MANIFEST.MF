@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: SWT XYGraph
 Bundle-SymbolicName: org.gumtree.xygraph
 Bundle-Version: 2.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.eclipse.draw2d;bundle-version="3.8.0";visibility:=reexport,
  org.eclipse.jface;bundle-version="3.8.0";visibility:=reexport
 Export-Package: org.csstudio.swt.widgets.datadefinition,

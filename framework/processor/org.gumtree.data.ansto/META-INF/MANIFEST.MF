@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree Data ANSTO
 Bundle-SymbolicName: org.gumtree.data.ansto
-Bundle-Version: 1.13.0.qualifier
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Version: 2.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: hep.aida,
  hep.aida.ref.histogram,
  ncsa.hdf.object,

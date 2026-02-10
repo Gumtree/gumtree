@@ -68,7 +68,7 @@ public class Register extends org.gumtree.data.utils.Register {
 		}
 		ucar.ma2.Array netcdfArray = null;
 		try {
-			netcdfArray = ucar.ma2.Array.factory(DataType.getType(item.getType()), item.getShape(), item.getData().getStorage() );
+			netcdfArray = ucar.ma2.Array.factory(DataType.getType(item.getType(), item.isUnsigned()), item.getShape(), item.getData().getStorage() );
 			item.invalidateCache();
 		} catch (IOException e) {
 			e.printStackTrace();

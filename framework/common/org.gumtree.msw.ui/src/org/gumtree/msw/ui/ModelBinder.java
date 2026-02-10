@@ -11,7 +11,7 @@ import org.eclipse.core.databinding.observable.IChangeListener;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.databinding.swt.ISWTObservableValue;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -433,7 +433,7 @@ public final class ModelBinder {
 			}
 		});
 		
-		final ISWTObservableValue targetObservable = SWTObservables.observeSelection(control);
+		ISWTObservableValue<Boolean> targetObservable = WidgetProperties.buttonSelection().observe(control);
 		final Binding binding = bindingContext.bindValue(
 				targetObservable,
 				observable,
@@ -592,7 +592,7 @@ public final class ModelBinder {
 				converter,
 				TrivialStringValueConverter.DEFAULT_VALUE));
 				
-		final ISWTObservableValue targetObservable = SWTObservables.observeText(wrapper.getControl());
+		ISWTObservableValue<String> targetObservable = WidgetProperties.text(SWT.Modify).observe(wrapper.getControl());
 		final Binding binding = bindingContext.bindValue(
 				targetObservable,
 				observable,

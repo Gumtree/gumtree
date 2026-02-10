@@ -5,6 +5,7 @@
 !
 ! Temperature
 001 Temperature                       degC                 TMPC             0  -9999.00        0         0
+001 Temperature                       degC                 TEMP             0  -9999.00        0         0
 001 Temperature                       degF                 TMPF             0  -9999.00        0         0
 001 Temperature                       K                    TMPK             0  -9999.00        0         0
 001 Surface potential temperature     K                    STHA             0  -9999.00        0         0
@@ -43,6 +44,7 @@
 001 Sea Surface Temperature           F                    SSTF             0  -9999.00        0         0
 001 Temperature of lifted surface air degC                 LTMP             0  -9999.00        0         0
 ! Moisture
+002 Dew-point temperature             degC                 DWPT             0  -9999.00        0         0
 002 Dew-point temperature             degC                 DWPC             0  -9999.00        0         0
 002 Dew-point temperature             F                    DWPF             0  -9999.00        0         0
 002 Dew-point temperature             K                    DWPK             0  -9999.00        0         0
@@ -73,7 +75,7 @@
 003 Dry hydrostatic height            meter                DHGT             0  -9999.00        0         0
 003 Moist hydrostatic height          meter                MHGT             0  -9999.00        0         0
 ! Pressure
-004 Station pressure                  millibar             PRES             0  -9999.00        0         0
+004 Pressure                          millibar             PRES             0  -9999.00        0         0
 004 Mean sea level pressure           millibar             PMSL             0  -9999.00        0         0
 004 Surface pressure                  millibar             PALT             0  -9999.00        0         0
 004 Altimeter setting                 inch_Hg              ALTI             0  -9999.00        0         0
@@ -81,7 +83,7 @@
 004 Abbreviated altimeter setting                          SALT             0  -9999.00        0         0
 004 Abbreviated mean sea level press  millibar             SMSL             0  -9999.00        0         0
 004 Pressure tendency                                      PTND             0  -9999.00        0         0
-004 Pressure tendency                                      PT03             0  -9999.00        0         0
+004 Pressure tendency (3 hour)                             PT03             0  -9999.00        0         0
 004 3 hr pressure change              millibar             P03C             0  -9999.00        0         0
 004 Pressure tendency and group                            P03D             0  -9999.00        0         0
 004 24 hr pressure change             millibar             P24C             0  -9999.00        0         0
@@ -114,9 +116,9 @@
 006 Numeric weather code                                   WNUM             0  -9999.00        0         0
 006 Numeric WMO weather code                               WWMO             0  -9999.00        0         0
 006 Numeric past weather WMO code                          PWWM             0  -9999.00        0         0
-006 Cloud height and coverage                              CHC1             0  -9999.00        0         0
-006 Cloud height and coverage                              CHC2             0  -9999.00        0         0
-006 Cloud height and coverage                              CHC3             0  -9999.00        0         0
+006 Cloud height and coverage level 1                      CHC1             0  -9999.00        0         0
+006 Cloud height and coverage level 2                      CHC2             0  -9999.00        0         0
+006 Cloud height and coverage level 3                      CHC3             0  -9999.00        0         0
 006 Visibility                        US_statute_mile      VSBY             0  -9999.00        0         0
 006 Visibility                        km                   VSBK             0  -9999.00        0         0
 006 Visibility                        nautical_mile        VSBN             0  -9999.00        0         0

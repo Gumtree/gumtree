@@ -2,13 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Msw-Schedule
 Bundle-SymbolicName: org.gumtree.msw.schedule
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.gumtree.msw.schedule.internal.Activator
-Require-Bundle: org.slf4j.api,
+Require-Bundle: slf4j.api;bundle-version="2.0.17",
  org.eclipse.core.runtime,
  org.gumtree.msw,
  org.gumtree.msw.elements
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: org.gumtree.msw.schedule,
  org.gumtree.msw.schedule.execution,

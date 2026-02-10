@@ -3,9 +3,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.codehaus.gumtree</groupId>
+	<groupId>com.github.gumtree</groupId>
 	<artifactId>org.gumtree.framework.module</artifactId>
-	<version>1.13.0-SNAPSHOT</version>
+	<version>2.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
 		<data.path>../../data</data.path>
@@ -21,20 +21,20 @@
 
 	<modules>
 		<module>${common.path}/org.gumtree.data.core</module>
-		<module>${common.path}/ucar.netcdf</module>
+		<!-- module>${common.path}/ucar.netcdf</module -->
 		<module>${common.path}/org.gumtree.data.impl.netcdf</module>
 		
 		<module>${common.path}/com.itext.pdf</module>
-		<module>${common.path}/org.yaml.snakeyaml</module>
+		<!-- module>${common.path}/org.yaml.snakeyaml</module -->
 		
 		<module>${common.path}/com.db4o.osgi</module>
 		<module>${common.path}/com.google.gson</module>
 		<module>${common.path}/com.google.guava</module>
-		<module>${common.path}/com.thoughtworks.xstream</module>
-		<module>${common.path}/org.eclemma.runtime.equinox</module>
+		<!-- module>${common.path}/com.thoughtworks.xstream</module -->
+		<!-- module>${common.path}/org.eclemma.runtime.equinox</module -->
 		<module>${common.path}/org.gumtree.core</module>
 
-		<module>${common.path}/org.freehep.jas.jas3</module>
+		<!--module>${common.path}/org.freehep.jas.jas3</module -->
 		<module>${common.path}/org.freehep.jas.jas3.win32.x86</module>
 		<module>${common.path}/org.freehep.jas.jas3.linux.x86</module>
 		<module>${common.path}/org.freehep.jas.jas3.macosx.x86</module>
@@ -91,31 +91,31 @@
 		
 		<module>${extensions.path}/org.gumtree.xml.feature</module>
 
-		<module>${extensions.path}/org.gumtree.passerelle.feature</module>
+		<!-- module>${extensions.path}/org.gumtree.passerelle.feature</module -->
 
 		<module>${extensions.path}/org.gumtree.github.feature</module>
 
-		<module>${extensions.path}/javafx</module>
+		<!-- module>${extensions.path}/javafx</module>
 		<module>${extensions.path}/javafx.macosx.x86_64</module>
 		<module>${extensions.path}/javafx.win32.x86</module>
 		<module>${extensions.path}/javafx.win32.x86_64</module>
-		<module>${extensions.path}/org.gumtree.javafx.feature</module>
+		<module>${extensions.path}/org.gumtree.javafx.feature</module -->
 
-		<module>${extensions.path}/org.gumtree.xygraph</module>
-		<module>${extensions.path}/org.gumtree.xygraph.feature</module>
+		<!-- module>${extensions.path}/org.gumtree.xygraph</module>
+		<module>${extensions.path}/org.gumtree.xygraph.feature</module -->
 
 		<module>${extensions.path}/org.gumtree.e4tools.feature</module>
 
 
 
 		<module>${sics.path}/ch.psi.sics.hipadaba</module>
-		<module>${sics.path}/ch.unifr.nio.framework</module>
+		<!-- module>${sics.path}/ch.unifr.nio.framework</module -->
 		<module>${sics.path}/org.gumtree.sics.core</module>
 		<module>${sics.path}/org.gumtree.gumnix.sics.core</module>
 		<module>${sics.path}/org.gumtree.sics.core.feature</module>
 
-		<module>${sics.path}/com.neilalexander.jnacl</module>
-		<module>${sics.path}/org.zeromq.jeromq</module>
+		<!--module>${sics.path}/com.neilalexander.jnacl</module>
+		<module>${sics.path}/org.zeromq.jeromq</module -->
 		<module>${sics.path}/org.gumtree.control.core</module>
 		<module>${sics.path}/org.gumtree.control.ui</module>
 		<module>${sics.path}/org.gumtree.control.server</module>
@@ -123,7 +123,7 @@
 		<module>${sics.path}/org.gumtree.sics.server</module>
 		<module>${sics.path}/org.gumtree.sics.server.feature</module>
 
-		<module>${sics.path}/sun.tools.jconsole</module>
+		<!-- module>${sics.path}/sun.tools.jconsole</module -->
 		<module>${sics.path}/org.gumtree.sics.ui</module>
 		<module>${sics.path}/org.gumtree.gumnix.sics.widgets</module>
 		<module>${sics.path}/org.gumtree.gumnix.sics.ui</module>
@@ -154,7 +154,7 @@
 		<module>${processor.path}/au.gov.ansto.bragg.cicada</module>
 		<module>${processor.path}/au.gov.ansto.bragg.cicada.dra</module>
 		<module>${processor.path}/au.gov.ansto.bragg.cicada.dom</module>
-		<module>${processor.path}/org.dom4j</module>
+		<!-- module>${processor.path}/org.dom4j</module -->
 		<module>${processor.path}/org.gumtree.processor.core.feature</module>
 
 		<module>${processor.path}/au.gov.ansto.bragg.kakadu.core</module>
@@ -172,9 +172,9 @@
 
 		<module>${applications.path}/org.gumtree.app.osgi</module>
 		<module>${applications.path}/org.gumtree.app.osgi.feature</module>
-		<module>${applications.path}/de.huxhorn.lilith.logback</module>
+		<!-- module>${applications.path}/de.huxhorn.lilith.logback</module -->
 		<module>${applications.path}/org.apache.commons.configuration</module>
-		<module>${applications.path}/net.jeeeyul.eclipse.themes</module>
+		<!-- module>${applications.path}/net.jeeeyul.eclipse.themes</module -->
 		<module>${applications.path}/org.gumtree.app.runtime</module>
 		<module>${applications.path}/org.gumtree.app.runtime.feature</module>
 		<module>${applications.path}/org.gumtree.app.webserver</module>
@@ -186,7 +186,7 @@
 
 
 
-		<module>${build.path}/org.gumtree.framework.sources.feature</module>
+		<!-- module>${build.path}/org.gumtree.framework.sources.feature</module -->
 	</modules>
 
 	<name>Gumtree Framework Build</name>

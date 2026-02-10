@@ -8,7 +8,7 @@ import org.gumtree.core.tests.internal.Activator;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.LoopRunner;
 import org.gumtree.util.LoopRunnerStatus;
-import org.gumtree.util.eclipse.OsgiUtils;
+//import org.gumtree.util.eclipse.OsgiUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgi.service.event.Event;
@@ -19,9 +19,9 @@ public class EventBuilderTest {
 	
 	@BeforeClass
 	public static void setup() throws Exception {
-		OsgiUtils.startBundle("org.eclipse.equinox.ds");
-		OsgiUtils.startBundle("org.eclipse.equinox.event");
-		OsgiUtils.startBundle("org.eclipse.e4.ui.services");
+//		OsgiUtils.startBundle("org.eclipse.equinox.ds");
+//		OsgiUtils.startBundle("org.eclipse.equinox.event");
+//		OsgiUtils.startBundle("org.eclipse.e4.ui.services");
 	}
 	
 	@Test

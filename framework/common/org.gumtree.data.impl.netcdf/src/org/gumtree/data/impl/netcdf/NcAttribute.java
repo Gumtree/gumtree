@@ -121,7 +121,7 @@ public class NcAttribute extends ucar.nc2.Attribute implements IAttribute {
 
 	@Override
 	public Class<?> getType() {
-		return getDataType().getClassType();
+		return getDataType().getPrimitiveClassType();
 	}
 
 	@Override

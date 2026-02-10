@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Kakadu UI
 Bundle-SymbolicName: au.gov.ansto.bragg.kakadu.ui; singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.kakadu.ui.Activator
 Bundle-Vendor: Bragg Institute
 Bundle-Localization: plugin
@@ -95,7 +95,7 @@ Export-Package: au.gov.ansto.bragg.kakadu.ui;
    org.eclipse.jface.viewers,
    org.eclipse.swt.widgets",
  au.gov.ansto.bragg.kakadu.ui.widget.tree;uses:="org.eclipse.swt.graphics,org.eclipse.jface.viewers,org.eclipse.swt.widgets"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: au.gov.ansto.bragg.cicada.dom.core,
  au.gov.ansto.bragg.freehep.jas3.core,
  au.gov.ansto.bragg.freehep.jas3.exception,

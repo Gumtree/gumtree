@@ -47,6 +47,9 @@ import org.gumtree.data.interfaces.IRange;
 import org.gumtree.data.utils.Utilities;
 import org.gumtree.data.utils.Utilities.ParameterType;
 
+import ucar.ma2.Array;
+import ucar.ma2.DataType;
+
 /**
  * The Factory class in gumtree data model is a tools to create GDM objects. The
  * factory can take a URI as a parameter to read data in as GDM object, or it
@@ -137,7 +140,7 @@ public class NcFactory implements IFactory {
 	 * @return GDM Array Created on 18/06/2008
 	 */
 	public IArray createArray(final Class<?> clazz, final int[] shape) {
-		NcArray array = new NcArray(ucar.ma2.Array.factory(clazz, shape));
+		NcArray array = new NcArray(ucar.ma2.Array.factory(DataType.getType(clazz, false), shape));
 		return array;
 	}
 
@@ -158,7 +161,7 @@ public class NcFactory implements IFactory {
 	 */
 	public IArray createArray(final Class<?> clazz, final int[] shape,
 			final Object storage) {
-		NcArray array = new NcArray(ucar.ma2.Array.factory(clazz, shape,
+		NcArray array = new NcArray(ucar.ma2.Array.factory(DataType.getType(clazz, false), shape,
 				storage));
 		return array;
 	}
@@ -174,8 +177,8 @@ public class NcFactory implements IFactory {
 	 * @return GDM Array Created on 18/06/2008
 	 */
 	public IArray createArray(final Object javaArray) {
-		NcArray array = new NcArray(ucar.ma2.Array.factory(javaArray));
-		return array;
+		Array array = Array.makeFromJavaArray(javaArray);
+		return new NcArray(array);
 	}
 
 	/**

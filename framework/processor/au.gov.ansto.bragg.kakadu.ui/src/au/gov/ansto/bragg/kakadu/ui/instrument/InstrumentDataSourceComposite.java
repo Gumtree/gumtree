@@ -33,7 +33,6 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.TableTreeItem;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetEvent;
@@ -47,8 +46,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
@@ -205,10 +205,10 @@ public class InstrumentDataSourceComposite extends Composite {
 		fileTableTreeViewer.setInput(getRootNode()); // pass a non-null that will be ignored
 		fileTableTreeViewer.setAutoCheckedMode(true);
 
-		final Table table = fileTableTreeViewer.getTableTree().getTable();
+		final Tree table = fileTableTreeViewer.getTree();
 		table.setHeaderVisible(true);
 		
-		TableColumn nameColumn = new TableColumn(table, SWT.None);
+		TreeColumn nameColumn = new TreeColumn(table, SWT.None);
 		nameColumn.setText("file id/name ");
 		nameColumn.setWidth(200);
 		nameColumn.setMoveable(true);
@@ -267,8 +267,8 @@ public class InstrumentDataSourceComposite extends Composite {
 	private void updateTableColumns(List<String> columnNames) {
 		for (String columnName : columnNames) {
 			if (!dataSourceTableLabelProvider.isColumnExist(columnName)) {
-				final Table table = fileTableTreeViewer.getTableTree().getTable();
-				TableColumn tableColumn = new TableColumn(table, SWT.None);
+				final Tree table = fileTableTreeViewer.getTree();
+				TreeColumn tableColumn = new TreeColumn(table, SWT.None);
 				tableColumn.setText(columnName);
 				tableColumn.setWidth(200);
 				tableColumn.setResizable(true);
@@ -381,13 +381,13 @@ public class InstrumentDataSourceComposite extends Composite {
 					insertFileNode(fileNode, location);
 				
 				if (willInformListener){
-					for (TableTreeItem item : fileTableTreeViewer.getTableTree().getItems()){
+					for (TreeItem item : fileTableTreeViewer.getTree().getItems()){
 						if (item.getData() == fileNode)
-							fileTableTreeViewer.getTableTree().setSelection(new TableTreeItem[]{item});		
+							fileTableTreeViewer.getTree().setSelection(new TreeItem[]{item});		
 					}
 					DataSourceManager.setSelectedFile(sourcefile);
 					try{
-						removeFileAction.setEnabled(fileTableTreeViewer.getTableTree().getSelection().length > 0);
+						removeFileAction.setEnabled(fileTableTreeViewer.getTree().getSelection().length > 0);
 					}catch (Exception e) {
 					}
 				}
@@ -419,7 +419,7 @@ public class InstrumentDataSourceComposite extends Composite {
 
 	protected void adjustColumnSize() {
 		//adjust column size
-		for (TableColumn tableColumn : fileTableTreeViewer.getTableTree().getTable().getColumns()) {
+		for (TreeColumn tableColumn : fileTableTreeViewer.getTree().getColumns()) {
 			tableColumn.pack();
 		}
 	}
@@ -726,7 +726,7 @@ public class InstrumentDataSourceComposite extends Composite {
 		final int dropDefaultOperation = DND.DROP_COPY;
 		final int dropFeedback = DND.FEEDBACK_INSERT_AFTER | DND.FEEDBACK_EXPAND | DND.FEEDBACK_SCROLL | DND.FEEDBACK_SELECT;
 		
-		dropTarget = new DropTarget(fileTableTreeViewer.getTableTree(), dropOperation);
+		dropTarget = new DropTarget(fileTableTreeViewer.getTree(), dropOperation);
 		Transfer[] dropTypes = new Transfer[] {TextTransfer.getInstance(), FileTransfer.getInstance()};
 		dropTarget.setTransfer(dropTypes);
 		dropTarget.addDropListener(new DropTargetListener() {
@@ -854,16 +854,16 @@ public class InstrumentDataSourceComposite extends Composite {
 		fileTableTreeViewer.setSubtreeChecked(fileNode, true);
 	}
 
-	private TableTreeItem[] getSelections() {
+	private TreeItem[] getSelections() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	protected void removeSelectedFile() {
-		TableTreeItem[] selection = fileTableTreeViewer.getTableTree().getSelection();
-		for (TableTreeItem item : selection) {
+		TreeItem[] selection = fileTableTreeViewer.getTree().getSelection();
+		for (TreeItem item : selection) {
 			int selectionIndex = 0;
-			for (TableTreeItem tableItem : fileTableTreeViewer.getTableTree().getItems()){
+			for (TreeItem tableItem : fileTableTreeViewer.getTree().getItems()){
 				if (tableItem == item)
 					break;
 				selectionIndex ++;
@@ -893,19 +893,19 @@ public class InstrumentDataSourceComposite extends Composite {
 					removeFileNode(treeNodeToRemove);
 				}
 			}
-			int size = fileTableTreeViewer.getTableTree().getItemCount();
+			int size = fileTableTreeViewer.getTree().getItemCount();
 			if (selectionIndex >= size)
 				selectionIndex = size - 1;
 			if (selectionIndex >= 0){
-				TableTreeItem newFocusItem = fileTableTreeViewer.getTableTree()
+				TreeItem newFocusItem = fileTableTreeViewer.getTree()
 					.getItem(selectionIndex);				
-				fileTableTreeViewer.getTableTree().setSelection(new TableTreeItem[]{
+				fileTableTreeViewer.getTree().setSelection(new TreeItem[]{
 					newFocusItem});
 				Object newFocusData = ((DefaultMutableTreeNode) newFocusItem.getData()
 						).getUserObject();
 				if (newFocusData instanceof DataSourceFile)
 					DataSourceManager.setSelectedFile((DataSourceFile) newFocusData);
-					removeFileAction.setEnabled(fileTableTreeViewer.getTableTree().getSelection().length > 0);
+					removeFileAction.setEnabled(fileTableTreeViewer.getTree().getSelection().length > 0);
 			} else
 				DataSourceManager.fireAllDataRemovedAction();
 		}
@@ -923,7 +923,7 @@ public class InstrumentDataSourceComposite extends Composite {
 
 	public void removeAll() {
 		DataSourceManager.getInstance().removeDataListener(dataListener);
-		if (fileTableTreeViewer.getTableTree().getItemCount() > 0 &&
+		if (fileTableTreeViewer.getTree().getItemCount() > 0 &&
 				confirmRemoveAll()) {
 			DataSourceManager.getInstance().removeAll();
 			removeAllNodes();
@@ -932,7 +932,7 @@ public class InstrumentDataSourceComposite extends Composite {
 	}
 
 	public void removeAll(boolean isForced) {
-		if (fileTableTreeViewer.getTableTree().getItemCount() > 0) {
+		if (fileTableTreeViewer.getTree().getItemCount() > 0) {
 			DataSourceManager.getInstance().removeAll();
 			removeAllNodes();
 			DataSourceManager.fireAllDataRemovedAction();
@@ -945,7 +945,7 @@ public class InstrumentDataSourceComposite extends Composite {
 			Object[] checkedElements = fileTableTreeViewer.getCheckedElements();
 			
 			//apply sorting
-			dataSourceViewerSorter.setSortColumn((TableColumn)event.widget);
+			dataSourceViewerSorter.setSortColumn((TreeColumn)event.widget);
 			fileTableTreeViewer.refresh(false);
 			
 			//clear checked sate
@@ -973,7 +973,7 @@ public class InstrumentDataSourceComposite extends Composite {
 
 	public class DataSourceViewerSorter extends ViewerSorter {
 
-		private TableColumn column;
+		private TreeColumn column;
 
 		private int direction = SWT.NONE;
 
@@ -984,8 +984,8 @@ public class InstrumentDataSourceComposite extends Composite {
 		 *
 		 * @param column
 		 */
-		public void setSortColumn(TableColumn column) {
-			final Table table = fileTableTreeViewer.getTableTree().getTable();
+		public void setSortColumn(TreeColumn column) {
+			final Tree table = fileTableTreeViewer.getTree();
 			if (column == this.column) {
 				// Same column as last sort; toggle the direction
 				switch (direction) {
@@ -1058,7 +1058,7 @@ public class InstrumentDataSourceComposite extends Composite {
 		}
 	}
 
-	public int getColumnIndex(TableColumn column) {
+	public int getColumnIndex(TreeColumn column) {
 		return dataSourceTableLabelProvider.getColumnIndex(column);
 	}
 
@@ -1218,9 +1218,9 @@ public class InstrumentDataSourceComposite extends Composite {
 	}
 	
 	public void setSortedColumn(int index) {
-		TableColumn column = null;
+		TreeColumn column = null;
 		try {
-			column = fileTableTreeViewer.getTableTree().getTable().getColumn(index);
+			column = fileTableTreeViewer.getTree().getColumn(index);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}

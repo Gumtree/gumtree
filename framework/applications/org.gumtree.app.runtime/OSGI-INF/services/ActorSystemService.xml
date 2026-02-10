@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" name="org.gumtree.core.ActorSystemService">
-   <implementation class="org.gumtree.service.actorsystem.support.ActorSystemService"/>
-   <service>
-      <provide interface="org.gumtree.service.actorsystem.IActorSystemService"/>
-   </service>
-</scr:component>

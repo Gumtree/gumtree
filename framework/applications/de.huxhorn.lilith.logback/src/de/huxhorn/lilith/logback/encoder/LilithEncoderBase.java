@@ -34,6 +34,10 @@
 
 package de.huxhorn.lilith.logback.encoder;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Map;
+
 import ch.qos.logback.core.encoder.EncoderBase;
 import de.huxhorn.lilith.api.FileConstants;
 import de.huxhorn.sulky.codec.Encoder;
@@ -41,23 +45,11 @@ import de.huxhorn.sulky.codec.filebuffer.DefaultFileHeaderStrategy;
 import de.huxhorn.sulky.codec.filebuffer.MetaData;
 import de.huxhorn.sulky.codec.filebuffer.MetaDataCodec;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Map;
-
 public abstract class LilithEncoderBase<E>
 	extends EncoderBase<E>
 {
 	protected Encoder<E> encoder;
 	private DataOutputStream dataOutputStream;
-
-	@Override
-	public void init(OutputStream os) throws IOException
-	{
-		super.init(os);
-		dataOutputStream = new DataOutputStream(os);
-	}
 
 	protected void writeHeader(Map<String, String> metaDataMap) throws IOException
 	{

@@ -137,7 +137,8 @@ public class NcRange implements IRange {
 	 *            copy from here
 	 */
 	public NcRange(final IRange r) {
-		range = new ucar.ma2.Range(((NcRange) r).getNetcdfRange());
+		ucar.ma2.Range oldRange = ((NcRange) r).getNetcdfRange();
+		range = oldRange.copyWithName(oldRange.getName());
 	}
 
 	/**
@@ -149,7 +150,8 @@ public class NcRange implements IRange {
 	 *            copy from here
 	 */
 	public NcRange(final String name, final IRange r) {
-		range = new ucar.ma2.Range(name, ((NcRange) r).getNetcdfRange());
+		ucar.ma2.Range oldRange = ((NcRange) r).getNetcdfRange();
+		range = oldRange.copyWithName(name);
 	}
 
 	/**

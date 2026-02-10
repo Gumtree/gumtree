@@ -18,7 +18,7 @@ Import-Package: com.db4o;version="8.0.184.15484",
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy 
 Export-Package: com.db4o.osgi
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: jar
 Require-Bundle: com.db4o.java5;bundle-version="8.0.184";visibility:=reexport
 Service-Component: OSGI-INF/Db4oService.xml

@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import org.dom4j.DocumentException;
 import org.gumtree.data.exception.FileAccessException;
+import org.jdom2.JDOMException;
 
 import au.gov.ansto.bragg.cicada.core.exception.ConfigurationException;
 import au.gov.ansto.bragg.cicada.core.extension.AlgorithmRegistration;
@@ -125,10 +125,13 @@ public class Configuration extends Common_{
 		File file = new File(algorithmDir);
 		try {
 			configurationList = Parse.parseConfiguration(file);
-		} catch (DocumentException e) {
+		} catch (IOException e) {
 			throw new ConfigurationException("failed to load configuration from " + file.getAbsolutePath() 
 					+ ": " + e.getMessage(), e);
-		}
+		} catch (JDOMException e) {
+			throw new ConfigurationException("failed to load configuration from " + file.getAbsolutePath() 
+					+ ": " + e.getMessage(), e);
+		} 
 		for (Iterator<ConfigurationItem> iter = configurationList.iterator(); iter.hasNext();){
 			ConfigurationItem item = iter.next();
 			if (item.isDefault()) defaultLoaded = item;

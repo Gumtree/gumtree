@@ -4,7 +4,7 @@ Bundle-Name: JavaFX Win32 x86
 Bundle-SymbolicName: javafx.win32.x86
 Bundle-Version: 2.2.0.qualifier
 Fragment-Host: javafx;bundle-version="2.2.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-PlatformFilter: (& (osgi.os=win32) (osgi.arch=x86))
 Bundle-Vendor: Oracle
 Eclipse-BundleShape: jar

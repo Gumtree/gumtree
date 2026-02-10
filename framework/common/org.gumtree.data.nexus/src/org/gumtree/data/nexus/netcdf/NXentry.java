@@ -133,10 +133,10 @@ public class NXentry extends NXGroup implements INXentry {
 		}
 		for (Attribute attribute : from.getAttributes()) {
 			NXAttribute ncAttribute = new NXAttribute(attribute);
-			attributes.add(ncAttribute);
+			attributes.addAttribute(ncAttribute);
 		}
 		if (isRoot()) {
-			this.parent = null;
+			this.setParent(null);
 		}
 	}
 
@@ -191,10 +191,10 @@ public class NXentry extends NXGroup implements INXentry {
 
 		for (IAttribute attribute : from.getAttributeList()) {
 			NXAttribute ncAttribute = new NXAttribute((Attribute) attribute);
-			attributes.add(ncAttribute);
+			attributes.addAttribute(ncAttribute);
 		}
 		if (isRoot()) {
-			this.parent = null;
+			this.setParent(null);
 		}
 	}
 

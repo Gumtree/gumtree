@@ -7,7 +7,7 @@
  * 
  * Contributors: 
  *     Norman XIONG (Bragg Institute) - initial API and implementation
- *     Clément RODRIGUEZ (SOLEIL) - initial API and implementation
+ *     Clï¿½ment RODRIGUEZ (SOLEIL) - initial API and implementation
  *     Tony LAM (Bragg Institute) - implementation
  ******************************************************************************/
 
@@ -129,7 +129,7 @@ public interface IContainer extends IModelObject, Cloneable {
 	 * 
      * @param name String object
 	 */
-	void setName(String name);
+	String setName(String name);
 
 	/**
 	 * Set the IObject's (short) name.

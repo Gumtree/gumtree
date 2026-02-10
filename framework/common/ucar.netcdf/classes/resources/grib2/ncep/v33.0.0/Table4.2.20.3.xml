@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parameterMap>
+  <table>Table4.2.20.3</table>
+  <title>Renewable Energy Sector</title>
+  <source>https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2-20-3.shtml</source>
+  <parameter code="0">
+    <shortName>RENPCAP</shortName>
+    <description>Renewable power capacity</description>
+    <units>W</units>
+  </parameter>
+  <parameter code="1">
+    <shortName>RENPPROD</shortName>
+    <description>Renewable power production rate</description>
+    <units>W</units>
+  </parameter>
+  <parameter code="2">
+    <shortName>WINDPCAP</shortName>
+    <description>Wind power capacity</description>
+    <units>W</units>
+  </parameter>
+  <parameter code="3">
+    <shortName>WINDPPROD</shortName>
+    <description>Wind power production rate</description>
+    <units>W</units>
+  </parameter>
+  <parameter code="4">
+    <shortName>SPVPCAP</shortName>
+    <description>Solar photovoltaic (PV) power capacity</description>
+    <units>W</units>
+  </parameter>
+  <parameter code="5">
+    <shortName>SPVPPROD</shortName>
+    <description>Solar photovoltaic (PV) power production rate</description>
+    <units>W</units>
+  </parameter>
+  <parameter code="6">
+    <shortName>SNPVPCAP</shortName>
+    <description>Solar non-photovoltaic (PV) power capacity</description>
+    <units>W</units>
+  </parameter>
+  <parameter code="7">
+    <shortName>SNPVPPROD</shortName>
+    <description>Solar non-photovoltaic (PV) power production rate</description>
+    <units>W</units>
+  </parameter>
+  <parameter code="8">
+    <shortName>CSPPCAP</shortName>
+    <description>Concentrated solar power (CSP) power capacity</description>
+    <units>W</units>
+  </parameter>
+  <parameter code="9">
+    <shortName>CSPPROD</shortName>
+    <description>Concentrated solar power (CSP) power production rate</description>
+    <units>W</units>
+  </parameter>
+</parameterMap>

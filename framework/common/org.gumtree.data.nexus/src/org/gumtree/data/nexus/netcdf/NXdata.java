@@ -136,10 +136,10 @@ public class NXdata extends NXGroup implements INXdata {
 		}
 		for (Attribute attribute : from.getAttributes()) {
 			NXAttribute ncAttribute = new NXAttribute(attribute);
-			attributes.add(ncAttribute);
+			attributes.addAttribute(ncAttribute);
 		}
 		if (isRoot()) {
-			this.parent = null;
+			this.setParent(null);
 		}
 	}
 
@@ -183,10 +183,10 @@ public class NXdata extends NXGroup implements INXdata {
 		for (IAttribute attribute : from.getAttributeList()) {
 			NXAttribute ncAttribute = new NXAttribute(
 					(ucar.nc2.Attribute) attribute);
-			attributes.add(ncAttribute);
+			attributes.addAttribute(ncAttribute);
 		}
 		if (isRoot()) {
-			this.parent = null;
+			this.setParent(null);
 		}
 	}
 

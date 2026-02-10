@@ -15,10 +15,11 @@ import org.gumtree.pydev.configurator.internal.Activator;
 import org.gumtree.util.eclipse.OsgiUtils;
 import org.gumtree.util.string.StringUtils;
 import org.osgi.framework.Bundle;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +32,11 @@ public class InterpreterRegister implements IStartup {
 	public void earlyStartup() {
 		try {
 			// Prepare interpreter info
-			IInterpreterManager interpreterManager = PydevPlugin
-					.getJythonInterpreterManager();
+//			IInterpreterManager interpreterManager = PydevPlugin
+//					.getJythonInterpreterManager();
+//			IInterpreterManager manager = PydevPlugin.getInterpreterManager(
+//					PydevInterpreterPreferences.JYTHON_INTERPRETER_TYPE);
+			IInterpreterManager interpreterManager = InterpreterManagersAPI.getJythonInterpreterManager();
 			IInterpreterInfo info = null;
 			try {
 				// Get existing interpreter info

@@ -1,0 +1,3 @@
+ucar.nc2.filter.Classifier$Provider
+ucar.nc2.filter.Standardizer$Provider
+ucar.nc2.filter.Normalizer$Provider

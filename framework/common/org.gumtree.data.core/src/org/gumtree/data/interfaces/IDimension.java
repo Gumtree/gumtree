@@ -7,7 +7,7 @@
  * 
  * Contributors: 
  *     Norman XIONG (Bragg Institute) - initial API and implementation
- *     Clément RODRIGUEZ (SOLEIL) - initial API and implementation
+ *     Clï¿½ment RODRIGUEZ (SOLEIL) - initial API and implementation
  *     Tony LAM (Bragg Institute) - implementation
  ******************************************************************************/
 
@@ -104,7 +104,7 @@ public interface IDimension extends IModelObject {
      * @param o compare to this Dimension
 	 * @return 0, 1, or -1
 	 */
-	int compareTo(Object o);
+	int compareTo(IDimension o);
 
 	/**
 	 * String representation.
@@ -147,7 +147,7 @@ public interface IDimension extends IModelObject {
 	 * 
      * @param name String object
 	 */
-	void setName(String name);
+	String setName(String name);
 
 	/**
 	 * Set coordinates values for this dimension.

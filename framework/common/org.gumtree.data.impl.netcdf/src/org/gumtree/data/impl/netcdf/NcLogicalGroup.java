@@ -122,7 +122,7 @@ public class NcLogicalGroup implements ILogicalGroup {
     }
 
     @Override
-    public void setName(String name) {
+    public String setName(String name) {
         throw new UnsupportedOperationException();
     }
 

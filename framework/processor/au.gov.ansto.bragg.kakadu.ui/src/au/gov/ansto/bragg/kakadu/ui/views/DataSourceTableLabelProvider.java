@@ -19,7 +19,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TreeColumn;
 
 import au.gov.ansto.bragg.kakadu.core.data.DataItem;
 import au.gov.ansto.bragg.kakadu.core.data.DataSourceFile;
@@ -33,7 +33,7 @@ public class DataSourceTableLabelProvider implements ITableLabelProvider {
 	protected static final int SIZE_COLUMN_INDEX = 1;
 	// The listeners
 	private List<ILabelProviderListener> listeners = new ArrayList<ILabelProviderListener>();
-	private final List<TableColumn> tableColumns = new ArrayList<TableColumn>();
+	private final List<TreeColumn> tableColumns = new ArrayList<TreeColumn>();
 
 	public Image getColumnImage(Object element, int columnIndex) {
 		return null;
@@ -152,12 +152,12 @@ public class DataSourceTableLabelProvider implements ITableLabelProvider {
 		listeners.remove(arg0);
 	}
 	
-	public void addTableColumn(TableColumn tableColumn) {
+	public void addTableColumn(TreeColumn tableColumn) {
 		tableColumns.add(tableColumn);
 	}
 	
 	public boolean isColumnExist(String columnName) {
-		for (TableColumn column : tableColumns) {
+		for (TreeColumn column : tableColumns) {
 			if (column.getText().equals(columnName)) {
 				return true;
 			}
@@ -167,14 +167,14 @@ public class DataSourceTableLabelProvider implements ITableLabelProvider {
 	
 	public String getColumnName(int columnIndex) {
 		if (columnIndex > 0 && columnIndex < tableColumns.size()) {
-			TableColumn column = tableColumns.get(columnIndex);
+			TreeColumn column = tableColumns.get(columnIndex);
 			return column.getText();
 			
 		}
 		return null;
 	}
 
-	public int getColumnIndex(TableColumn column) {
+	public int getColumnIndex(TreeColumn column) {
 		return tableColumns.indexOf(column);
 	}
 

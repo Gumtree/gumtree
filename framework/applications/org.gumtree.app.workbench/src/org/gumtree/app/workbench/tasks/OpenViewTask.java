@@ -31,7 +31,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.internal.dialogs.ShowViewDialog;
+import org.eclipse.ui.dialogs.ElementListSelectionDialog;
+import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.views.IViewDescriptor;
 import org.gumtree.app.workbench.internal.Activator;
 import org.gumtree.app.workbench.internal.InternalImage;
@@ -43,7 +44,6 @@ import org.gumtree.workflow.ui.AbstractTaskView;
 import org.gumtree.workflow.ui.ITaskView;
 import org.gumtree.workflow.ui.WorkflowException;
 
-@SuppressWarnings("restriction")
 public class OpenViewTask extends AbstractTask {
 
 	@Override
@@ -63,7 +63,7 @@ public class OpenViewTask extends AbstractTask {
 				@Override
 				public void run() throws Exception {
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(desc.getId());
-				}				
+				}
 			});
 		}
 		return null;
@@ -73,60 +73,71 @@ public class OpenViewTask extends AbstractTask {
 	public List<IViewDescriptor> getDataModel() {
 		return (List<IViewDescriptor>) super.getDataModel();
 	}
-	
+
 	private class OpenViewTaskView extends AbstractTaskView {
 
 		private UIResourceManager resourceManager;
-		
+
 		@Override
 		public void createPartControl(Composite parent) {
 			resourceManager = new UIResourceManager(Activator.PLUGIN_ID, parent);
 			GridLayoutFactory.swtDefaults().numColumns(3).applyTo(parent);
-			
+
 			Label label = getToolkit().createLabel(parent, "Views: ");
 			GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.TOP).span(1, 2).applyTo(label);
 			label.setFont(UIResources.getDefaultFont(SWT.BOLD));
-			
+
 			final TableViewer tableViewer = new TableViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 			tableViewer.setContentProvider(new ArrayContentProvider());
 			tableViewer.setLabelProvider(new LabelProvider() {
 				public Image getImage(Object element) {
 					ImageDescriptor desc = ((IViewDescriptor) element).getImageDescriptor();
+					if (desc == null) {
+						return null;
+					}
 					Image image = (Image) resourceManager.find(desc);
 					if (image == null) {
 						image = resourceManager.createImage(desc);
 					}
 					return image;
 				}
+
 				public String getText(Object element) {
 					return ((IViewDescriptor) element).getLabel();
 				}
 			});
 			updateInput(tableViewer);
 			GridDataFactory.fillDefaults().grab(true, false).span(1, 2).hint(300, 50).applyTo(tableViewer.getControl());
-			
+
 			Button selectButton = getToolkit().createButton(parent, "Select", SWT.PUSH);
 			selectButton.setImage(InternalImage.ADD_VIEW.getImage());
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).applyTo(selectButton);
-			
+
 			Button clearButton = getToolkit().createButton(parent, "Clear", SWT.PUSH);
 			clearButton.setImage(InternalImage.CLEAR.getImage());
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).applyTo(clearButton);
-			
+
 			selectButton.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
-					ShowViewDialog dialog = new ShowViewDialog(
-							PlatformUI.getWorkbench().getActiveWorkbenchWindow(),
-							PlatformUI.getWorkbench().getViewRegistry());
-					int reutrnCode = dialog.open();
-					if (reutrnCode == Window.OK) {
+					// FIX: Replaced internal ShowViewDialog with public ElementListSelectionDialog
+					ElementListSelectionDialog dialog = new ElementListSelectionDialog(parent.getShell(),
+							WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider());
+					dialog.setElements(PlatformUI.getWorkbench().getViewRegistry().getViews());
+					dialog.setTitle("Select Views");
+					dialog.setMessage("Select views to open:");
+					dialog.setMultipleSelection(true);
+
+					if (dialog.open() == Window.OK) {
 						getDataModel().clear();
-						getDataModel().addAll(Arrays.asList(dialog.getSelection()));
+						// Convert result Object[] to IViewDescriptor[]
+						Object[] result = dialog.getResult();
+						IViewDescriptor[] descriptors = Arrays.copyOf(result, result.length, IViewDescriptor[].class);
+						getDataModel().addAll(Arrays.asList(descriptors));
 						updateInput(tableViewer);
 					}
 				}
 			});
-			
+
 			clearButton.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
 					getDataModel().clear();
@@ -134,11 +145,11 @@ public class OpenViewTask extends AbstractTask {
 				}
 			});
 		}
-		
+
 		private void updateInput(TableViewer tableViewer) {
 			tableViewer.setInput(getDataModel().toArray(new IViewDescriptor[getDataModel().size()]));
 		}
-		
+
 		public void dispose() {
 			resourceManager = null;
 			super.dispose();
@@ -152,5 +163,5 @@ public class OpenViewTask extends AbstractTask {
 	public Class<?>[] getOutputTypes() {
 		return null;
 	}
-		
+
 }

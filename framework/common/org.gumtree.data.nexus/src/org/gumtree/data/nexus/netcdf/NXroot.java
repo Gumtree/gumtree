@@ -112,10 +112,10 @@ public class NXroot extends NXGroup implements INXroot {
 		}
 		for (Attribute attribute : from.getAttributes()) {
 			NXAttribute ncAttribute = new NXAttribute(attribute);
-			attributes.add(ncAttribute);
+			attributes.addAttribute(ncAttribute);
 		}
 		if (from.isRoot()) {
-			this.parent = null;
+			this.setParent(null);
 		}
 	}
 
@@ -155,10 +155,10 @@ public class NXroot extends NXGroup implements INXroot {
 		for (IAttribute attribute : from.getAttributeList()) {
 			NXAttribute ncAttribute = new NXAttribute(
 					(ucar.nc2.Attribute) attribute);
-			attributes.add(ncAttribute);
+			attributes.addAttribute(ncAttribute);
 		}
 		if (isRoot()) {
-			this.parent = null;
+			this.setParent(null);
 		}
 	}
 

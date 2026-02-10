@@ -4,13 +4,13 @@ Bundle-Name: Lilith LogBack Support
 Bundle-SymbolicName: de.huxhorn.lilith.logback
 Bundle-Version: 0.9.41.qualifier
 Fragment-Host: ch.qos.logback.classic;bundle-version="0.9.27"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: ch.qos.logback.classic;version="0.9.27",
  ch.qos.logback.classic.spi;version="0.9.27",
  ch.qos.logback.core.encoder;version="0.9.27",
  ch.qos.logback.core.recovery;version="0.9.27",
  com.google.protobuf;version="2.4.0",
- org.slf4j;version="1.6.1"
+ org.slf4j;version="2.0.17"
 Export-Package: de.huxhorn.lilith.api,
  de.huxhorn.lilith.data.eventsource,
  de.huxhorn.lilith.data.logging,

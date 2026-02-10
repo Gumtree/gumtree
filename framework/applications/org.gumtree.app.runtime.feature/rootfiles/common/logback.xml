@@ -1,21 +1,25 @@
-<configuration debug="false">
-	<jmxConfigurator />
-	<appender name="FILE"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${logback.logFileLocation}/gumtree.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${logback.logFileLocation}/gumtree.%d{yyyy-MM-dd}.log</fileNamePattern>
-			<maxHistory>30</maxHistory>
-			<timeBasedFileNamingAndTriggeringPolicy
-				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-				<maxFileSize>500MB</maxFileSize>
-			</timeBasedFileNamingAndTriggeringPolicy>
-		</rollingPolicy>
-		<encoder>
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-		</encoder>
-	</appender>
-	<root level="ERROR">
-		<appender-ref ref="FILE" />
-	</root>
-</configuration>
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration xmlns="https://logging.apache.org/xml/ns"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               >
+  <Appenders>
+    <Console name="CONSOLE"> 
+      <PatternLayout pattern="%p - %m%n"/>
+    </Console>
+    <File name="MAIN" fileName="D:/temp/logs/main.log"> 
+      <JsonTemplateLayout/>
+    </File>
+    <File name="DEBUG_LOG" fileName="D:/temp/logs/debug.log"> 
+      <PatternLayout pattern="%d [%t] %p %c - %m%n"/>
+    </File>
+  </Appenders>
+  <Loggers>
+    <Root level="INFO"> 
+      <AppenderRef ref="CONSOLE" level="INFO"/>
+      <AppenderRef ref="MAIN"/>
+    </Root>
+    <Logger name="org.gumtree.v2.workbench.parts" level="DEBUG"> 
+      <AppenderRef ref="DEBUG_LOG"/>
+    </Logger>
+  </Loggers>
+</Configuration>

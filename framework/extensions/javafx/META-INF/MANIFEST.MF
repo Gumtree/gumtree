@@ -179,6 +179,6 @@ Export-Package: com.sun.browser.plugin,
  javafx.util,
  javafx.util.converter,
  netscape.javascript
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.swt;bundle-version="3.100.0";visibility:=reexport

@@ -10,4 +10,4 @@ Export-Package: org.apache.commons.io,
  org.apache.commons.io.input,
  org.apache.commons.io.monitor,
  org.apache.commons.io.output
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21

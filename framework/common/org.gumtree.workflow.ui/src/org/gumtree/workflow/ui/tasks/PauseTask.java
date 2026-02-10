@@ -13,9 +13,10 @@ package org.gumtree.workflow.ui.tasks;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
@@ -118,11 +119,11 @@ public class PauseTask extends AbstractTask {
 			/*****************************************************************
 			 * Bind data model with spinner
 			 *****************************************************************/
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeSelection(spinner),
-						BeansObservables.observeValue(getDataModel(), "number"),
+					bindingContext.bindValue(WidgetProperties.spinnerSelection().observe(spinner),
+							BeanProperties.value("number").observe(getDataModel()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});

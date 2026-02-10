@@ -18,7 +18,8 @@ import java.util.Map.Entry;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -58,7 +59,7 @@ public class ParametersBasedTaskView extends AbstractTaskView {
 	}
 
 	public void createPartControl(final Composite parent) {
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
 				GridLayoutFactory.swtDefaults().numColumns(3).applyTo(parent);
@@ -76,7 +77,7 @@ public class ParametersBasedTaskView extends AbstractTaskView {
 							GridDataFactory.fillDefaults().grab(true, false).span(2, 0).applyTo(text);
 						}
 						
-						bindingContext.bindValue(SWTObservables.observeText(text, SWT.Modify),
+						bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(text),
 								ParametersObservables.observeValue(parameters, entry.getKey()),
 								new UpdateValueStrategy(), new UpdateValueStrategy());
 					} else if (entry.getValue().getClass().isEnum()) {
@@ -89,7 +90,7 @@ public class ParametersBasedTaskView extends AbstractTaskView {
 						comboViewer.setInput(entry.getValue().getClass().getEnumConstants());
 						
 						GridDataFactory.fillDefaults().grab(true, false).span(2, 0).applyTo(comboViewer.getControl());
-						bindingContext.bindValue(SWTObservables.observeSelection(comboViewer.getControl()),
+						bindingContext.bindValue(WidgetProperties.comboSelection().observe(comboViewer.getCombo()),
 								ParametersObservables.observeValue(parameters, entry.getKey()),
 								new UpdateValueStrategy(), new UpdateValueStrategy());
 					}

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Kakadu Core
 Bundle-SymbolicName: au.gov.ansto.bragg.kakadu.core
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.kakadu.core.Activator
 Bundle-Vendor: Bragg Institute
 Bundle-Localization: plugin
@@ -13,5 +13,5 @@ Bundle-ActivationPolicy: lazy
 Export-Package: au.gov.ansto.bragg.kakadu.core,
  au.gov.ansto.bragg.kakadu.core.data,
  au.gov.ansto.bragg.kakadu.core.data.region
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: jar

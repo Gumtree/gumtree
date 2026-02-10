@@ -257,6 +257,6 @@ Export-Package: com.sun.tools.javac,
  pnuts.util,
  pnuts.xml,
  pnuts.xml.action
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: dir
 Bundle-Vendor: FreeHEP

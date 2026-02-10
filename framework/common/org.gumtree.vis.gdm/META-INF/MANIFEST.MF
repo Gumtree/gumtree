@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gumtree GDM Visualisation
 Bundle-SymbolicName: org.gumtree.vis.gdm;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Require-Bundle: org.gumtree.vis.core;bundle-version="1.0.0";visibility:=reexport,
  org.gumtree.data.core;bundle-version="1.0.0";visibility:=reexport,
  org.eclipse.equinox.common;bundle-version="3.6.100";visibility:=reexport
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: org.gumtree.vis.gdm.dataset,
  org.gumtree.vis.gdm.io,
  org.gumtree.vis.gdm.utils

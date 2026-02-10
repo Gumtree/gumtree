@@ -185,7 +185,7 @@ public class NcDataset implements IDataset {
 
 	@Override
 	public boolean sync() throws IOException {
-		return netcdfDataset.sync();
+		throw new UnsupportedOperationException("Not implemented yet");
 	}
 
 	/**
@@ -319,7 +319,7 @@ public class NcDataset implements IDataset {
 			copyToNetcdfDataset();
 			isSyncronized = true;
 		}
-		netcdfDataset.writeNcML(os, uri);
+		netcdfDataset.writeNcml(os, uri);
 	}
 
 	/**

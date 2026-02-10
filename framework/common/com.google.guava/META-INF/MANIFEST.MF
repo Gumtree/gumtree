@@ -4,7 +4,7 @@ Bundle-Name: Google Guava Libraries
 Bundle-SymbolicName: com.google.guava
 Bundle-Version: 11.0.1.qualifier
 Bundle-Vendor: Google
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: com.google.common.annotations,
  com.google.common.base,
  com.google.common.base.internal,

@@ -36,7 +36,7 @@ public class OsgiEventHandlerTest {
 	
 	@BeforeClass
 	public static void setup() throws Exception {
-		OsgiUtils.startBundle("org.eclipse.equinox.event");
+//		OsgiUtils.startBundle("org.eclipse.equinox.event");
 		serviceManager = new ServiceManager();
 	}
 

@@ -62,16 +62,6 @@ public class NcDimension extends ucar.nc2.Dimension implements IDimension {
 		super(name, length, false);
 	}
 
-	// public void addCoordinateDataItem(final DataItem item) {
-	// if (item instanceof CachedVariable)
-	// addCoordinateVariable((CachedVariable) item);
-	// }
-
-	@Override
-	public int compareTo(final Object o) {
-		return super.compareTo(o);
-	}
-
 	@Override
 	public IArray getCoordinateVariable() {
 		return coordinateVariable;
@@ -85,6 +75,12 @@ public class NcDimension extends ucar.nc2.Dimension implements IDimension {
 	@Override
 	public String getFactoryName() {
 		return NcFactory.NAME;
+	}
+
+	@Override
+	public int compareTo(IDimension o) {
+		// TODO Auto-generated method stub
+		return super.compareTo((ucar.nc2.Dimension) o);
 	}
 	
 }

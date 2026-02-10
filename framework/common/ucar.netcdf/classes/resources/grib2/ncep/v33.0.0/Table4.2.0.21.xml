@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parameterMap>
+  <table>Table4.2.0.21</table>
+  <title>Thermodynamic Properties</title>
+  <source>https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2-0-21.shtml</source>
+  <parameter code="0">
+    <shortName>POTINTENG</shortName>
+    <description>Column Integrated Potential + Internal Energy</description>
+    <units>J m-2</units>
+  </parameter>
+  <parameter code="1">
+    <shortName>KINENG</shortName>
+    <description>Column Integrated Kinetic Energy</description>
+    <units>J m-2</units>
+  </parameter>
+  <parameter code="2">
+    <shortName>TOTENG</shortName>
+    <description>Column Integrated Total Energy,(see Note 1)</description>
+    <units>J m-2</units>
+  </parameter>
+  <parameter code="3">
+    <shortName>ENTHALPY</shortName>
+    <description>Column Integrated Enthalpy</description>
+    <units>J m-2</units>
+  </parameter>
+  <parameter code="4">
+    <shortName>WATENTHALPY</shortName>
+    <description>Column Integrated Water Enthalpy (see Note 2)</description>
+    <units>J m-2</units>
+  </parameter>
+  <parameter code="5">
+    <shortName>EASTENTFLUX</shortName>
+    <description>Column Integrated Eastward Enthalpy Flux</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="6">
+    <shortName>NRTHENTFLUX</shortName>
+    <description>Column Integrated Northward Enthalpy Flux</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="7">
+    <shortName>EASTPOTFLUX</shortName>
+    <description>Column integrated eastward potential energy flux</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="8">
+    <shortName>NRTHPOTFLUX</shortName>
+    <description>Column integrated northward potential energy flux</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="9">
+    <shortName>EASTKINFLUX</shortName>
+    <description>Column integrated eastward kinetic energy flux</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="10">
+    <shortName>NRTHKINFLUX</shortName>
+    <description>Column integrated northward kinetic energy flux</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="11">
+    <shortName>EASTTOTFLUX</shortName>
+    <description>Column integrated eastward total energy flux</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="12">
+    <shortName>NRTHTOTFLUX</shortName>
+    <description>Column integrated northward total energy flux (see Note 1)</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="13">
+    <shortName>DIVENTFLUX</shortName>
+    <description>Divergence of column integrated enthalpy flux see (Note 1)</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="14">
+    <shortName>DIVPOTFLUX</shortName>
+    <description>Divergence of column integrated potential energy flux</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="15">
+    <shortName>DIVWPOTFLUX</shortName>
+    <description>Divergence of column integrated water potential energy flux (see Note 3)</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="16">
+    <shortName>DIVKENGFLUX</shortName>
+    <description>Divergence of column integrated kinetic energy flux</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="17">
+    <shortName>DIVTOTFLUX</shortName>
+    <description>Divergence of column integrated total energy flux (see Note 1)</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="18">
+    <shortName>DIVWENTFLUX</shortName>
+    <description>Divergence of column integrated water enthalpy flux (see Note 2)</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="19">
+    <shortName>EASTHFLUX</shortName>
+    <description>Column integrated heat flux</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="20">
+    <shortName>NRTHHFLUX</shortName>
+    <description>Column integrated northward heat flux</description>
+    <units>W m-1</units>
+  </parameter>
+  <parameter code="21">
+    <shortName>PILENERGY</shortName>
+    <description>Column integrated potential+internal+latent energy</description>
+    <units>J m-2</units>
+  </parameter>
+  <parameter code="22">
+    <shortName>EADYGR</shortName>
+    <description>Eady growth rate</description>
+    <units>day-1</units>
+  </parameter>
+</parameterMap>

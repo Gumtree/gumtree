@@ -52,12 +52,13 @@ public class NcPlotSet extends NcGroup implements PlotSet {
 	 * @see au.gov.ansto.bragg.datastructures.core.plot.PlotSet#removePlot(au.gov.ansto.bragg.datastructures.core.plot.Plot)
 	 */
 	public void removePlot(Plot plot) {
-		getGroups().remove(plot);
+//		getGroups().remove(plot);
+		removeGroup(plot);
 	}
 
 	public List<Plot> getPlotList() {
 		List<Plot> plotList = new ArrayList<Plot>();
-		for (Iterator<?> iterator = getGroups().iterator(); iterator.hasNext();) {
+		for (Iterator<?> iterator = groups.iterator(); iterator.hasNext();) {
 			IGroup group = (IGroup) iterator.next();
 			if (group instanceof Plot) {
 				plotList.add((Plot) group);
