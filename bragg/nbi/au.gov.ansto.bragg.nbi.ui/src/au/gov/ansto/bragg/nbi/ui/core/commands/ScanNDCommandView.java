@@ -12,10 +12,11 @@ package au.gov.ansto.bragg.nbi.ui.core.commands;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.databinding.viewers.ViewersObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -83,14 +84,14 @@ public class ScanNDCommandView extends AbstractScanCommandView {
 				AbstractScanParameter.WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(presetText);
 		addValidator(presetText, ParameterValidator.floatValidator);
 		
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(ViewersObservables.observeSingleSelection(modeCombo),
-						BeansObservables.observeValue(command, "scan_mode"),
+				bindingContext.bindValue(ViewerProperties.singleSelection().observe(modeCombo),
+						BeanProperties.value("scan_mode").observe(command),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(presetText, SWT.Modify),
-						BeansObservables.observeValue(command, "preset"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(presetText),
+						BeanProperties.value("preset").observe(command),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});

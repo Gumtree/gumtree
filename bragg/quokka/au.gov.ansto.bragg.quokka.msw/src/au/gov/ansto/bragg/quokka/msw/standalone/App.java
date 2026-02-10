@@ -1,7 +1,7 @@
 package au.gov.ansto.bragg.quokka.msw.standalone;
 
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -15,7 +15,7 @@ public class App {
 	// main
 	public static void main(String[] args) {
 		Display display = Display.getDefault();
-		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(display), new Runnable() {
 			public void run() {
 				Display display = Display.getDefault();
 				Shell shell = new Shell();

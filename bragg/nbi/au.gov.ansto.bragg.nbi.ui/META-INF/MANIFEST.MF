@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: au.gov.ansto.bragg.nbi.ui;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.nbi.ui.internal.Activator
 Bundle-Localization: plugin
 Bundle-ActivationPolicy: lazy
@@ -19,7 +19,7 @@ Export-Package: au.gov.ansto.bragg.nbi.ui.core,
  au.gov.ansto.bragg.nbi.ui.scripting.parts,
  au.gov.ansto.bragg.nbi.ui.tasks,
  au.gov.ansto.bragg.nbi.ui.widgets
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: jar
 Require-Bundle: org.eclipse.core.resources;bundle-version="3.7.100";visibility:=reexport,
  org.eclipse.nebula.widgets;bundle-version="1.0.0";visibility:=reexport,

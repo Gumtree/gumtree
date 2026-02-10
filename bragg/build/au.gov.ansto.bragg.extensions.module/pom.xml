@@ -3,9 +3,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.codehaus.gumtree</groupId>
+	<groupId>com.github.gumtree</groupId>
 	<artifactId>au.gov.ansto.bragg.extensions.module</artifactId>
-	<version>1.13.0-SNAPSHOT</version>
+	<version>2.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
 		<nbi.path>../../nbi</nbi.path>
@@ -28,10 +28,10 @@
 	</properties>
 
 	<modules>
-		<module>${nbi.path}/com.ostermiller.util</module>
-		<module>${nbi.path}/org.apache.poi</module>
-		<module>${nbi.path}/uk.ac.ucl.ee.flanagan</module>
-		<module>${nbi.path}/ninia.jep</module>
+		<!-- module>${nbi.path}/com.ostermiller.util</module -->
+		<!-- module>${nbi.path}/org.apache.poi</module -->
+		<!-- module>${nbi.path}/uk.ac.ucl.ee.flanagan</module -->
+		<!-- module>${nbi.path}/ninia.jep</module -->
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.core</module>
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.algolib</module>
 		<module>${nbi.path}/au.gov.ansto.bragg.nbi.dra</module>
@@ -228,8 +228,8 @@
 		<module>${koala.path}/au.gov.ansto.bragg.koala.webserver</module>
 		<module>${koala.path}/au.gov.ansto.bragg.koala.webserver.feature</module>
 		
-		<module>${koala.path}/com.sun.jna</module>
-		<module>${koala.path}/uk.co.caprica.vlcj</module>
+		<!-- module>${koala.path}/com.sun.jna</module>
+		<module>${koala.path}/uk.co.caprica.vlcj</module -->
 		<module>${koala.path}/au.gov.ansto.bragg.koala.ui</module>
 		<module>${koala.path}/au.gov.ansto.bragg.koala.workbench</module>
 		<module>${koala.path}/au.gov.ansto.bragg.koala.workbench.feature</module>

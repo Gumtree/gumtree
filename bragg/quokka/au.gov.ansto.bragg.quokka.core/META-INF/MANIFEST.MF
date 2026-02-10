@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Quokka Core Library
 Bundle-SymbolicName: au.gov.ansto.bragg.quokka.core;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.quokka.core.internal.Activator
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: au.gov.ansto.bragg.quokka.experiment.model,
  au.gov.ansto.bragg.quokka.experiment.report,
  au.gov.ansto.bragg.quokka.experiment.result,
@@ -14,6 +14,6 @@ Export-Package: au.gov.ansto.bragg.quokka.experiment.model,
 Bundle-Vendor: Bragg Institute
 Require-Bundle: com.thoughtworks.xstream;bundle-version="1.4.2";visibility:=reexport,
  com.ostermiller.util;bundle-version="1.7.0",
- org.apache.poi;bundle-version="3.8.0",
+ org.apache.poi;bundle-version="5.4.1",
  org.gumtree.control.core;bundle-version="1.13.0",
  au.gov.ansto.bragg.nbi.core;bundle-version="1.13.0"

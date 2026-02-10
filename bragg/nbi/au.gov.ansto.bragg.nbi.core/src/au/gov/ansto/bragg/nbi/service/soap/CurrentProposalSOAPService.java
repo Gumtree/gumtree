@@ -7,10 +7,14 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+//import javax.xml.soap.MessageFactory;
+//import javax.xml.soap.SOAPMessage;
+//import javax.xml.soap.SOAPPart;
+//import javax.xml.transform.stream.StreamSource;
+
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
@@ -18,6 +22,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -125,12 +130,20 @@ public class CurrentProposalSOAPService {
 	
 				if (HttpStatus.SC_OK == client.executeMethod(postMethod)) {
 	
-					SOAPMessage message = MessageFactory.newInstance().createMessage();  
-					SOAPPart soapPart = message.getSOAPPart();
-					
-					soapPart.setContent(new StreamSource(postMethod.getResponseBodyAsStream()));
+//					SOAPMessage message = MessageFactory.newInstance().createMessage();  
+//					SOAPPart soapPart = message.getSOAPPart();
+//					
+//					soapPart.setContent(new StreamSource(postMethod.getResponseBodyAsStream()));
+//					MessageFactory factory = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
+//			        SOAPMessage response = factory.createMessage(null, postMethod.getResponseBodyAsStream());
 
-					Element element = soapPart.getDocumentElement();
+					DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+				    dbf.setNamespaceAware(true); // SOAP requires this!
+
+				    DocumentBuilder builder = dbf.newDocumentBuilder();
+				    Document doc = builder.parse(postMethod.getResponseBodyAsStream());
+				    
+					Element element = doc.getDocumentElement();
 					
 					NodeList experimentInfoNodes = element.getElementsByTagName("ns1:experimentInfo");
 

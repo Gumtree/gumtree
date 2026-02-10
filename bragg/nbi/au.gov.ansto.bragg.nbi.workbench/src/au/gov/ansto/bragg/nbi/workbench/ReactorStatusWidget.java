@@ -6,9 +6,6 @@ package au.gov.ansto.bragg.nbi.workbench;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.nebula.widgets.pgroup.PGroup;
@@ -64,9 +61,9 @@ public class ReactorStatusWidget extends ExtendedComposite {
 		NeutronSourceSOAPService.addEventListener(new ISoapEventListener() {
 			
 			@Override
-			public void post(SOAPMessage message) {
+			public void post(Element element) {
 				if (!isDisposed()) {
-					updateValue(message);
+					updateValue(element);
 				}
 			}
 		});
@@ -80,11 +77,12 @@ public class ReactorStatusWidget extends ExtendedComposite {
 	}
 
 
-	private void updateValue(SOAPMessage message) {
+	private void updateValue(Element element) {
 			try{
-				SOAPPart soapPart = message.getSOAPPart();
-				final Element ele = soapPart.getDocumentElement();
-				setValueLabel(ele);
+//				SOAPPart soapPart = message.getSOAPPart();
+//				final Element ele = soapPart.getDocumentElement();
+//				setValueLabel(ele);
+				setValueLabel(element);
 				Display.getDefault().asyncExec(new Runnable() {
 
 					@Override
@@ -104,14 +102,14 @@ public class ReactorStatusWidget extends ExtendedComposite {
 			}
 	}
 	
-	private void setValueLabel(Element ele){
-		if (ele == null || isDisposed()) {
+	private void setValueLabel(Element element) {
+		if (element == null || isDisposed()) {
 			return;
 		}
 		for (final DeviceContext device : devices) {
 			String content = null;
 			try{
-				content = ele.getElementsByTagName("ns1:" + device.id).item(0).getTextContent();
+				content = element.getElementsByTagName("ns1:" + device.id).item(0).getTextContent();
 				try {
 					double value = Double.valueOf(content);
 					content = String.format("%.3f", value);

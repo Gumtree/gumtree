@@ -2,9 +2,10 @@ package au.gov.ansto.bragg.kookaburra.ui.workflow;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -154,30 +155,30 @@ public class ProposalTask extends AbstractExperimentTask {
 			/*****************************************************************
 			 * Data binding
 			 *****************************************************************/
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeText(titleText,
-							SWT.Modify), BeansObservables.observeValue(
-									getExperiment(), "title"), new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(userText,
-							SWT.Modify), BeansObservables.observeValue(
-									getExperiment().getUser(), "name"), new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(emailText,
-							SWT.Modify), BeansObservables.observeValue(
-									getExperiment().getUser(), "email"), new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(phoneText,
-							SWT.Modify), BeansObservables.observeValue(
-									getExperiment().getUser(), "phone"), new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(darkCurrentText,
-							SWT.Modify), BeansObservables.observeValue(
-									getExperiment(), "darkCurrentFile"), new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(sensitivityText,
-							SWT.Modify), BeansObservables.observeValue(
-									getExperiment(), "sensitivityFile"), new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(reportDirectoryText,
-							SWT.Modify), BeansObservables.observeValue(
-									getExperiment(), "userReportDirectory"), new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(titleText), 
+							BeanProperties.value("title").observe(getExperiment()), 
+							new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(userText), 
+							BeanProperties.value("name").observe(getExperiment().getUser()), 
+							new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(emailText), 
+							BeanProperties.value("email").observe(getExperiment().getUser()), 
+							new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(phoneText), 
+							BeanProperties.value("phone").observe(getExperiment().getUser()), 
+							new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(darkCurrentText), 
+							BeanProperties.value("darkCurrentFile").observe(getExperiment()), 
+							new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(sensitivityText), 
+							BeanProperties.value("sensitivityFile").observe(getExperiment()), 
+							new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(reportDirectoryText), 
+							BeanProperties.value("userReportDirectory").observe(getExperiment()), 
+							new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});
 			

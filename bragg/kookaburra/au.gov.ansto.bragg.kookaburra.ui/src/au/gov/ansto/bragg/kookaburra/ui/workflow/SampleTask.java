@@ -6,11 +6,13 @@ import java.io.IOException;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -81,7 +83,7 @@ public class SampleTask extends AbstractExperimentTask {
 			/*****************************************************************
 			 * Create table (under UI thread)
 			 *****************************************************************/
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					/*****************************************************************
 					 * Create top button area
@@ -214,20 +216,20 @@ public class SampleTask extends AbstractExperimentTask {
 				 * Data binding
 				 *************************************************************/
 				bindingContext.bindValue(
-						SWTObservables.observeSelection(runButton),
-						BeansObservables.observeValue(sample, "runnable"),
+						WidgetProperties.buttonSelection().observe(runButton),
+						BeanProperties.value("runnable").observe(sample),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
 				bindingContext.bindValue(
-						SWTObservables.observeText(nameText,SWT.Modify),
-						BeansObservables.observeValue(sample, "name"),
+						WidgetProperties.text(SWT.Modify).observe(nameText),
+						BeanProperties.value("name").observe(sample),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
 				bindingContext.bindValue(
-						SWTObservables.observeText(thicknessText,SWT.Modify),
-						BeansObservables.observeValue(sample, "thickness"),
+						WidgetProperties.text(SWT.Modify).observe(thicknessText),
+						BeanProperties.value("thickness").observe(sample),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
 				bindingContext.bindValue(
-						SWTObservables.observeText(descText,SWT.Modify),
-						BeansObservables.observeValue(sample, "description"),
+						WidgetProperties.text(SWT.Modify).observe(descText),
+						BeanProperties.value("description").observe(sample),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
 				
 				/*************************************************************
@@ -287,7 +289,8 @@ public class SampleTask extends AbstractExperimentTask {
 			fixedPositionButton.setFont(UIResources.getDefaultFont(SWT.BOLD));
 			GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).grab(true, false).applyTo(fixedPositionButton);
 			DataBindingContext bindingContext = new DataBindingContext();
-			bindingContext.bindValue(SWTObservables.observeSelection(fixedPositionButton), BeansObservables.observeValue(getExperiment(), "fixedSamplePosition"));
+			bindingContext.bindValue(WidgetProperties.buttonSelection().observe(fixedPositionButton), 
+					BeanProperties.value("fixedSamplePosition").observe(getExperiment()));
 			
 			
 			/*****************************************************************

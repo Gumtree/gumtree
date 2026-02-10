@@ -16,9 +16,10 @@ import java.io.FileNotFoundException;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -103,27 +104,27 @@ public class OneTempScanTask extends AbstractEchidnaScanTask {
 					SWT.FILL, SWT.CENTER).grab(true, false).applyTo(tot_timeText);
 			addValidator(tot_timeText, floatValidator);
 
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeText(sampnameText, SWT.Modify),
-							BeansObservables.observeValue(command, "sampname"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(tempText, SWT.Modify),
-							BeansObservables.observeValue(command, "temp"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(startangText, SWT.Modify),
-							BeansObservables.observeValue(command, "startang"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(finishangText, SWT.Modify),
-							BeansObservables.observeValue(command, "finishang"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(stepsizeText, SWT.Modify),
-							BeansObservables.observeValue(command, "stepsize"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(tot_timeText, SWT.Modify),
-							BeansObservables.observeValue(command, "tot_time"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(sampnameText),
+						BeanProperties.value("sampname").observe(command),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(tempText),
+							BeanProperties.value("temp").observe(command),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(startangText),
+							BeanProperties.value("startang").observe(command),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(finishangText),
+							BeanProperties.value("finishang").observe(command),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(stepsizeText),
+							BeanProperties.value("stepsize").observe(command),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(tot_timeText),
+							BeanProperties.value("tot_time").observe(command),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});
 

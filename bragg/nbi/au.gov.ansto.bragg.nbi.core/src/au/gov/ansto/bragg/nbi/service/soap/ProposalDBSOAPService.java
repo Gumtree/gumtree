@@ -12,10 +12,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+//import javax.xml.soap.MessageFactory;
+//import javax.xml.soap.SOAPMessage;
+//import javax.xml.soap.SOAPPart;
+//import javax.xml.transform.stream.StreamSource;
+
+//import jakarta.xml.soap.MessageFactory;
+//import jakarta.xml.soap.SOAPConstants;
+//import jakarta.xml.soap.SOAPMessage;
+//import jakarta.xml.soap.SOAPPart;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -23,6 +31,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -43,7 +52,7 @@ public class ProposalDBSOAPService {
 //	private final static int DEFAULT_POST_THREAD_HARTBEAT = 60000;
 	private static HttpClient client;
 	private static PostMethod postMethod;
-	private static List<ISoapEventListener> eventListeners;
+	private static List<IPostEventListener> eventListeners;
 //	private static int heartbeat = DEFAULT_POST_THREAD_HARTBEAT;
 //	private static boolean allowSicsUpdate = false;
 	private static String soapArrayString = "bookingArray";
@@ -244,7 +253,7 @@ public class ProposalDBSOAPService {
 			e1.printStackTrace();
 		}
 		postMethod.setRequestEntity(entity);
-		eventListeners = new ArrayList<ISoapEventListener>();
+		eventListeners = new ArrayList<IPostEventListener>();
 		
 		int statusCode = 0;
 		try {
@@ -259,10 +268,20 @@ public class ProposalDBSOAPService {
 			System.err.println("HTTP GET failed: " + postMethod.getStatusLine());
 		} else {
 			try{
-				SOAPMessage message = MessageFactory.newInstance().createMessage();  
-				SOAPPart soapPart = message.getSOAPPart();  
-				soapPart.setContent(new StreamSource(postMethod.getResponseBodyAsStream()));
-				Element element = soapPart.getDocumentElement();
+//				SOAPMessage message = MessageFactory.newInstance().createMessage();  
+//				SOAPPart soapPart = message.getSOAPPart();  
+//				soapPart.setContent(new StreamSource(postMethod.getResponseBodyAsStream()));
+				
+//				MessageFactory factory = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
+//		        SOAPMessage response = factory.createMessage(null, postMethod.getResponseBodyAsStream());
+		        
+				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			    dbf.setNamespaceAware(true); // SOAP requires this!
+
+			    DocumentBuilder builder = dbf.newDocumentBuilder();
+			    Document doc = builder.parse(postMethod.getResponseBodyAsStream());
+			    
+				Element element = doc.getDocumentElement();
 				proposalMap = processMessage(element, instrumenId);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -280,15 +299,15 @@ public class ProposalDBSOAPService {
 		}
 	}
 
-	public interface ISoapEventListener {
-		public void post(SOAPMessage message);
+	public interface IPostEventListener {
+		public void post(Element element);
 	}
 	
-	public static void addEventListener(ISoapEventListener listener) {
+	public static void addEventListener(IPostEventListener listener) {
 		eventListeners.add(listener);
 	}
 	
-	public static void removeEventListener(ISoapEventListener listener) {
+	public static void removeEventListener(IPostEventListener listener) {
 		eventListeners.remove(listener);
 	}
 }

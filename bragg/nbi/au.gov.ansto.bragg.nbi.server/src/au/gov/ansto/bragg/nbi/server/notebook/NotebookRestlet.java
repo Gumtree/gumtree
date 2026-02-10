@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -45,7 +46,7 @@ import org.restlet.data.Disposition;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
-import org.restlet.engine.util.Base64;
+//import org.restlet.engine.util.Base64;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
 import org.slf4j.Logger;
@@ -1263,7 +1264,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				FileOutputStream fos = null;
 				try {
 					fos = new FileOutputStream(file);
-					fos.write(Base64.decode(upload));
+					fos.write(Base64.getDecoder().decode(upload));
 					response.setEntity("notebook/images?id=" + filename, MediaType.TEXT_PLAIN);
 				} catch (Exception e) {
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, "failed to create file at the server");
@@ -1735,7 +1736,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 			}
 			try {
 				byteArray = IOUtils.toByteArray(in);
-				base64 = Base64.encode(byteArray, false);
+				base64 = Base64.getEncoder().encodeToString(byteArray);
 				isReady = true;
 			} catch (IOException e) {
 				System.err.println(e);

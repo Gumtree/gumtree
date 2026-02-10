@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Wombat UI Library
 Bundle-SymbolicName: au.gov.ansto.bragg.wombat.ui;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.wombat.ui.internal.Activator
 Require-Bundle: au.gov.ansto.bragg.wombat.core;bundle-version="1.7.0";visibility:=reexport,
  au.gov.ansto.bragg.nbi.ui;bundle-version="1.7.0";visibility:=reexport,
@@ -18,5 +18,5 @@ Bundle-ActivationPolicy: lazy
 Export-Package: au.gov.ansto.bragg.wombat.ui,
  au.gov.ansto.bragg.wombat.ui.widgets,
  au.gov.ansto.bragg.wombat.ui.workflow
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: Bragg Institute

@@ -16,9 +16,10 @@ import java.io.FileNotFoundException;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -28,10 +29,6 @@ import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DragSourceAdapter;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
@@ -206,26 +203,26 @@ public class AngleParameter extends AbstractScanParameter {
 		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(posText);
 		addValidator(posText, ParameterValidator.integerValidator);
 
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
 //				bindingContext.bindValue(SWTObservables.observe(angleLabel, SWT.Modify),
 //						BeansObservables.observeValue(getInstance(), "angle"),
 //						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(omegaText, SWT.Modify),
-						BeansObservables.observeValue(getInstance(), "omega"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(omegaText),
+						BeanProperties.value("omega").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(ss1vgText, SWT.Modify),
-						BeansObservables.observeValue(getInstance(), "ss1vg"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(ss1vgText),
+						BeanProperties.value("ss1vg").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(ss2vgText, SWT.Modify),
-						BeansObservables.observeValue(getInstance(), "ss2vg"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(ss2vgText),
+						BeanProperties.value("ss2vg").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(ss3vgText, SWT.Modify),
-						BeansObservables.observeValue(getInstance(), "ss3vg"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(ss3vgText),
+						BeanProperties.value("ss3vg").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(posText, SWT.Modify),
-						BeansObservables.observeValue(getInstance(), "pos"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(posText),
+						BeanProperties.value("pos").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});

@@ -13,9 +13,10 @@ package au.gov.ansto.bragg.kowari.exp.task;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -100,17 +101,17 @@ public class HeaderInformationBlockTask extends CommandBlockTask {
 			
 			
 			// Data binding
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
 //					bindingContext.bindValue(SWTObservables.observeText(experimentTitleText, SWT.Modify),
 //							BeansObservables.observeValue(experimentTitle, "value"),
 //							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(sampleNameText, SWT.Modify),
-							BeansObservables.observeValue(sampleName, "value"),
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(sampleNameText),
+							BeanProperties.value("value").observe(sampleName),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(descriptionText, SWT.Modify),
-							BeansObservables.observeValue(sampleDescription, "value"),
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(descriptionText),
+							BeanProperties.value("value").observe(sampleDescription),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});

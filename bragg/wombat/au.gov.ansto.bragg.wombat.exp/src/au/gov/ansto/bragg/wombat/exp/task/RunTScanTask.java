@@ -16,9 +16,10 @@ import java.io.FileNotFoundException;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -72,22 +73,6 @@ public class RunTScanTask extends AbstractWombatTask {
 			
 			getToolkit().createLabel(parent, "RunT ");
 
-//			Group group = new Group(parent, SWT.NONE);
-//			getToolkit().adapt(group);
-//			group.setText("position-2");
-//			GridLayout propertiesGridLayout = new GridLayout ();
-//			propertiesGridLayout.numColumns = 4;
-//			propertiesGridLayout.marginHeight = 3;
-//			propertiesGridLayout.marginWidth = 3;
-//			propertiesGridLayout.horizontalSpacing = 3;
-//			propertiesGridLayout.verticalSpacing = 3;
-//			group.setLayout (propertiesGridLayout);
-//			GridData data = new GridData ();
-//			data.horizontalAlignment = GridData.FILL;
-//			data.horizontalSpan = 4;
-//			data.grabExcessHorizontalSpace = true;
-//			group.setLayoutData (data);
-			
 			final Text temperatureText = getToolkit().createText(parent, "");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(temperatureText);
 			addValidator(temperatureText, floatValidator);
@@ -104,21 +89,21 @@ public class RunTScanTask extends AbstractWombatTask {
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(oscnoText);
 			addValidator(oscnoText, integerValidator);
 			GridDataFactory.swtDefaults().hint(60, SWT.DEFAULT).applyTo(oscnoText);
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeText(temperatureText, SWT.Modify),
-							BeansObservables.observeValue(command, "temperature"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(delayText, SWT.Modify),
-							BeansObservables.observeValue(command, "delay"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(numstepsText, SWT.Modify),
-							BeansObservables.observeValue(command, "numsteps"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(oscnoText, SWT.Modify),
-							BeansObservables.observeValue(command, "oscno"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(temperatureText),
+						BeanProperties.value("temperature").observe(command),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(delayText),
+						BeanProperties.value("delay").observe(command),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(numstepsText),
+						BeanProperties.value("numsteps").observe(command),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(oscnoText),
+						BeanProperties.value("oscno").observe(command),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});
 

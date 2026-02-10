@@ -19,9 +19,10 @@ import java.util.Map;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -80,11 +81,11 @@ public class SimpleScanCommandView extends AbstractScanCommandView {
 			final Button check = getToolkit().createButton(parameterComposite, "", SWT.CHECK);
 			final String columnName = "column" + i;
 			GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check);
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeSelection(check),
-							BeansObservables.observeValue(command, columnName),
+					bindingContext.bindValue(WidgetProperties.buttonSelection().observe(check),
+							BeanProperties.value(columnName).observe(command),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});

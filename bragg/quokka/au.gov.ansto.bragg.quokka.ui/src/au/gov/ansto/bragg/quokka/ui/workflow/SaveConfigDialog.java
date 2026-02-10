@@ -14,7 +14,8 @@ package au.gov.ansto.bragg.quokka.ui.workflow;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -51,12 +52,12 @@ public class SaveConfigDialog extends MessageDialog {
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(300, 100).applyTo(descriptionText);
 				
 		Realm.runWithDefault(
-				SWTObservables.getRealm(Display.getDefault()),
+				DisplayRealm.getRealm(Display.getDefault()),
 				new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
 						bindingContext.bindValue(
-								SWTObservables.observeText(descriptionText, SWT.Modify),
+								WidgetProperties.text(SWT.Modify).observe(descriptionText),
 								configDescription);
 					}
 				});

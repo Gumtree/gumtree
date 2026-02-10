@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.gumtree.ui.cli;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.gumtree.ui.internal.cli.Activator
 Bundle-Localization: plugin
-Require-Bundle: bsh;bundle-version="2.0.0",
+Require-Bundle: bsh;bundle-version="2.1.1",
  org.gumtree.ui;bundle-version="1.7.0";visibility:=reexport
 Bundle-ActivationPolicy: lazy
 Export-Package: org.gumtree.ui.cli,
@@ -13,6 +13,6 @@ Export-Package: org.gumtree.ui.cli,
 Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Eclipse-BuddyPolicy: global
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: org.osgi.framework
 Eclipse-BundleShape: jar

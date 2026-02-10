@@ -50,5 +50,5 @@ Export-Package: uk.co.caprica.vlcj.binding,
  uk.co.caprica.vlcj.waiter,
  uk.co.caprica.vlcj.waiter.media,
  uk.co.caprica.vlcj.waiter.mediaplayer
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: com.sun.jna;bundle-version="5.2.0";visibility:=reexport

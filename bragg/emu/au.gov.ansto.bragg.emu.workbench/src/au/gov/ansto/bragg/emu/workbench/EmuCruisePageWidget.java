@@ -1,7 +1,7 @@
 package au.gov.ansto.bragg.emu.workbench;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+import jakarta.annotation.PostConstruct;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;

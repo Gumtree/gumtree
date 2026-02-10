@@ -1,9 +1,10 @@
 package au.gov.ansto.bragg.kookaburra.ui.workflow;
 
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -44,16 +45,14 @@ public class SaveConfigDialog extends MessageDialog {
 		final Text descriptionText = new Text(mainArea, SWT.SINGLE | SWT.BORDER);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(descriptionText);
 
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()),
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()),
 				new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
-						bindingContext.bindValue(SWTObservables.observeText(
-								nameText, SWT.Modify), BeansObservables
-								.observeValue(template, "name"), null, null);
-						bindingContext.bindValue(SWTObservables.observeText(
-								descriptionText, SWT.Modify), BeansObservables
-								.observeValue(template, "description"), null, null);
+						bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(nameText), 
+								BeanProperties.value("name").observe(template), null, null);
+						bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(descriptionText), 
+								BeanProperties.value("description").observe(template), null, null);
 					}
 				});
 		return mainArea;

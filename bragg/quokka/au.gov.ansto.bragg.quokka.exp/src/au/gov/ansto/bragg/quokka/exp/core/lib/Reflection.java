@@ -12,9 +12,7 @@ package au.gov.ansto.bragg.quokka.exp.core.lib;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.JarURLConnection;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -22,10 +20,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.eclipse.osgi.framework.internal.core.BundleURLConnection;
+import org.eclipse.core.runtime.Platform;
+import org.osgi.framework.Bundle;
 
 /**
  * This class is a collection of utility functions for dealing with
@@ -84,28 +82,85 @@ public class Reflection {
 	 * @param classSet is where to add the classes.
 	 * @throws IOException if the operation failed with an I/O error.
 	 */
-	public static void findClassNames(String packageName, boolean includeSubPackages, Set<String> classSet)
-	throws IOException {
-
-		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		String path = packageName.replace('.', '/');
-		String pathWithPrefix = path + '/';
-		Enumeration<URL> urls = classLoader.getResources(path);
-		StringBuilder qualifiedNameBuilder = new StringBuilder(packageName);
-		qualifiedNameBuilder.append('.');
-		int qualifiedNamePrefixLength = qualifiedNameBuilder.length();
-		while (urls.hasMoreElements()) {
-			URL packageUrl = urls.nextElement();
-			String urlString = URLDecoder.decode(packageUrl.getFile(), "UTF-8");
-			String protocol = packageUrl.getProtocol().toLowerCase();
-			if ("bundleresource".equals(protocol)){
-				BundleURLConnection connection = (BundleURLConnection) packageUrl.openConnection();
+//	public static void findClassNames(String packageName, boolean includeSubPackages, Set<String> classSet)
+//	throws IOException {
+//
+//		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+//		String path = packageName.replace('.', '/');
+//		String pathWithPrefix = path + '/';
+//		Enumeration<URL> urls = classLoader.getResources(path);
+//		StringBuilder qualifiedNameBuilder = new StringBuilder(packageName);
+//		qualifiedNameBuilder.append('.');
+//		int qualifiedNamePrefixLength = qualifiedNameBuilder.length();
+//		while (urls.hasMoreElements()) {
+//			URL packageUrl = urls.nextElement();
+//			String urlString = URLDecoder.decode(packageUrl.getFile(), "UTF-8");
+//			String protocol = packageUrl.getProtocol().toLowerCase();
+//			if ("bundleresource".equals(protocol)){
+////				BundleURLConnection connection = (BundleURLConnection) packageUrl.openConnection();
+//				Bundle bundle = Activator.getDefault().getBundle();
+////				JarFile jarFile = connection.getJarFile();
+//				
+//				packageUrl = connection.getFileURL();
+////				urlString = packageUrl.toString();
+//				urlString = packageUrl.getPath();
+//				protocol = packageUrl.getProtocol();
+////				JarFile jarFile = new JarFile(fileUrl.getFile());
+////				Enumeration<JarEntry> jarEntryEnumeration = jarFile.entries();
+////				while (jarEntryEnumeration.hasMoreElements()) {
+////					JarEntry jarEntry = jarEntryEnumeration.nextElement();
+////					String absoluteFileName = jarEntry.getName();
+////					if (absoluteFileName.endsWith(".class")) {
+////						if (absoluteFileName.startsWith("/")) {
+////							absoluteFileName.substring(1);
+////						}
+////						// special treatment for WAR files...
+////						// "WEB-INF/lib/" entries should be opened directly in contained jar
+////						if (absoluteFileName.startsWith("WEB-INF/classes/")) {
+////							// "WEB-INF/classes/".length() == 16
+////							absoluteFileName = absoluteFileName.substring(16);
+////						}
+////						boolean accept = true;
+////						if (absoluteFileName.startsWith(pathWithPrefix)) {
+////							String qualifiedName = absoluteFileName.replace('/', '.');
+////							if (!includeSubPackages) {
+////								int index = absoluteFileName.indexOf('/', qualifiedNamePrefixLength + 1);
+////								if (index != -1) {
+////									accept = false;
+////								}
+////							}
+////							if (accept) {
+////								String className = fixClassName(qualifiedName);
+////								if (className != null) {
+////									classSet.add(className);
+////								}
+////							}
+////						}
+////					}
+////				}
+//			} 
+//			if ("file".equals(protocol)) {
+//				File packageDirectory = new File(urlString);
+////				File packageDirectory = ;
+//				if (packageDirectory.isDirectory()) {
+//					if (includeSubPackages) {
+//						findClassNamesRecursive(packageDirectory, classSet, qualifiedNameBuilder,
+//								qualifiedNamePrefixLength);
+//					} else {
+//						for (String fileName : packageDirectory.list()) {
+//							String simpleClassName = fixClassName(fileName);
+//							if (simpleClassName != null) {
+//								qualifiedNameBuilder.setLength(qualifiedNamePrefixLength);
+//								qualifiedNameBuilder.append(simpleClassName);
+//								classSet.add(qualifiedNameBuilder.toString());
+//							}
+//						}
+//					}
+//				}
+//			} else if ("jar".equals(protocol)) {
+////				somehow the connection has no close method and can NOT be disposed
+//				JarURLConnection connection = (JarURLConnection) packageUrl.openConnection();
 //				JarFile jarFile = connection.getJarFile();
-				packageUrl = connection.getFileURL();
-//				urlString = packageUrl.toString();
-				urlString = packageUrl.getPath();
-				protocol = packageUrl.getProtocol();
-//				JarFile jarFile = new JarFile(fileUrl.getFile());
 //				Enumeration<JarEntry> jarEntryEnumeration = jarFile.entries();
 //				while (jarEntryEnumeration.hasMoreElements()) {
 //					JarEntry jarEntry = jarEntryEnumeration.nextElement();
@@ -138,67 +193,87 @@ public class Reflection {
 //						}
 //					}
 //				}
-			} 
-			if ("file".equals(protocol)) {
-				File packageDirectory = new File(urlString);
-//				File packageDirectory = ;
-				if (packageDirectory.isDirectory()) {
-					if (includeSubPackages) {
-						findClassNamesRecursive(packageDirectory, classSet, qualifiedNameBuilder,
-								qualifiedNamePrefixLength);
-					} else {
-						for (String fileName : packageDirectory.list()) {
-							String simpleClassName = fixClassName(fileName);
-							if (simpleClassName != null) {
-								qualifiedNameBuilder.setLength(qualifiedNamePrefixLength);
-								qualifiedNameBuilder.append(simpleClassName);
-								classSet.add(qualifiedNameBuilder.toString());
-							}
-						}
-					}
-				}
-			} else if ("jar".equals(protocol)) {
-//				somehow the connection has no close method and can NOT be disposed
-				JarURLConnection connection = (JarURLConnection) packageUrl.openConnection();
-				JarFile jarFile = connection.getJarFile();
-				Enumeration<JarEntry> jarEntryEnumeration = jarFile.entries();
-				while (jarEntryEnumeration.hasMoreElements()) {
-					JarEntry jarEntry = jarEntryEnumeration.nextElement();
-					String absoluteFileName = jarEntry.getName();
-					if (absoluteFileName.endsWith(".class")) {
-						if (absoluteFileName.startsWith("/")) {
-							absoluteFileName.substring(1);
-						}
-						// special treatment for WAR files...
-						// "WEB-INF/lib/" entries should be opened directly in contained jar
-						if (absoluteFileName.startsWith("WEB-INF/classes/")) {
-							// "WEB-INF/classes/".length() == 16
-							absoluteFileName = absoluteFileName.substring(16);
-						}
-						boolean accept = true;
-						if (absoluteFileName.startsWith(pathWithPrefix)) {
-							String qualifiedName = absoluteFileName.replace('/', '.');
-							if (!includeSubPackages) {
-								int index = absoluteFileName.indexOf('/', qualifiedNamePrefixLength + 1);
-								if (index != -1) {
-									accept = false;
-								}
-							}
-							if (accept) {
-								String className = fixClassName(qualifiedName);
-								if (className != null) {
-									classSet.add(className);
-								}
-							}
-						}
-					}
-				}
-			}
-			else {
-				// TODO: unknown protocol - log this?
-			}
-		}
-	}
+//			}
+//			else {
+//				// TODO: unknown protocol - log this?
+//			}
+//		}
+//	}
+	 /**
+     * Finds all class names inside a given Eclipse bundle or JAR file.
+     *
+     * @param packageName          Bundle symbolic name (e.g. "org.eclipse.core.runtime")
+     *                             or a file path to a JAR (absolute or relative)
+     * @param includeSubPackages    whether to include subpackages
+     * @param classSet              destination set to collect class names
+     */
+    public static void findClassNames(String packageName,
+                                      boolean includeSubPackages,
+                                      Set<String> classSet) throws IOException {
+        if (packageName == null || classSet == null) {
+            throw new IllegalArgumentException("packageName and classSet cannot be null");
+        }
+
+        // --- Case 1: Try to treat packageName as a Bundle symbolic name ---
+        Bundle bundle = Platform.getBundle(packageName);
+        if (bundle != null) {
+            // Convert package name to path format
+            String path = packageName.replace('.', '/');
+            if (!path.endsWith("/")) path += "/";
+
+            // Find class entries inside bundle
+            Enumeration<URL> entries = bundle.findEntries("/", "*.class", true);
+            if (entries != null) {
+                while (entries.hasMoreElements()) {
+                    URL entry = entries.nextElement();
+                    String entryPath = entry.getPath(); // e.g. /org/eclipse/core/runtime/internal/MyClass.class
+                    if (!entryPath.endsWith(".class"))
+                        continue;
+
+                    // Derive class name
+                    String className = entryPath.substring(1, entryPath.length() - 6).replace('/', '.');
+
+                    if (includeSubPackages) {
+                        classSet.add(className);
+                    } else if (className.startsWith(packageName + ".") || className.equals(packageName)) {
+                        // only include if exactly matches package or its immediate classes
+                        String remainder = className.substring(packageName.length());
+                        if (!remainder.contains(".")) {
+                            classSet.add(className);
+                        }
+                    }
+                }
+            }
+            return;
+        }
+
+        // --- Case 2: Treat as JAR file path ---
+        File jarFile = new File(packageName);
+        if (jarFile.exists() && jarFile.getName().endsWith(".jar")) {
+            try (JarFile jar = new JarFile(jarFile)) {
+                String packagePath = packageName.replace('.', '/');
+                jar.stream()
+                        .filter(e -> !e.isDirectory() && e.getName().endsWith(".class"))
+                        .forEach(e -> {
+                            String name = e.getName();
+                            if (includeSubPackages) {
+                                classSet.add(name.replace('/', '.').substring(0, name.length() - 6));
+                            } else {
+                                if (name.startsWith(packagePath + "/")) {
+                                    String tail = name.substring(packagePath.length() + 1);
+                                    if (!tail.contains("/")) {
+                                        classSet.add(name.replace('/', '.').substring(0, name.length() - 6));
+                                    }
+                                }
+                            }
+                        });
+            }
+            return;
+        }
+
+        throw new IOException("Not a valid bundle name or JAR path: " + packageName);
+    }
+	
 
 	/**
 	 * This method finds the recursively scans the given

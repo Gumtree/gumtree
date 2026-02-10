@@ -8,6 +8,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -17,7 +19,6 @@ import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.TransportConfigCallback;
@@ -46,14 +47,13 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.storage.file.FileRepository;
-import org.eclipse.jgit.transport.CredentialsProvider;
-import org.eclipse.jgit.transport.JschConfigSessionFactory;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.SshTransport;
 import org.eclipse.jgit.transport.Transport;
-import org.eclipse.jgit.transport.OpenSshConfig.Host;
+import org.eclipse.jgit.transport.sshd.SshdSessionFactory;
+import org.eclipse.jgit.transport.sshd.SshdSessionFactoryBuilder;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -61,17 +61,16 @@ import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
-import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
 import org.eclipse.jgit.util.IO;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.gumtree.security.EncryptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
+import org.apache.sshd.common.config.keys.FilePasswordProvider;
+import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
+import org.apache.sshd.common.keyprovider.KeyPairProvider;
+import org.eclipse.jgit.transport.sshd.KeyPasswordProvider;
 
 import au.gov.ansto.bragg.nbi.server.NBIServerProperties;
 
@@ -85,11 +84,17 @@ public class GitService {
 	private String remoteAddress;
 	private Repository repository;
 	private SshSessionFactory sshSessionFactory;
+	private TransportConfigCallback transportConfigCallback;
 	
 	public GitService(String path) {
 		repoPath = path;
 		try {
-			repository = new FileRepository(path + "/.git");
+//			repository = new FileRepository(path + "/.git");
+			repository = new FileRepositoryBuilder()
+		            .setGitDir(new File(path + "/.git"))
+		            .readEnvironment()  // scan environment GIT_* variables
+		            .findGitDir()       // optional, auto-detects if not set
+		            .build();
 			git = new Git(repository);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -114,58 +119,83 @@ public class GitService {
 	}
 	
 	private void setCredential() {
-		sshSessionFactory = new JschConfigSessionFactory() {
-			
-			@Override
-			protected void configure(Host arg0, Session arg1) {
-				
-			}
-			
-			@Override
-			protected JSch createDefaultJSch( FS fs ) throws JSchException {
-			  com.jcraft.jsch.Logger schLogger = new com.jcraft.jsch.Logger() {
-				
-				@Override
-				public void log(int level, String message) {
-					switch (level) {
-					case com.jcraft.jsch.Logger.DEBUG:
-						logger.debug(message);
-						break;
-					case com.jcraft.jsch.Logger.INFO:
-						logger.info(message);
-						break;
-					case com.jcraft.jsch.Logger.WARN:
-						logger.warn(message);
-						break;
-					case com.jcraft.jsch.Logger.ERROR:
-						logger.error(message);
-						break;
-					case com.jcraft.jsch.Logger.FATAL:
-						logger.error(message);
-						break;
-					default:
-						logger.debug(message);
-						break;
-					}
-				}
-				
-				@Override
-				public boolean isEnabled(int level) {
-					return true;
-				}
-			};
-			  JSch.setLogger(schLogger);
-//			  JSch defaultJSch = super.createDefaultJSch( fs );
-			  JSch defaultJSch = new JSch();
-//			  defaultJSch.addIdentity( "/path/to/private_key" );
-			  defaultJSch.addIdentity(keyPath, passphrase);
-//			  java.util.Properties config = new java.util.Properties(); 
-//			  config.put("StrictHostKeyChecking", "no");
-//			  defaultJSch.setConfig(config);
-			  JSch.setConfig("StrictHostKeyChecking", "no");
-			  return defaultJSch;
-			}
-		};
+		
+		Path privateKey = Paths.get(keyPath);
+        final FileKeyPairProvider keyPairProvider = new FileKeyPairProvider(List.of(privateKey));
+        keyPairProvider.setPasswordFinder(FilePasswordProvider.of(passphrase));
+        
+		sshSessionFactory = new SshdSessionFactoryBuilder()
+				.setDefaultKeysProvider(sshDir -> {
+                    try {
+                        return keyPairProvider.loadKeys(null);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to load SSH key", e);
+                    }
+                })
+        .build(null);
+		
+        // Transport configuration
+        transportConfigCallback = new TransportConfigCallback() {
+            @Override
+            public void configure(Transport transport) {
+                if (transport instanceof SshTransport) {
+                    ((SshTransport) transport).setSshSessionFactory(sshSessionFactory);
+                }
+            }
+        };
+		
+//		sshSessionFactory = new JschConfigSessionFactory() {
+//			
+//			@Override
+//			protected void configure(Host arg0, Session arg1) {
+//				
+//			}
+//			
+//			@Override
+//			protected JSch createDefaultJSch( FS fs ) throws JSchException {
+//			  com.jcraft.jsch.Logger schLogger = new com.jcraft.jsch.Logger() {
+//				
+//				@Override
+//				public void log(int level, String message) {
+//					switch (level) {
+//					case com.jcraft.jsch.Logger.DEBUG:
+//						logger.debug(message);
+//						break;
+//					case com.jcraft.jsch.Logger.INFO:
+//						logger.info(message);
+//						break;
+//					case com.jcraft.jsch.Logger.WARN:
+//						logger.warn(message);
+//						break;
+//					case com.jcraft.jsch.Logger.ERROR:
+//						logger.error(message);
+//						break;
+//					case com.jcraft.jsch.Logger.FATAL:
+//						logger.error(message);
+//						break;
+//					default:
+//						logger.debug(message);
+//						break;
+//					}
+//				}
+//				
+//				@Override
+//				public boolean isEnabled(int level) {
+//					return true;
+//				}
+//			};
+//			  JSch.setLogger(schLogger);
+////			  JSch defaultJSch = super.createDefaultJSch( fs );
+//			  JSch defaultJSch = new JSch();
+////			  defaultJSch.addIdentity( "/path/to/private_key" );
+//			  defaultJSch.addIdentity(keyPath, passphrase);
+////			  java.util.Properties config = new java.util.Properties(); 
+////			  config.put("StrictHostKeyChecking", "no");
+////			  defaultJSch.setConfig(config);
+//			  JSch.setConfig("StrictHostKeyChecking", "no");
+//			  return defaultJSch;
+//			}
+//		};
 		
 //		CredentialsProvider credential = new 
 //		PushCommand push = git.push();
@@ -229,14 +259,15 @@ public class GitService {
 	public void push() throws GitException {
 		if (git != null) {
 			PushCommand push = git.push();
-			push.setTransportConfigCallback(new TransportConfigCallback() {
-				
-				@Override
-				public void configure(Transport transport) {
-					SshTransport sshTransport = ( SshTransport )transport;
-				    sshTransport.setSshSessionFactory( sshSessionFactory );					
-				}
-			});
+//			push.setTransportConfigCallback(new TransportConfigCallback() {
+//				
+//				@Override
+//				public void configure(Transport transport) {
+//					SshTransport sshTransport = ( SshTransport )transport;
+//				    sshTransport.setSshSessionFactory( sshSessionFactory );					
+//				}
+//			});
+			push.setTransportConfigCallback(transportConfigCallback);
 			
 			try {
 				push.setRemote(remoteAddress);
@@ -280,24 +311,23 @@ public class GitService {
 			treewalk.addTree(repo.resolve(revSpec + "^{tree}"));
 			treewalk.setRecursive(false);
 //			treewalk.setFilter(PathFilter.create(path));
-			if (treewalk != null) {
+			if (path.endsWith(treewalk.getPathString())) {
+				byte[] data = reader.open(treewalk.getObjectId(0)).getBytes();
+				return new String(data, "utf-8");
+			}
+			while (treewalk.next()) {
 				if (path.endsWith(treewalk.getPathString())) {
 					byte[] data = reader.open(treewalk.getObjectId(0)).getBytes();
 					return new String(data, "utf-8");
 				}
-				while (treewalk.next()) {
-					if (path.endsWith(treewalk.getPathString())) {
-						byte[] data = reader.open(treewalk.getObjectId(0)).getBytes();
-						return new String(data, "utf-8");
-					}
-				}
-				// use the blob id to read the file's data
-			} else {
-				return "";
 			}
+			treewalk.close();
+			// use the blob id to read the file's data
 		} finally {
-			reader.release();
+//			reader.release();
+			reader.close();
 			if (walk != null) {
+				walk.close();
 				walk.dispose();
 			}
 		}
@@ -545,7 +575,7 @@ public class GitService {
 			ObjectId headId = repository.resolve(Constants.HEAD);
 			RevCommit commit = rw.parseCommit(headId);
 			RevTree tree = commit.getTree();
-			tw.addTree(tree); // tree ¡®0¡¯
+			tw.addTree(tree); // tree ï¿½ï¿½0ï¿½ï¿½
 			tw.setRecursive(true);
 			tw.setFilter(PathFilter.create(path));
 			if (tw.next()) {
@@ -562,7 +592,7 @@ public class GitService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			tw.release();
+			tw.close();
 		}
 		return commits;
 	}

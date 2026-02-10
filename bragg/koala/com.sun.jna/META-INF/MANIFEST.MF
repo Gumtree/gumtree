@@ -22,4 +22,4 @@ Export-Package: com.sun.jna,
  com.sun.jna.platform.wince,
  com.sun.jna.ptr,
  com.sun.jna.win32
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-21

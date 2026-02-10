@@ -1,6 +1,7 @@
 package au.gov.ansto.bragg.echidna.workbench;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+import jakarta.annotation.PostConstruct;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
@@ -42,6 +43,7 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 		super(parent, style);
 	}
 
+	@PostConstruct
 	public EchidnaCruisePageWidget render() {
 		GridLayoutFactory.swtDefaults().applyTo(this);
 		getEclipseContext().set(IDelayEventExecutor.class,

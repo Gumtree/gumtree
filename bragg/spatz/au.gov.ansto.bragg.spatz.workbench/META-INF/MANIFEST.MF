@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Spatz Workbench
 Bundle-SymbolicName: au.gov.ansto.bragg.spatz.workbench
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.spatz.workbench.Activator
 Bundle-Vendor: ANSTO
 Require-Bundle: au.gov.ansto.bragg.spatz.ui;bundle-version="1.13.0",
  au.gov.ansto.bragg.nbi.workbench;bundle-version="1.13.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/cruise/SpatzCruisePage.xml
 Export-Package: au.gov.ansto.bragg.spatz.workbench

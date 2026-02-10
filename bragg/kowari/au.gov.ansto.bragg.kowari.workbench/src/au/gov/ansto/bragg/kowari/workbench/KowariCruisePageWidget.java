@@ -1,6 +1,7 @@
 package au.gov.ansto.bragg.kowari.workbench;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+import jakarta.annotation.PostConstruct;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
@@ -34,6 +35,7 @@ public class KowariCruisePageWidget extends AbstractCruisePageWidget {
 		super(parent, style);
 	}
 
+	@PostConstruct
 	public KowariCruisePageWidget render() {
 		GridLayoutFactory.swtDefaults().spacing(1, 0).applyTo(this);
 

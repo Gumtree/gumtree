@@ -15,13 +15,14 @@ import javax.inject.Inject;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.JFaceResources;
@@ -139,12 +140,12 @@ public class HMImageDisplayWidget extends ScalableImageDisplayWidget {
 		label = getToolkit().createLabel(this, "Refresh: ");
 		label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
 		final Text refreshText = getToolkit().createText(this, "");
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(refreshText,
-						SWT.Modify), BeansObservables.observeValue(
-								HMImageDisplayWidget.this, "refreshDelay"), new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(refreshText), 
+						BeanProperties.value("refreshDelay").observe(HMImageDisplayWidget.this), 
+						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});
 		GridDataFactory.swtDefaults().hint(20, SWT.DEFAULT).applyTo(refreshText);

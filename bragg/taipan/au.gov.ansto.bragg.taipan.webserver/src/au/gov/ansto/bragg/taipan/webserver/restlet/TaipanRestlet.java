@@ -5,6 +5,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -15,12 +20,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.imageio.ImageIO;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.gumtree.data.interfaces.IArray;
 import org.gumtree.data.interfaces.IAttribute;
 import org.gumtree.data.interfaces.IDataItem;
@@ -83,6 +82,7 @@ public class TaipanRestlet extends Restlet {
 
 
 	public TaipanRestlet() {
+		client = HttpClient.newHttpClient();
 		String cacheDir = System.getProperty(JAVA_IMAGEIO_CACHE);
 		if (cacheDir != null && cacheDir != "null") {
 			try {
@@ -619,25 +619,22 @@ public class TaipanRestlet extends Restlet {
 			return imagedataCache.get(uri).imagedata;
 		}
 		// Otherwise fetch data
-		GetMethod getMethod = new GetMethod(uri);
-		getMethod.setDoAuthentication(true);
-		int statusCode = getClient().executeMethod(getMethod);
-		if (statusCode != HttpStatus.SC_OK) {
-			getMethod.releaseConnection();
-		}
-		byte[] imagedata = getMethod.getResponseBody();
+		HttpRequest request = getRequest(uri);
+		
+        HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+        
+//		getMethod.setDoAuthentication(true);
+//		int statusCode = getClient().executeMethod(getMethod);
+//		if (statusCode != HttpStatus.SC_OK) {
+//			getMethod.releaseConnection();
+//		}
+		byte[] imagedata = response.body();
 		// Cache if buffer is not full
 		imagedataCache.put(uri, new HMMCache(System.currentTimeMillis(), imagedata, uri));
 		return imagedata;
 	}
 	
-	public HttpClient getClient() {
-		if (client == null) {
-			synchronized (this) {
-				client = new HttpClient();
-
-				// Set credentials if login information supplied
-				client.getParams().setAuthenticationPreemptive(true);
+	public HttpRequest getRequest(String uri) {
 				String user = SystemProperties.DAE_LOGIN.getValue();
 				String password = null;
 				try {
@@ -645,13 +642,29 @@ public class TaipanRestlet extends Restlet {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				if (user != null && password != null) {
-					Credentials defaultcreds = new UsernamePasswordCredentials(
-							user, password);
-					client.getState().setCredentials(AuthScope.ANY, defaultcreds);
-				}
-			}
-		}
-		return client;
+				String encodedAuth = Base64.getEncoder().encodeToString(
+						(user + ":" + password).getBytes());
+				HttpRequest httpRequest = HttpRequest.newBuilder()
+		                .uri(URI.create(uri))
+		                .header("Authorization", "Basic " + encodedAuth)
+		                .GET()
+		                .build();
+//				client = HttpClient.newHttpClient();
+//
+//				// Set credentials if login information supplied
+//				client.getParams().setAuthenticationPreemptive(true);
+//				String user = SystemProperties.DAE_LOGIN.getValue();
+//				String password = null;
+//				try {
+//					password = EncryptionUtils.decryptBase64(SystemProperties.DAE_PASSWORD.getValue());
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//				if (user != null && password != null) {
+//					Credentials defaultcreds = new UsernamePasswordCredentials(
+//							user, password);
+//					client.getState().setCredentials(AuthScope.ANY, defaultcreds);
+//				}
+		return httpRequest;
 	}
 }

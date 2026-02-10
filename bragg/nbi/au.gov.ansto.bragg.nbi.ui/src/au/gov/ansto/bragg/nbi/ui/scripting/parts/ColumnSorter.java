@@ -24,7 +24,7 @@ public class ColumnSorter extends ViewerComparator {
 	public ColumnSorter() {
 	}
 
-	public ColumnSorter(Comparator<?> comparator) {
+	public ColumnSorter(Comparator<? super String> comparator) {
 		super(comparator);
 	}
 	

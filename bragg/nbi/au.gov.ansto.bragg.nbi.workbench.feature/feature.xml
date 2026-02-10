@@ -2,7 +2,7 @@
 <feature
       id="au.gov.ansto.bragg.nbi.workbench.feature"
       label="Bragg NBI Workbench"
-      version="1.13.0.qualifier"
+      version="2.0.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">
@@ -37,48 +37,28 @@
          id="org.gumtree.tcl.feature"
          version="0.0.0"/>
 
-   <includes
-         id="org.gumtree.javafx.feature"
+   <plugin
+         id="au.gov.ansto.bragg.nbi.ui"
          version="0.0.0"/>
 
    <plugin
-         id="au.gov.ansto.bragg.nbi.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="de.kupzog.ktable"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.gumtree.ui.cli"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="au.gov.ansto.bragg.nbi.workbench"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="bsh"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="ninia.jep"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
 </feature>

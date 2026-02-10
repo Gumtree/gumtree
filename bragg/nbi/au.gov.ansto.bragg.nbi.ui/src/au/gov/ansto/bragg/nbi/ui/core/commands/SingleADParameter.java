@@ -14,12 +14,13 @@ import java.io.FileNotFoundException;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.databinding.viewers.ViewersObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -201,14 +202,14 @@ public class SingleADParameter extends AbstractScanParameter {
 		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(stepSizeText);
 		addValidator(stepSizeText, ParameterValidator.floatValidator);
 
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(ViewersObservables.observeSingleSelection(scanVariableCombo),
-						BeansObservables.observeValue(getInstance(), "scanVariable"),
+				bindingContext.bindValue(ViewerProperties.singleSelection().observe(scanVariableCombo),
+						BeanProperties.value("scanVariable").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(startPositionText, SWT.Modify),
-						BeansObservables.observeValue(getInstance(), "startPosition"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(startPositionText),
+						BeanProperties.value("startPosition").observe(getInstance()),
 						new UpdateValueStrategy(){
 
 							/* (non-Javadoc)
@@ -254,8 +255,8 @@ public class SingleADParameter extends AbstractScanParameter {
 							}
 							
 						});
-				bindingContext.bindValue(SWTObservables.observeText(finishPositionText, SWT.Modify),
-						BeansObservables.observeValue(getInstance(), "finishPosition"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(finishPositionText),
+						BeanProperties.value("finishPosition").observe(getInstance()),
 						new UpdateValueStrategy(){
 
 							/* (non-Javadoc)
@@ -284,8 +285,8 @@ public class SingleADParameter extends AbstractScanParameter {
 								return super.convert(value);
 							}
 						});
-				bindingContext.bindValue(SWTObservables.observeText(stepSizeText, SWT.Modify),
-						BeansObservables.observeValue(getInstance(), "stepSize"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(stepSizeText),
+						BeanProperties.value("stepSize").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});

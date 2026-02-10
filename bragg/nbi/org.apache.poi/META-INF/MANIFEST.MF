@@ -53,4 +53,4 @@ Export-Package: org.apache.poi,
  org.apache.poi.ss.util,
  org.apache.poi.ss.util.cellwalk,
  org.apache.poi.util
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21

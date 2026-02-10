@@ -17,9 +17,10 @@ import java.util.List;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -149,14 +150,14 @@ public class AdvancedParameter extends AbstractScanParameter {
 			}
 		});
 		
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(numberOfPointsText, SWT.Modify),
-						BeansObservables.observeValue(getInstance(), "numberOfPoints"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(numberOfPointsText),
+						BeanProperties.value("numberOfPoints").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeSelection(multiFileButton),
-						BeansObservables.observeValue(getInstance(), "doCreateFile"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(multiFileButton),
+						BeanProperties.value("doCreateFile").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});

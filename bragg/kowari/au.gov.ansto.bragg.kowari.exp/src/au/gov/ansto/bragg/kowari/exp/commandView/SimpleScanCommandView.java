@@ -15,9 +15,10 @@ import java.beans.PropertyChangeListener;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -69,20 +70,20 @@ public class SimpleScanCommandView extends AbstractScanCommandView {
 			final Button check4 = getToolkit().createButton(parent, "", SWT.CHECK);
 			GridDataFactory.swtDefaults().indent(4, 0).span(2, 1).align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check4);
 
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeSelection(check1),
-							BeansObservables.observeValue(command, "column1"),
+					bindingContext.bindValue(WidgetProperties.buttonSelection().observe(check1),
+							BeanProperties.value("column1").observe(command),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check2),
-							BeansObservables.observeValue(command, "column2"),
+					bindingContext.bindValue(WidgetProperties.buttonSelection().observe(check2),
+							BeanProperties.value("column2").observe(command),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check3),
-							BeansObservables.observeValue(command, "column3"),
+					bindingContext.bindValue(WidgetProperties.buttonSelection().observe(check3),
+							BeanProperties.value("column3").observe(command),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check4),
-							BeansObservables.observeValue(command, "column4"),
+					bindingContext.bindValue(WidgetProperties.buttonSelection().observe(check4),
+							BeanProperties.value("column4").observe(command),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});
@@ -102,29 +103,29 @@ public class SimpleScanCommandView extends AbstractScanCommandView {
 			final Button check7 = getToolkit().createButton(parent, "", SWT.CHECK);
 			GridDataFactory.swtDefaults().indent(4, 0).span(2, 1).align(SWT.BEGINNING, SWT.BOTTOM).applyTo(check7);
 
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeSelection(check1),
-							BeansObservables.observeValue(command, "column1"),
+					bindingContext.bindValue(WidgetProperties.buttonSelection().observe(check1),
+							BeanProperties.value("column1").observe(command),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check2),
-							BeansObservables.observeValue(command, "column2"),
+					bindingContext.bindValue(WidgetProperties.buttonSelection().observe(check2),
+							BeanProperties.value("column2").observe(command),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check3),
-							BeansObservables.observeValue(command, "column3"),
+					bindingContext.bindValue(WidgetProperties.buttonSelection().observe(check3),
+							BeanProperties.value("column3").observe(command),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check4),
-							BeansObservables.observeValue(command, "column4"),
+					bindingContext.bindValue(WidgetProperties.buttonSelection().observe(check4),
+							BeanProperties.value("column4").observe(command),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check5),
-							BeansObservables.observeValue(command, "column5"),
+					bindingContext.bindValue(WidgetProperties.buttonSelection().observe(check5),
+							BeanProperties.value("column5").observe(command),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check6),
-							BeansObservables.observeValue(command, "column6"),
+					bindingContext.bindValue(WidgetProperties.buttonSelection().observe(check6),
+							BeanProperties.value("column6").observe(command),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(check7),
-							BeansObservables.observeValue(command, "column7"),
+					bindingContext.bindValue(WidgetProperties.buttonSelection().observe(check7),
+							BeanProperties.value("column7").observe(command),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});

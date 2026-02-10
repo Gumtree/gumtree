@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg Kowari Experiment
 Bundle-SymbolicName: au.gov.ansto.bragg.kowari.exp;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.kowari.exp.internal.Activator
 Require-Bundle: org.eclipse.core.resources;bundle-version="3.7.100",
  org.gumtree.ui.cli,
@@ -11,12 +11,15 @@ Require-Bundle: org.eclipse.core.resources;bundle-version="3.7.100",
  au.gov.ansto.bragg.cicada.dom;bundle-version="1.7.0";visibility:=reexport,
  au.gov.ansto.bragg.kakadu.dom;bundle-version="1.7.0";visibility:=reexport
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: au.gov.ansto.bragg.kowari.exp.command,
+ au.gov.ansto.bragg.kowari.exp.commandView,
  au.gov.ansto.bragg.kowari.exp.core,
  au.gov.ansto.bragg.kowari.exp.exception,
+ au.gov.ansto.bragg.kowari.exp.interpreter,
  au.gov.ansto.bragg.kowari.exp.processor,
+ au.gov.ansto.bragg.kowari.exp.python,
  au.gov.ansto.bragg.kowari.exp.task
-Eclipse-BundleShape: jar
 Import-Package: org.slf4j
+Eclipse-BundleShape: jar
 Bundle-Vendor: Bragg Institute

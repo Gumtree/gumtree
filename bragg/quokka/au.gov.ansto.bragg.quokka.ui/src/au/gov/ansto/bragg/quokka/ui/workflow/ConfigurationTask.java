@@ -21,9 +21,9 @@ import java.util.List;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
-import org.eclipse.core.databinding.conversion.NumberToStringConverter;
-import org.eclipse.core.databinding.conversion.StringToNumberConverter;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
+import org.eclipse.core.databinding.conversion.text.NumberToStringConverter;
+import org.eclipse.core.databinding.conversion.text.StringToNumberConverter;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
@@ -35,10 +35,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
-import org.eclipse.jface.databinding.viewers.ViewersObservables;
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -95,6 +96,8 @@ import org.gumtree.workflow.ui.tasks.ScriptEngineTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ibm.icu.text.DecimalFormat;
+
 //import ucar.atd.dorade.ScanMode;
 
 import au.gov.ansto.bragg.quokka.experiment.model.InstrumentConfig;
@@ -105,8 +108,6 @@ import au.gov.ansto.bragg.quokka.experiment.util.ExperimentModelUtils;
 import au.gov.ansto.bragg.quokka.ui.internal.Activator;
 import au.gov.ansto.bragg.quokka.ui.internal.InternalImage;
 import au.gov.ansto.bragg.quokka.ui.internal.SystemProperties;
-
-import com.ibm.icu.text.DecimalFormat;
 
 public class ConfigurationTask extends AbstractExperimentTask {
 
@@ -128,7 +129,7 @@ public class ConfigurationTask extends AbstractExperimentTask {
 		public void createPartControl(final Composite parent) {
 			parent.setLayout(new GridLayout(3, false));
 			executor = getContext().getSingleValue(IScriptExecutor.class);
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					/*********************************************************
 					 * Configuration list
@@ -174,7 +175,17 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			ObservableListContentProvider contentProvider = new ObservableListContentProvider();
 			tableViewer.setContentProvider(contentProvider);
 			// And a standard label provider that maps columns
-			IObservableMap[] attributeMaps = BeansObservables.observeMaps(contentProvider.getKnownElements(), InstrumentConfig.class, new String[] { "name" });
+//			IObservableMap[] attributeMaps = BeansObservables.observeMaps(contentProvider.getKnownElements(), InstrumentConfig.class, new String[] { "name" });
+
+			String[] propertyNames = { "name" };
+			IObservableMap[] attributeMaps = new IObservableMap[propertyNames.length];
+
+			for (int i = 0; i < propertyNames.length; i++) {
+			    attributeMaps[i] = BeanProperties
+			            .value(InstrumentConfig.class, propertyNames[i])
+			            .observeDetail(contentProvider.getKnownElements());
+			}
+			
 			tableViewer.setLabelProvider(new ObservableMapLabelProvider(attributeMaps));
 			// Now set the Viewer's input
 			tableViewer.setInput(new WritableList(getExperiment().getInstrumentConfigs(), InstrumentConfig.class));
@@ -328,7 +339,7 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			parent.setLayout(new GridLayout());
 			DataBindingContext bindingContext = new DataBindingContext();
 			// bind widget to the name of the current selection
-			final IObservableValue selection = ViewersObservables.observeSingleSelection(tableViewer);
+			final IObservableValue selection = ViewerProperties.singleSelection().observe(tableViewer);
 			
 			/*****************************************************************
 			 * Configuration group
@@ -346,8 +357,8 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			final Text nameText = getToolkit().createText(configurationGroup, "", SWT.BORDER);
 			GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).hint(150, SWT.DEFAULT).applyTo(nameText);
 			bindingContext.bindValue(
-					SWTObservables.observeText(nameText, SWT.Modify),
-					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "name", String.class));
+					WidgetProperties.text(SWT.Modify).observe(nameText),
+					BeanProperties.value("name").observe(selection));
 			nameText.setEnabled(false);
 			
 			// Lock/Unlock
@@ -368,8 +379,8 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			final Combo groupText = new Combo(configurationGroup, SWT.DROP_DOWN | SWT.BORDER);
 			GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).hint(150, SWT.DEFAULT).applyTo(groupText);
 			bindingContext.bindValue(
-					SWTObservables.observeSelection(groupText),
-					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "group", String.class));
+					WidgetProperties.text(SWT.Modify).observe(groupText),
+					BeanProperties.value("group").observe(selection));
 			groupText.setEnabled(false);
 			
 			IFolder configFolder = WorkspaceUtils.getFolder(SystemProperties.CONFIG_FOLDER.getValue());
@@ -405,8 +416,8 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			final Text initScriptText = getToolkit().createText(initArea, "", SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 			initItem.setControl(initArea);
 			bindingContext.bindValue(
-					SWTObservables.observeText(initScriptText, SWT.Modify),
-					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "initScript", String.class));
+					WidgetProperties.text(SWT.Modify).observe(initScriptText),
+					BeanProperties.value("initScript").observe(selection));
 			initScriptText.setEditable(false);
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(2, 1).applyTo(initScriptText);
 			
@@ -429,8 +440,8 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			final Text preTransmissionScriptText = getToolkit().createText(preTransmissionArea, "", SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 			preTransmissionItem.setControl(preTransmissionArea);
 			bindingContext.bindValue(
-					SWTObservables.observeText(preTransmissionScriptText, SWT.Modify),
-					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "preTransmissionScript", String.class));
+					WidgetProperties.text(SWT.Modify).observe(preTransmissionScriptText),
+					BeanProperties.value("preTransmissionScript").observe(selection));
 			preTransmissionScriptText.setEditable(false);
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(2, 1).applyTo(preTransmissionScriptText);
 			
@@ -449,22 +460,22 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			
 			final Button useManualAttenuationAlogrithmButton = getToolkit().createButton(preScatteringArea, "Use manual attenuation algorithm from: ", SWT.CHECK);
 			bindingContext.bindValue(
-					SWTObservables.observeSelection(useManualAttenuationAlogrithmButton),
-					BeansObservables.observeDetailValue(selection, "useManualAttenuationAlgorithm", boolean.class));
+					WidgetProperties.buttonSelection().observe(useManualAttenuationAlogrithmButton),
+					BeanProperties.value("useManualAttenuationAlgorithm").observe(selection));
 			useManualAttenuationAlogrithmButton.setEnabled(false);
 			
 			final Text startingAttenuationText = getToolkit().createText(preScatteringArea, "", SWT.SINGLE);
 			GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(startingAttenuationText);
 			bindingContext.bindValue(
-					SWTObservables.observeText(startingAttenuationText, SWT.Modify),
-					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "startingAttenuation", int.class));
+					WidgetProperties.text(SWT.Modify).observe(startingAttenuationText),
+					BeanProperties.value("startingAttenuation").observe(selection));
 			startingAttenuationText.setEditable(false);
 			
 			final Text preScatteringScriptText = getToolkit().createText(preScatteringArea, "", SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(3, 1).applyTo(preScatteringScriptText);
 			bindingContext.bindValue(
-					SWTObservables.observeText(preScatteringScriptText, SWT.Modify),
-					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "preScatteringScript", String.class));
+					WidgetProperties.text(SWT.Modify).observe(preScatteringScriptText),
+					BeanProperties.value("preScatteringScript").observe(selection));
 			preScatteringScriptText.setEditable(false);
 
 			final ProgressBar scattDriveProgressBar = new ProgressBar(preScatteringArea, SWT.INDETERMINATE);
@@ -623,8 +634,8 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			UpdateValueStrategy modelToTargetStrategy = new UpdateValueStrategy();
 			modelToTargetStrategy.setConverter(NumberToStringConverter.fromLong(numberFormat, true));
 			bindingContext.bindValue(
-					SWTObservables.observeText(transPresetText, SWT.Modify),
-					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "transmissionPreset", long.class),
+					WidgetProperties.text(SWT.Modify).observe(transPresetText),
+					BeanProperties.value("transmissionPreset").observe(selection),
 					targetToModelStrategy,
 					modelToTargetStrategy);
 			
@@ -682,8 +693,8 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			Text defaultSettingText = getToolkit().createText(scatteringGroup, "", SWT.BORDER);
 			GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).hint(150, SWT.DEFAULT).applyTo(defaultSettingText);
 			bindingContext.bindValue(
-					SWTObservables.observeText(defaultSettingText, SWT.Modify),
-					BeansObservables.observeDetailValue(Realm.getDefault(), selection, "defaultSetting", long.class),
+					WidgetProperties.text(SWT.Modify).observe(defaultSettingText),
+					BeanProperties.value("defaultSetting").observe(selection),
 					targetToModelStrategy,
 					modelToTargetStrategy);
 			
@@ -700,8 +711,8 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			Text emptyBeamTransmissionText = getToolkit().createText(fileAssociationGroup, "");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(emptyBeamTransmissionText);
 			bindingContext.bindValue(
-					SWTObservables.observeText(emptyBeamTransmissionText, SWT.Modify),
-					BeansObservables.observeDetailValue(selection, "emptyBeamTransmissionDataFile", String.class));
+					WidgetProperties.text(SWT.Modify).observe(emptyBeamTransmissionText),
+					BeanProperties.value("emptyBeamTransmissionDataFile").observe(selection));
 			Button loadFromReportButton = getToolkit().createButton(fileAssociationGroup, "Load from Report", SWT.PUSH);
 			loadFromReportButton.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
@@ -719,8 +730,8 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			Text emptyCellTransmissionText = getToolkit().createText(fileAssociationGroup, "");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(emptyCellTransmissionText);
 			bindingContext.bindValue(
-					SWTObservables.observeText(emptyCellTransmissionText, SWT.Modify),
-					BeansObservables.observeDetailValue(selection, "emptyCellTransmissionDataFile", String.class));
+					WidgetProperties.text(SWT.Modify).observe(emptyCellTransmissionText),
+					BeanProperties.value("emptyCellTransmissionDataFile").observe(selection));
 			Button clearAllButton = getToolkit().createButton(fileAssociationGroup, "Clear All", SWT.PUSH);
 			GridDataFactory.fillDefaults().applyTo(clearAllButton);
 			clearAllButton.addSelectionListener(new SelectionAdapter() {
@@ -739,8 +750,8 @@ public class ConfigurationTask extends AbstractExperimentTask {
 			Text emptyCellScatteringText = getToolkit().createText(fileAssociationGroup, "");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(emptyCellScatteringText);
 			bindingContext.bindValue(
-					SWTObservables.observeText(emptyCellScatteringText, SWT.Modify),
-					BeansObservables.observeDetailValue(selection, "emptyCellScatteringDataFile", String.class));
+					WidgetProperties.text(SWT.Modify).observe(emptyCellScatteringText),
+					BeanProperties.value("emptyCellScatteringDataFile").observe(selection));
 			label = getToolkit().createLabel(fileAssociationGroup, "");
 			
 			/*****************************************************************
@@ -849,8 +860,7 @@ public class ConfigurationTask extends AbstractExperimentTask {
 						}
 					}
 					
-					final IObservableValue configDescription = BeansObservables.observeDetailValue(
-							Realm.getDefault(), selection, "description", String.class);
+					final IObservableValue configDescription = BeanProperties.value("description").observe(selection);
 					
 					Object oldDescription = configDescription.getValue();
 					SaveConfigDialog saveConfigDialog = new SaveConfigDialog(parent.getShell(), configDescription);

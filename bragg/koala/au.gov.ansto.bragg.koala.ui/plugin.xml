@@ -14,30 +14,6 @@
            name="Koala Views">
      </category>
       <view
-            allowMultiple="false"
-            category="au.gov.ansto.bragg.koala.ui"
-            class="au.gov.ansto.bragg.koala.ui.KoalaWorkflowView"
-            icon="icons/workflow.gif"
-            id="au.gov.ansto.bragg.koala.ui.KoalaWorkflowView"
-            name="Koala Workflow Control">
-      </view>
-      <view
-            allowMultiple="false"
-            category="au.gov.ansto.bragg.koala.ui"
-            class="au.gov.ansto.bragg.koala.ui.ChemistryWorkflowView"
-            icon="icons/workflow.gif"
-            id="au.gov.ansto.bragg.koala.ui.ChemistryWorkflowView"
-            name="Chemistry Workflow Control">
-      </view>
-      <view
-            allowMultiple="true"
-            category="au.gov.ansto.bragg.koala.ui"
-            class="au.gov.ansto.bragg.koala.ui.vlcj.VlcjView"
-            icon="icons/workflow.gif"
-            id="au.gov.ansto.bragg.koala.ui.vlcj.VlcjView"
-            name="Camera View">
-      </view>
-      <view
             allowMultiple="true"
             category="au.gov.ansto.bragg.koala.ui"
             class="au.gov.ansto.bragg.koala.ui.mjpeg.MjpegView"
@@ -64,16 +40,6 @@
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
-      <perspective
-            class="au.gov.ansto.bragg.koala.ui.KoalaWorkflowPerspective"
-            icon="icons/exp_per.gif"
-            id="au.gov.ansto.bragg.koala.ui.KoalaWorkflowPerspective"
-            name="Koala Workflow"/>
-      <perspective
-            class="au.gov.ansto.bragg.koala.ui.ChemistryWorkflowPerspective"
-            icon="icons/exp_per.gif"
-            id="au.gov.ansto.bragg.koala.ui.ChemistryWorkflowPerspective"
-            name="Chemistry Workflow"/>
       <perspective
             class="au.gov.ansto.bragg.koala.ui.parts.KoalaMainPerspective"
             icon="icons/exp_per.gif"

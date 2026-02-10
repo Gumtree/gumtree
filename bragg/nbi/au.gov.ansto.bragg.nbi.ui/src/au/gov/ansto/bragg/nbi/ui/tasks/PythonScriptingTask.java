@@ -13,9 +13,10 @@ package au.gov.ansto.bragg.nbi.ui.tasks;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.SafeRunnable;
@@ -201,12 +202,12 @@ public class PythonScriptingTask extends AbstractTask {
 			final Text text = getToolkit().createText(parent, "", SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
 			GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, 100).applyTo(text);
 			// Data binding
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
 					bindingContext.bindValue(
-							SWTObservables.observeText(text, SWT.Modify),
-							BeansObservables.observeValue(getDataModel(), "string"),
+							WidgetProperties.text(SWT.Modify).observe(text),
+							BeanProperties.value("string").observe(getDataModel()),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});

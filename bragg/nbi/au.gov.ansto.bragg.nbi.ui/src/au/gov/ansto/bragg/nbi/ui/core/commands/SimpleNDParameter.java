@@ -16,10 +16,11 @@ import java.util.List;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.databinding.viewers.ViewersObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -501,26 +502,26 @@ public class SimpleNDParameter extends AbstractScanParameter {
 			}
 		});
 		
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(ViewersObservables.observeSingleSelection(scanVariableCombo),
-						BeansObservables.observeValue(getInstance(), "scanVariable"),
+				bindingContext.bindValue(ViewerProperties.singleSelection().observe(scanVariableCombo),
+						BeanProperties.value("scanVariable").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(startPositionText, SWT.FocusOut),
-						BeansObservables.observeValue(getInstance(), "startPosition"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.FocusOut).observe(startPositionText),
+						BeanProperties.value("startPosition").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(finishPositionText, SWT.FocusOut),
-						BeansObservables.observeValue(getInstance(), "finishPosition"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.FocusOut).observe(finishPositionText),
+						BeanProperties.value("finishPosition").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(stepSizeBox, SWT.FocusOut),
-						BeansObservables.observeValue(getInstance(), "stepSize"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.FocusOut).observe(stepSizeBox),
+						BeanProperties.value("stepSize").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(nostepsText, SWT.FocusOut),
-						BeansObservables.observeValue(getInstance(), "numberOfPoints"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.FocusOut).observe(nostepsText),
+						BeanProperties.value("numberOfPoints").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeSelection(multiFileButton),
-						BeansObservables.observeValue(getInstance(), "doCreateFile"),
+				bindingContext.bindValue(WidgetProperties.buttonSelection().observe(multiFileButton),
+						BeanProperties.value("doCreateFile").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});

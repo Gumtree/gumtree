@@ -13,9 +13,10 @@ package au.gov.ansto.bragg.wombat.exp.task;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -87,18 +88,18 @@ public class ChooseWavelengthTask extends AbstractWombatTask {
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(autoCheckButton);
 			
 			// Data binding
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeText(wavelengthText, SWT.Modify),
-							BeansObservables.observeValue(setWavelength, "value"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(geText, SWT.Modify),
-							BeansObservables.observeValue(setGe, "value"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeSelection(autoCheckButton),
-							BeansObservables.observeValue(setAutoCheck, "value"),
-							new UpdateValueStrategy(){
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(wavelengthText),
+						BeanProperties.value("value").observe(setWavelength),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(geText),
+						BeanProperties.value("value").observe(setGe),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.buttonSelection().observe(autoCheckButton),
+						BeanProperties.value("value").observe(setAutoCheck),
+						new UpdateValueStrategy(){
 
 						/* (non-Javadoc)
 						 * @see org.eclipse.core.databinding.UpdateValueStrategy#convert(java.lang.Object)
@@ -108,7 +109,7 @@ public class ChooseWavelengthTask extends AbstractWombatTask {
 							if (value instanceof Boolean)
 								if ((Boolean) value)
 									return "1";
-								else 
+									else 
 									return "0";
 							return super.convert(value);
 						}

@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: NBI Restlet
 Bundle-SymbolicName: au.gov.ansto.bragg.nbi.restlet
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.nbi.restlet.Activator
 Require-Bundle: org.eclipse.core.runtime,
  org.restlet
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Import-Package: javax.servlet,
  javax.servlet.http,
  org.apache.commons.io;resolution:=optional,

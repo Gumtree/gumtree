@@ -9,9 +9,10 @@ import java.io.File;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -44,7 +45,6 @@ import au.gov.ansto.bragg.koala.ui.internal.KoalaImage;
 import au.gov.ansto.bragg.koala.ui.parts.KoalaConstants.KoalaMode;
 import au.gov.ansto.bragg.koala.ui.parts.MainPart.PanelName;
 import au.gov.ansto.bragg.koala.ui.scan.AbstractScanModel;
-import au.gov.ansto.bragg.koala.ui.scan.ExperimentModel;
 import au.gov.ansto.bragg.koala.ui.scan.IExperimentModelListener;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaInterruptionException;
 import au.gov.ansto.bragg.koala.ui.scan.KoalaServerException;
@@ -335,44 +335,57 @@ public class InitScanPanel extends AbstractControlPanel {
 		unitsLabel2.setFont(Activator.getMiddleFont());
 		GridDataFactory.fillDefaults().grab(false, false).minSize(60, 40).applyTo(unitsLabel2);
 		
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(startText, SWT.Modify),
-						BeansObservables.observeValue(initScan, "start"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(startText),
+						BeanProperties.value("start").observe(initScan),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(incText, SWT.Modify),
-						BeansObservables.observeValue(initScan, "inc"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(incText),
+						BeanProperties.value("inc").observe(initScan),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(numText, SWT.Modify),
-						BeansObservables.observeValue(initScan, "number"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(numText),
+						BeanProperties.value("number").observe(initScan),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(finText, SWT.Modify),
-						BeansObservables.observeValue(initScan, "end"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(finText),
+						BeanProperties.value("end").observe(initScan),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(expText, SWT.Modify),
-						BeansObservables.observeValue(initScan, "exposure"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(expText),
+						BeanProperties.value("exposure").observe(initScan),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-//				bindingContext = new DataBindingContext();
-//				bindingContext.bindValue(SWTObservables.observeText(estText, SWT.Modify),
-//						BeansObservables.observeValue(initScan, "erasure"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(comText),
+						BeanProperties.value("comments").observe(initScan),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(fileText),
+						BeanProperties.value("filename").observe(initScan),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(indexText),
+						BeanProperties.value("startIndex").observe(initScan),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
+//				bindingContext.bindValue(SWTObservables.observeText(incText, SWT.Modify),
+//						BeansObservables.observeValue(initScan, "inc"),
 //						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(comText, SWT.Modify),
-						BeansObservables.observeValue(initScan, "comments"),
-						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(fileText, SWT.Modify),
-						BeansObservables.observeValue(initScan, "filename"),
-						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeText(indexText, SWT.Modify),
-						BeansObservables.observeValue(initScan, "startIndex"),
-						new UpdateValueStrategy(), new UpdateValueStrategy());
+//				bindingContext.bindValue(SWTObservables.observeText(numText, SWT.Modify),
+//						BeansObservables.observeValue(initScan, "number"),
+//						new UpdateValueStrategy(), new UpdateValueStrategy());
+//				bindingContext.bindValue(SWTObservables.observeText(, SWT.Modify),
+//						BeansObservables.observeValue(initScan, ""),
+//						new UpdateValueStrategy(), new UpdateValueStrategy());
+//				bindingContext.bindValue(SWTObservables.observeText(, SWT.Modify),
+//						BeansObservables.observeValue(initScan, ""),
+//						new UpdateValueStrategy(), new UpdateValueStrategy());
+////				bindingContext.bindValue(SWTObservables.observeText(estText, SWT.Modify),
+////						BeansObservables.observeValue(initScan, "erasure"),
+////						new UpdateValueStrategy(), new UpdateValueStrategy());
+//				bindingContext.bindValue(SWTObservables.observeText(, SWT.Modify),
+//						BeansObservables.observeValue(initScan, ""),
+//						new UpdateValueStrategy(), new UpdateValueStrategy());
+//				bindingContext.bindValue(SWTObservables.observeText(, SWT.Modify),
+//						BeansObservables.observeValue(initScan, ""),
+//						new UpdateValueStrategy(), new UpdateValueStrategy());
+//				bindingContext.bindValue(SWTObservables.observeText(, SWT.Modify),
+//						BeansObservables.observeValue(initScan, ""),
+//						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});
 
@@ -699,7 +712,7 @@ public class InitScanPanel extends AbstractControlPanel {
 //			comText.setText(comments);
 //		} 
 		String filename = Activator.getPreference(Activator.NAME_FILENAME);
-		if (filename != null) {
+		if (filename != null && filename.trim().length() > 0) {
 			fileText.setText(filename);
 		} 
 	}

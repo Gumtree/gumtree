@@ -7,16 +7,12 @@ import java.nio.file.StandardCopyOption;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-
 import org.gumtree.control.batch.BatchStatus;
 import org.gumtree.control.core.ICommandController;
 import org.gumtree.control.core.IDriveableController;
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ServerStatus;
-import org.gumtree.control.exception.SicsExecutionException;
 import org.gumtree.control.exception.SicsInterruptException;
 import org.gumtree.control.exception.SicsModelException;
 import org.gumtree.control.imp.DynamicController;
@@ -28,7 +24,6 @@ import org.gumtree.control.model.PropertyConstants.MessageType;
 import org.gumtree.control.model.SicsModel;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xml.sax.SAXException;
 import org.zeromq.ZMQ;
 
 
@@ -168,7 +163,7 @@ public class KoalaServer {
     }
     
     
-	public KoalaServer(String serverAddress, String pubAddress) throws TransformerConfigurationException, ParserConfigurationException, SAXException, IOException {
+	public KoalaServer(String serverAddress, String pubAddress) throws IOException {
 		histmemServer = new HistmemServer();
 		model = new SicsModel(null);
 		model.loadFromFile((System.getProperty(MODEL_FILENAME)));

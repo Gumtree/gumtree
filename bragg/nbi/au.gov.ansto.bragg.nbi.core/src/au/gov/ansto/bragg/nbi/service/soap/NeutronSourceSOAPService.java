@@ -8,10 +8,19 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+//import javax.xml.soap.MessageFactory;
+//import javax.xml.soap.SOAPConstants;
+//import javax.xml.soap.SOAPMessage;
+//import javax.xml.soap.SOAPPart;
+//import javax.xml.transform.stream.StreamSource;
+//import jakarta.xml.soap.*;
+//import jakarta.xml.soap.MessageFactory;
+//import jakarta.xml.soap.SOAPConstants;
+//import jakarta.xml.soap.SOAPMessage;
+//import jakarta.xml.soap.SOAPPart;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -24,6 +33,7 @@ import org.gumtree.gumnix.sics.control.controllers.ComponentData;
 import org.gumtree.gumnix.sics.control.controllers.IComponentController;
 import org.gumtree.gumnix.sics.control.controllers.IDynamicController;
 import org.gumtree.gumnix.sics.core.SicsCore;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import au.gov.ansto.bragg.nbi.core.NBISystemProperties;
@@ -63,24 +73,24 @@ public class NeutronSourceSOAPService {
 
 	}
 
-	private static void triggerUpdateEvent(SOAPMessage message) {
+	private static void triggerUpdateEvent(Element element) {
 		for (ISoapEventListener listener : eventListeners) {
-			listener.post(message);
+			listener.post(element);
 		}
 		if (allowSicsUpdate) {
-			updateSicsNode(message);
+			updateSicsNode(element);
 		}
 	}
 
-	private static void updateSicsNode(SOAPMessage message) {
+	private static void updateSicsNode(Element element) {
 		ISicsController sics = SicsCore.getSicsController();
 		if (sics != null) {
-			SOAPPart soapPart = message.getSOAPPart();
-			Element ele = soapPart.getDocumentElement();
-			updateController(sics, ele, "reactor_power", "reactorPower");
-			updateController(sics, ele, "cns_inlet_temp", "cnsInTemp");
-			updateController(sics, ele, "cns_outlet_temp", "cnsOutTemp");
-			updateController(sics, ele, "cns_flow", "cnsTemp");
+//			SOAPPart soapPart = message.getSOAPPart();
+//			Element ele = soapPart.getDocumentElement();
+			updateController(sics, element, "reactor_power", "reactorPower");
+			updateController(sics, element, "cns_inlet_temp", "cnsInTemp");
+			updateController(sics, element, "cns_outlet_temp", "cnsOutTemp");
+			updateController(sics, element, "cns_flow", "cnsTemp");
 		}
 
 	}
@@ -128,10 +138,22 @@ public class NeutronSourceSOAPService {
 						} else {
 //							System.err.println(postMethod.getResponseBodyAsString());
 							try{
-								SOAPMessage message = MessageFactory.newInstance().createMessage();  
-								SOAPPart soapPart = message.getSOAPPart();  
-								soapPart.setContent(new StreamSource(postMethod.getResponseBodyAsStream()));
-								triggerUpdateEvent(message);
+//								SOAPMessage message = MessageFactory.newInstance().createMessage();  
+//								SOAPPart soapPart = message.getSOAPPart();  
+//								soapPart.setContent(new StreamSource(postMethod.getResponseBodyAsStream()));
+//								triggerUpdateEvent(message);
+								
+//								MessageFactory factory = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
+//						        SOAPMessage response = factory.createMessage(null, postMethod.getResponseBodyAsStream());
+//						        String response = postMethod.getResponseBody
+//						        triggerUpdateEvent(response);
+								
+								DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+							    dbf.setNamespaceAware(true); // SOAP requires this!
+
+							    DocumentBuilder builder = dbf.newDocumentBuilder();
+							    Document doc = builder.parse(postMethod.getResponseBodyAsStream());
+							    triggerUpdateEvent(doc.getDocumentElement());
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -163,7 +185,7 @@ public class NeutronSourceSOAPService {
 	}
 
 	public interface ISoapEventListener {
-		public void post(SOAPMessage message);
+		public void post(Element element);
 	}
 	
 	public static void addEventListener(ISoapEventListener listener) {

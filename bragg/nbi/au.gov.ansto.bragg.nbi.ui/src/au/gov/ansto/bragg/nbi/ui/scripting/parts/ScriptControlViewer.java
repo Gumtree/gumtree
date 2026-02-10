@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.filesystem.EFS;
@@ -37,8 +37,9 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.databinding.viewers.ViewersObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -851,6 +852,9 @@ public class ScriptControlViewer extends Composite {
 
 	public void initScriptControl(String filePath) throws FileNotFoundException {
 		String text = filePath;
+		if (filePath == null || filePath.trim().length() == 0) {
+			throw new FileNotFoundException("script file path is null");
+		}
 		if (filePath.length() > 24) {
 			text = filePath.substring(0, 3) + "..." + filePath.substring(filePath.length() - 18);
 		}
@@ -935,7 +939,7 @@ public class ScriptControlViewer extends Composite {
 							Thread.sleep(200);
 						}
 					} catch (Exception e) {
-						executor.runScript("t = logln( 'failed to load " + initFile + "')");
+						executor.runScript("t = logln( 'failed to load " + initFile + ": " + e.getMessage() + "'): ");
 					}
 				}
 //				IScriptBlock postBlock = new ScriptBlock();
@@ -1370,11 +1374,11 @@ public class ScriptControlViewer extends Composite {
 				editItem.setText("Fold");
 			}
 			
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 //					DataBindingContext bindingContext = new DataBindingContext();
-//					bindingContext.bindValue(SWTObservables.observeText(menuGroup),
-//							BeansObservables.observeValue(objGroup, "name"),
+//					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(menuGroup),
+//							BeanProperties.value().observe(objGroup, "name"),
 //							new UpdateValueStrategy(), new UpdateValueStrategy());
 					objGroup.addPropertyChangeListener(new PropertyChangeListener() {
 
@@ -1903,16 +1907,16 @@ public class ScriptControlViewer extends Composite {
 				comboBox.getCombo().setForeground(highlightColor);
 			} 			
 
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(ViewersObservables.observeSingleSelection(comboBox),
-							BeansObservables.observeValue(parameter, "value"),
+					bindingContext.bindValue(ViewerProperties.singleSelection().observe(comboBox),
+							BeanProperties.value("value").observe(parameter),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeText(comboBox.getCombo()),
-							BeansObservables.observeValue(parameter, "value"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
+//					bindingContext = new DataBindingContext();
+//					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(comboBox.getControl()),
+//							BeanProperties.value("value").observe(parameter),
+//							new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});
 			
@@ -2062,11 +2066,11 @@ public class ScriptControlViewer extends Composite {
 				if (isHighlight) {
 					stringText.setForeground(highlightColor);
 				} 	
-				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+				Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
-						bindingContext.bindValue(SWTObservables.observeText(stringText, SWT.Modify),
-								BeansObservables.observeValue(parameter, "value"),
+						bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(stringText),
+								BeanProperties.value("value").observe(parameter),
 								new FlagedUpdateStrategy(), new UpdateValueStrategy());
 					}
 				});
@@ -2174,11 +2178,11 @@ public class ScriptControlViewer extends Composite {
 				if (isHighlight) {
 					intText.setForeground(highlightColor);
 				} 
-				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+				Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
-						bindingContext.bindValue(SWTObservables.observeText(intText, SWT.Modify),
-								BeansObservables.observeValue(parameter, "value"),
+						bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(intText),
+								BeanProperties.value("value").observe(parameter),
 								new FlagedUpdateStrategy(), new UpdateValueStrategy());
 					}
 				});
@@ -2293,11 +2297,11 @@ public class ScriptControlViewer extends Composite {
 				if (isHighlight) {
 					floatText.setForeground(highlightColor);
 				} 
-				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+				Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
-						bindingContext.bindValue(SWTObservables.observeText(floatText, SWT.Modify),
-								BeansObservables.observeValue(parameter, "value"),
+						bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(floatText),
+								BeanProperties.value("value").observe(parameter),
 								new FlagedUpdateStrategy(), new UpdateValueStrategy());
 					}
 				});
@@ -2407,11 +2411,11 @@ public class ScriptControlViewer extends Composite {
 				if (isHighlight) {
 					selectBox.setForeground(highlightColor);
 				}
-				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+				Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
-						bindingContext.bindValue(SWTObservables.observeSelection(selectBox),
-								BeansObservables.observeValue(parameter, "value"),
+						bindingContext.bindValue(WidgetProperties.buttonSelection().observe(selectBox),
+								BeanProperties.value("value").observe(parameter),
 								new FlagedUpdateStrategy(), new UpdateValueStrategy());
 					}
 				});
@@ -2492,11 +2496,11 @@ public class ScriptControlViewer extends Composite {
 					fileText.setForeground(highlightColor);
 				} 
 				GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(fillWidth, fillHeight).applyTo(fileText);
-				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+				Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
-						bindingContext.bindValue(SWTObservables.observeText(fileText, SWT.Modify),
-								BeansObservables.observeValue(parameter, "value"),
+						bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(fileText),
+								BeanProperties.value("value").observe(parameter),
 								new FlagedUpdateStrategy(), new UpdateValueStrategy());
 					}
 				});
@@ -2848,11 +2852,11 @@ public class ScriptControlViewer extends Composite {
 					} catch (Exception e) {
 					}
 				}
-				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+				Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 //						DataBindingContext bindingContext = new DataBindingContext();
 //						bindingContext.bindValue(SWTObservables.observeSelection(progressBar),
-//								BeansObservables.observeValue(parameter, "value"),
+//								BeanProperties.value().observe(parameter, "value"),
 //								new UpdateValueStrategy(), new UpdateValueStrategy());
 
 					}
@@ -2934,11 +2938,11 @@ public class ScriptControlViewer extends Composite {
 				if (isHighlight) {
 					label.setForeground(highlightColor);
 				} 
-				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+				Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
-						bindingContext.bindValue(SWTObservables.observeText(label),
-								BeansObservables.observeValue(parameter, "value"),
+						bindingContext.bindValue(WidgetProperties.text().observe(label),
+								BeanProperties.value("value").observe(parameter),
 								new UpdateValueStrategy(), new UpdateValueStrategy());
 					}
 				});
@@ -2993,11 +2997,11 @@ public class ScriptControlViewer extends Composite {
 				if (isHighlight) {
 					defaultText.setForeground(highlightColor);
 				}
-				Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+				Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 					public void run() {
 						DataBindingContext bindingContext = new DataBindingContext();
-						bindingContext.bindValue(SWTObservables.observeText(defaultText, SWT.Modify),
-								BeansObservables.observeValue(parameter, "value"),
+						bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(defaultText),
+								BeanProperties.value("value").observe(parameter),
 								new FlagedUpdateStrategy(), new UpdateValueStrategy());
 					}
 				});

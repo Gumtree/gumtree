@@ -15,9 +15,10 @@ import java.util.List;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -237,11 +238,11 @@ public class TableScanParameter extends AbstractScanParameter {
 			final Text pText = toolkit.createText(parameterComposite, "");
 			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(pText);
 			addValidator(pText, ParameterValidator.floatValidator);
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeText(pText, SWT.Modify),
-							BeansObservables.observeValue(getInstance(), name),
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(pText),
+							BeanProperties.value(name).observe(getInstance()),
 							new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});
@@ -251,14 +252,14 @@ public class TableScanParameter extends AbstractScanParameter {
 		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).hint(WIDTH_PARAMETER_LONG, SWT.DEFAULT).applyTo(presetText);
 		addValidator(presetText, ParameterValidator.floatValidator);
 
-		Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 			public void run() {
 				DataBindingContext bindingContext = new DataBindingContext();
-				bindingContext.bindValue(SWTObservables.observeSelection(selectBox),
-						BeansObservables.observeValue(getInstance(), "isSelected"),
+				bindingContext.bindValue(WidgetProperties.buttonSelection().observe(selectBox),
+						BeanProperties.value("isSelected").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-				bindingContext.bindValue(SWTObservables.observeText(presetText, SWT.Modify),
-						BeansObservables.observeValue(getInstance(), "preset"),
+				bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(presetText),
+						BeanProperties.value("preset").observe(getInstance()),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
 			}
 		});

@@ -2,20 +2,18 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Koala UI
 Bundle-SymbolicName: au.gov.ansto.bragg.koala.ui;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.koala.ui.Activator
 Bundle-Vendor: ANSTO
 Require-Bundle: au.gov.ansto.bragg.koala.core,
  au.gov.ansto.bragg.nbi.ui,
- uk.co.caprica.vlcj,
  org.gumtree.msw.ui.ktable,
  org.gumtree.control.core
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: au.gov.ansto.bragg.koala.ui,
  au.gov.ansto.bragg.koala.ui.mjpeg,
  au.gov.ansto.bragg.koala.ui.parts,
  au.gov.ansto.bragg.koala.ui.scan,
  au.gov.ansto.bragg.koala.ui.sics,
- au.gov.ansto.bragg.koala.ui.vlcj,
  au.gov.ansto.bragg.koala.ui.widgets

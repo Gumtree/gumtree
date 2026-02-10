@@ -2,24 +2,28 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bragg NBI Server Library
 Bundle-SymbolicName: au.gov.ansto.bragg.nbi.server;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: au.gov.ansto.bragg.nbi.server.internal.Activator
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: Bragg Institute
-Require-Bundle: org.json;bundle-version="1.0.0";visibility:=reexport,
+Require-Bundle: json;bundle-version="20250517.0.0";visibility:=reexport,
  org.restlet;bundle-version="2.0.11";visibility:=reexport,
  org.gumtree.server;bundle-version="1.7.0";visibility:=reexport,
  au.gov.ansto.bragg.nbi.core;bundle-version="1.7.0";visibility:=reexport,
+ org.eclipse.jgit,
+ org.eclipse.jgit.ssh.apache;bundle-version="7.3.0",
  org.restlet.ext.servlet;bundle-version="2.0.11",
  org.jfree.chart;bundle-version="1.0.13",
  org.eclipse.core.resources;bundle-version="3.8.1";resolution:=optional,
  com.db4o.java5;bundle-version="8.0.184",
  com.db4o.osgi;bundle-version="8.0.184",
  au.gov.ansto.bragg.nbi.restlet,
- org.eclipse.jgit;bundle-version="2.2.0",
- org.gumtree.data.core;bundle-version="1.12.0",
- org.yaml.snakeyaml;bundle-version="1.21.0";resolution:=optional
+ org.gumtree.data.core;bundle-version="1.12.0";visibility:=reexport,
+ org.yaml.snakeyaml;bundle-version="1.21.0";resolution:=optional,
+ org.apache.sshd.osgi;bundle-version="2.15.0",
+ javax.xml.soap;bundle-version="1.2.0",
+ javax.mail;bundle-version="1.4.7"
 Export-Package: au.gov.ansto.bragg.nbi.server,
  au.gov.ansto.bragg.nbi.server.catalog,
  au.gov.ansto.bragg.nbi.server.db,
@@ -31,9 +35,7 @@ Export-Package: au.gov.ansto.bragg.nbi.server,
  au.gov.ansto.bragg.nbi.server.notebook,
  au.gov.ansto.bragg.nbi.server.restlet,
  au.gov.ansto.bragg.nbi.server.yaml
-Import-Package: javax.mail;version="1.4.0",
- javax.mail.internet;version="1.4.0",
- org.apache.commons.httpclient;version="3.1.0";resolution:=optional,
+Import-Package: org.apache.commons.httpclient;version="3.1.0";resolution:=optional,
  org.apache.commons.httpclient.methods;version="3.1.0";resolution:=optional,
  org.apache.commons.io;resolution:=optional,
  org.gumtree.sics.io,

@@ -7,4 +7,4 @@ Bundle-ClassPath: ostermillerutils_1_07_00.jar
 Bundle-Vendor: ostermiller.org
 Export-Package: com.Ostermiller.util
 Eclipse-BundleShape: dir
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-21

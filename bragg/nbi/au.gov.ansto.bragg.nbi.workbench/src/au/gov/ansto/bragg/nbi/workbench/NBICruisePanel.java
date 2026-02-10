@@ -1,9 +1,11 @@
 package au.gov.ansto.bragg.nbi.workbench;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -27,6 +29,11 @@ public class NBICruisePanel extends CruisePanel {
 		super(parent, style);
 	}
 
+//	@Inject
+//	public NBICruisePanel(MPart part, IEclipseContext context) { 
+//		this((Composite) part.getObject(), SWT.NONE);
+//	}
+	
 	protected void createCruisePanel(Composite parent) {
 		GridLayoutFactory.swtDefaults().margins(0, 0).spacing(0, 0).applyTo(parent);
 
