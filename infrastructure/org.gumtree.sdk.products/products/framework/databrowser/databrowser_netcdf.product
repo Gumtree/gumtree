@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="GumTree Data Browser" uid="org.gumtree.data.app.product" id="org.gumtree.data.ui.app.product" application="org.gumtree.data.ui.app.databrowser" version="1.6.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="GumTree Data Browser" uid="org.gumtree.data.app.product" id="org.gumtree.data.ui.app.product" application="org.gumtree.data.ui.app.databrowser" version="2.0.0.qualifier" type="features" includeLaunchers="true" autoIncludeRequirements="true">
 
    <aboutInfo>
       <image path="/org.gumtree.platform.workbench.branding/images/earth.png"/>
@@ -20,9 +20,11 @@ Eclipse Foundation http://www.eclipse.org/
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Xmx256m</vmArgs>
+      <vmArgs>-Xmx256m
+      </vmArgs>
       <vmArgsMac>-XstartOnFirstThread
--Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+-Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
    </launcherArgs>
 
    <windowImages i16="/org.gumtree.platform.workbench.branding/images/g-icon_16x16.png" i32="/org.gumtree.platform.workbench.branding/images/g-icon_32x32.png" i48="/org.gumtree.platform.workbench.branding/images/g-icon_48x48.png" i64="/org.gumtree.platform.workbench.branding/images/g-icon_64x64.png" i128="/org.gumtree.platform.workbench.branding/images/g-icon_128x128.png"/>
@@ -33,7 +35,6 @@ Eclipse Foundation http://www.eclipse.org/
       startupMessageRect="5,257,571,17"
       startupForegroundColor="FFFFFF" />
    <launcher>
-      <solaris/>
       <win useIco="false">
          <bmp
             winSmallHigh="/org.gumtree.platform.workbench.branding/images/g-icon_16x16_32-bit.bmp"
@@ -44,7 +45,6 @@ Eclipse Foundation http://www.eclipse.org/
             winLargeLow="/org.gumtree.platform.workbench.branding/images/g-icon_48x48_8-bit.bmp"/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>

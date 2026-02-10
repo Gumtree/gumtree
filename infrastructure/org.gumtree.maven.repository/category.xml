@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.gumtree.common.core.feature_1.13.0.qualifier.jar" id="org.gumtree.common.core.feature" version="1.13.0.qualifier">
+   <!-- feature url="features/org.gumtree.common.core.feature_1.13.0.qualifier.jar" id="org.gumtree.common.core.feature" version="1.13.0.qualifier">
       <category name="gumtreeFramework"/>
    </feature>
    <feature url="features/org.gumtree.common.server.feature_1.13.0.qualifier.jar" id="org.gumtree.common.server.feature" version="1.13.0.qualifier">
@@ -218,8 +218,8 @@
    </feature>
    <feature url="features/au.gov.ansto.bragg.extensions.sources.feature_1.13.0.qualifier.jar" id="au.gov.ansto.bragg.extensions.sources.feature" version="1.13.0.qualifier">
       <category name="gumtreeInfrastructure"/>
-   </feature>
-   <feature url="features/org.gumtree.sdk.feature_1.13.0.qualifier.jar" id="org.gumtree.sdk.feature" version="1.13.0.qualifier">
+   </feature -->
+   <feature url="features/org.gumtree.sdk.feature_2.0.0.qualifier.jar" id="org.gumtree.sdk.feature" version="2.0.0.qualifier">
       <category name="gumtreeInfrastructure"/>
    </feature>
    <category-def name="gumtreeFramework" label="Gumtree Framework"/>

@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Gumtree" uid="org.gumtree.platform.scrript.product" id="org.gumtree.scripting.core.product" application="org.gumtree.app.scriptrunner.application" version="1.7.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="Gumtree" uid="org.gumtree.platform.scrript.product" id="org.gumtree.scripting.core.product" application="org.gumtree.app.scriptrunner.application" version="2.0.0.qualifier" type="features" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
 
    <launcherArgs>
       <programArgs>-scriptFile ${workspace_loc}/org.gumtree.sdk.products/products/platform/scriptrunner/doc.py
--scriptEngine jython</programArgs>
+-scriptEngine jython
+      </programArgs>
       <vmArgs>-Dosgi.framework.extensions=org.gumtree.runtime.hook
 -Dgumtree.log4j.consoleLog=true
 -XX:MaxPermSize=256m
--Xmx512m</vmArgs>
+-Xmx512m
+      </vmArgs>
       <vmArgsMac>-XstartOnFirstThread
--Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+-Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
    </launcherArgs>
 
    <windowImages/>
@@ -25,7 +28,6 @@
       startupMessageRect="5,257,571,17"
       startupForegroundColor="FFFFFF" />
    <launcher>
-      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>

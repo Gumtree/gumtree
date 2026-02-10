@@ -2,7 +2,7 @@
 <feature
       id="org.gumtree.sdk.feature"
       label="Gumtree Development Kit"
-      version="1.13.0.qualifier"
+      version="2.0.0.qualifier"
       provider-name="Bragg Institute">
 
    <description url="http://www.example.com/description">
@@ -19,33 +19,26 @@
 
    <plugin
          id="org.gumtree.sdk.products"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.gumtree.sdk.targets"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.junit"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.hamcrest.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
-         id="org.junit4"
-         download-size="0"
-         install-size="0"
+         id="junit-jupiter-api"
+         version="0.0.0"/>
+
+   <plugin
+         id="junit-platform-commons"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.opentest4j"
          version="0.0.0"/>
 
 </feature>

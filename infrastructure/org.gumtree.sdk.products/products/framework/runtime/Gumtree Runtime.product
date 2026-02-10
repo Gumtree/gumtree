@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Gumtree" uid="org.gumtree.app.runtime.product" id="org.gumtree.app.osgi.product" application="org.gumtree.app.osgi.application" version="1.13.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="Gumtree" uid="org.gumtree.app.runtime.product" id="org.gumtree.app.osgi.product" application="org.gumtree.app.osgi.application" version="2.0.0.qualifier" type="features" includeLaunchers="true" autoIncludeRequirements="true">
 
    <aboutInfo>
       <image path="/org.gumtree.app.runtime/images/earth.png"/>
@@ -20,16 +20,19 @@ Eclipse Foundation http://www.eclipse.org/
    </configIni>
 
    <launcherArgs>
-      <programArgs>-console</programArgs>
+      <programArgs>-console
+      </programArgs>
       <vmArgs>-Dosgi.locking=none
 -Dosgi.noShutdown=true
 -Declipse.ignoreApp=true
 -Dlogback.configurationFile=logback.xml
 -Dlogback.logFileLocation=logs
--Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime,org.springframework.osgi.extender</vmArgs>
+-Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime,org.springframework.osgi.extender
+      </vmArgs>
       <vmArgsMac>-Xdock:icon=../Resources/Eclipse.icns
 -XstartOnFirstThread
--Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+-Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
    </launcherArgs>
 
    <windowImages i16="/org.gumtree.app.runtime/images/g-icon_16x16.png" i32="/org.gumtree.app.runtime/images/g-icon_32x32.png" i48="/org.gumtree.app.runtime/images/g-icon_48x48.png" i64="/org.gumtree.app.runtime/images/g-icon_64x64.png" i128="/org.gumtree.app.runtime/images/g-icon_128x128.png"/>
@@ -41,7 +44,6 @@ Eclipse Foundation http://www.eclipse.org/
       startupForegroundColor="FFFFFF" />
    <launcher name="gumtree">
       <macosx icon="/org.gumtree.app.runtime/images/g-icon.icns"/>
-      <solaris/>
       <win useIco="false">
          <bmp
             winSmallHigh="/org.gumtree.app.runtime/images/g-icon_16x16_32-bit.bmp"
@@ -52,7 +54,6 @@ Eclipse Foundation http://www.eclipse.org/
             winLargeLow="/org.gumtree.app.runtime/images/g-icon_48x48_8-bit.bmp"/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>
@@ -65,8 +66,16 @@ Eclipse Foundation http://www.eclipse.org/
    </features>
 
    <configurations>
+      <plugin id="org.apache.aries.spifly.dynamic.bundle" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
       <plugin id="org.gumtree.app.osgi" autoStart="true" startLevel="2" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>

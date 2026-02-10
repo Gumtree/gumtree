@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Gumtree" uid="au.gov.ansto.bragg.nbi.workbench.product" id="au.gov.ansto.bragg.nbi.workbench.product" application="org.gumtree.app.workbench.application" version="1.13.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="Gumtree" uid="au.gov.ansto.bragg.nbi.workbench.product" id="au.gov.ansto.bragg.nbi.workbench.product" application="org.gumtree.app.workbench.application" version="2.0.0.qualifier" type="features" includeLaunchers="true" autoIncludeRequirements="true">
 
    <aboutInfo>
       <image path="/org.gumtree.app.runtime/images/earth.png"/>
@@ -20,11 +20,13 @@ Eclipse Foundation http://www.eclipse.org/
    </configIni>
 
    <launcherArgs>
-      <programArgs>-consoleLog</programArgs>
+      <programArgs>-consoleLog
+      </programArgs>
       <vmArgs>-Dosgi.locking=none
 -Dorg.eclipse.update.reconcile=false
 -Dlogback.configurationFile=logback.xml
 -Dlogback.logFileLocation=logs
+-Declipse.e4.inject.javax.disabled=true 
 -Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime
 -Dgumtree.runtime.configBundle=au.gov.ansto.bragg.nbi.workbench
 -Dgumtree.runtime.configEnv.instr=kowari
@@ -32,9 +34,10 @@ Eclipse Foundation http://www.eclipse.org/
 -Dgumtree.runtime.configEnv.mode=analysis
 -Dgumtree.sics.loginMode=skip
 -Dsun.java2d.d3d=false
--XX:MaxPermSize=256m
--Xmx800m</vmArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+-Xmx800m
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
    </launcherArgs>
 
    <windowImages i16="/org.gumtree.app.runtime/images/g-icon_16x16.png" i32="/org.gumtree.app.runtime/images/g-icon_32x32.png" i48="/org.gumtree.app.runtime/images/g-icon_48x48.png" i64="/org.gumtree.app.runtime/images/g-icon_64x64.png" i128="/org.gumtree.app.runtime/images/g-icon_128x128.png"/>
@@ -45,7 +48,6 @@ Eclipse Foundation http://www.eclipse.org/
       startupMessageRect="5,257,571,17"
       startupForegroundColor="FFFFFF" />
    <launcher name="gumtree">
-      <solaris/>
       <win useIco="false">
          <bmp
             winSmallHigh="/org.gumtree.app.runtime/images/g-icon_16x16_32-bit.bmp"
@@ -68,7 +70,7 @@ Eclipse Foundation http://www.eclipse.org/
       <plugin id="ch.lambdaj"/>
       <plugin id="ch.qos.logback.classic"/>
       <plugin id="ch.qos.logback.core"/>
-      <plugin id="ch.qos.logback.slf4j" fragment="true"/>
+      <plugin id="ch.qos.logback.slf4j"/>
       <plugin id="com.db4o.java5"/>
       <plugin id="com.db4o.osgi"/>
       <plugin id="com.google.gson"/>
@@ -87,12 +89,12 @@ Eclipse Foundation http://www.eclipse.org/
       <plugin id="com.springsource.org.aopalliance"/>
       <plugin id="com.sun.el"/>
       <plugin id="com.sun.j3d"/>
-      <plugin id="com.sun.j3d.win32.x86" fragment="true"/>
+      <plugin id="com.sun.j3d.win32.x86"/>
       <plugin id="com.sun.opengl"/>
       <plugin id="com.sun.syndication"/>
       <plugin id="com.thoughtworks.xstream"/>
       <plugin id="com.typesafe.config"/>
-      <plugin id="de.huxhorn.lilith.logback" fragment="true"/>
+      <plugin id="de.huxhorn.lilith.logback"/>
       <plugin id="javax.activation"/>
       <plugin id="javax.annotation"/>
       <plugin id="javax.el"/>
@@ -102,7 +104,7 @@ Eclipse Foundation http://www.eclipse.org/
       <plugin id="javax.servlet.jsp"/>
       <plugin id="javax.xml"/>
       <plugin id="ncsa.hdf"/>
-      <plugin id="ncsa.hdf.win32.x86" fragment="true"/>
+      <plugin id="ncsa.hdf.win32.x86"/>
       <plugin id="net.jeeeyul.eclipse.themes"/>
       <plugin id="net.miginfocom.layout"/>
       <plugin id="net.miginfocom.layout.swt"/>
@@ -145,15 +147,15 @@ Eclipse Foundation http://www.eclipse.org/
       <plugin id="org.eclipse.core.externaltools"/>
       <plugin id="org.eclipse.core.filebuffers"/>
       <plugin id="org.eclipse.core.filesystem"/>
-      <plugin id="org.eclipse.core.filesystem.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.win32.x86"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.net"/>
-      <plugin id="org.eclipse.core.net.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.core.net.win32.x86"/>
       <plugin id="org.eclipse.core.resources"/>
-      <plugin id="org.eclipse.core.resources.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.core.resources.win32.x86"/>
       <plugin id="org.eclipse.core.runtime"/>
       <plugin id="org.eclipse.core.runtime.compatibility"/>
-      <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
+      <plugin id="org.eclipse.core.runtime.compatibility.registry"/>
       <plugin id="org.eclipse.core.variables"/>
       <plugin id="org.eclipse.debug.core"/>
       <plugin id="org.eclipse.debug.ui"/>
@@ -189,9 +191,9 @@ Eclipse Foundation http://www.eclipse.org/
       <plugin id="org.eclipse.ecf.identity"/>
       <plugin id="org.eclipse.ecf.provider.filetransfer"/>
       <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient"/>
-      <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient.ssl" fragment="true"/>
-      <plugin id="org.eclipse.ecf.provider.filetransfer.ssl" fragment="true"/>
-      <plugin id="org.eclipse.ecf.ssl" fragment="true"/>
+      <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient.ssl"/>
+      <plugin id="org.eclipse.ecf.provider.filetransfer.ssl"/>
+      <plugin id="org.eclipse.ecf.ssl"/>
       <plugin id="org.eclipse.egit"/>
       <plugin id="org.eclipse.egit.core"/>
       <plugin id="org.eclipse.egit.github.core"/>
@@ -221,7 +223,7 @@ Eclipse Foundation http://www.eclipse.org/
       <plugin id="org.eclipse.equinox.jsp.jasper"/>
       <plugin id="org.eclipse.equinox.jsp.jasper.registry"/>
       <plugin id="org.eclipse.equinox.launcher"/>
-      <plugin id="org.eclipse.equinox.launcher.win32.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.equinox.launcher.win32.win32.x86"/>
       <plugin id="org.eclipse.equinox.p2.artifact.repository"/>
       <plugin id="org.eclipse.equinox.p2.console"/>
       <plugin id="org.eclipse.equinox.p2.core"/>
@@ -254,7 +256,7 @@ Eclipse Foundation http://www.eclipse.org/
       <plugin id="org.eclipse.equinox.registry"/>
       <plugin id="org.eclipse.equinox.security"/>
       <plugin id="org.eclipse.equinox.security.ui"/>
-      <plugin id="org.eclipse.equinox.security.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.equinox.security.win32.x86"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
       <plugin id="org.eclipse.equinox.util"/>
@@ -332,7 +334,7 @@ Eclipse Foundation http://www.eclipse.org/
       <plugin id="org.eclipse.rcp"/>
       <plugin id="org.eclipse.search"/>
       <plugin id="org.eclipse.swt"/>
-      <plugin id="org.eclipse.swt.win32.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.swt.win32.win32.x86"/>
       <plugin id="org.eclipse.team.core"/>
       <plugin id="org.eclipse.team.ui"/>
       <plugin id="org.eclipse.text"/>
@@ -353,7 +355,7 @@ Eclipse Foundation http://www.eclipse.org/
       <plugin id="org.eclipse.ui.views"/>
       <plugin id="org.eclipse.ui.views.log"/>
       <plugin id="org.eclipse.ui.views.properties.tabbed"/>
-      <plugin id="org.eclipse.ui.win32" fragment="true"/>
+      <plugin id="org.eclipse.ui.win32"/>
       <plugin id="org.eclipse.ui.workbench"/>
       <plugin id="org.eclipse.ui.workbench.texteditor"/>
       <plugin id="org.eclipse.update.configurator"/>
@@ -395,7 +397,7 @@ Eclipse Foundation http://www.eclipse.org/
       <plugin id="org.eclipse.xsd.edit"/>
       <plugin id="org.freehep.j3d"/>
       <plugin id="org.freehep.jas.jas3"/>
-      <plugin id="org.freehep.jas.jas3.win32.x86" fragment="true"/>
+      <plugin id="org.freehep.jas.jas3.win32.x86"/>
       <plugin id="org.gumtree.app.osgi"/>
       <plugin id="org.gumtree.app.runtime"/>
       <plugin id="org.gumtree.app.workbench"/>
@@ -460,10 +462,11 @@ Eclipse Foundation http://www.eclipse.org/
    </plugins>
 
    <features>
-      <feature id="au.gov.ansto.bragg.nbi.workbench.feature" version="1.8.0.201212070018"/>
+      <feature id="au.gov.ansto.bragg.nbi.workbench.feature"/>
    </features>
 
    <configurations>
+      <plugin id="org.apache.aries.spifly.dynamic.bundle" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
       <plugin id="org.gumtree.app.osgi" autoStart="true" startLevel="2" />
    </configurations>

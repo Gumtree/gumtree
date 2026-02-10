@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Gumtree" uid="org.gumtree.app.osgi.product" id="org.gumtree.app.osgi.product" application="org.gumtree.app.osgi.application" version="1.13.0.qualifier" useFeatures="true" includeLaunchers="true">
-
+<product name="Gumtree" uid="org.gumtree.app.osgi.product" id="org.gumtree.app.osgi.product" application="org.gumtree.app.osgi.application" version="2.0.0.qualifier" type="features" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
@@ -10,14 +9,17 @@
    <launcherArgs>
       <programArgs>-console
 -showSplash
-splash.bmp</programArgs>
+splash.bmp
+      </programArgs>
       <vmArgs>-Dosgi.locking=none
 -Dosgi.noShutdown=true
 -Declipse.ignoreApp=true
--Dlogback.configurationFile=logback.xml</vmArgs>
+-Dlogback.configurationFile=logback.xml
+      </vmArgs>
       <vmArgsMac>-Xdock:icon=../Resources/Eclipse.icns
 -XstartOnFirstThread
--Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+-Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
    </launcherArgs>
 
    <windowImages/>
@@ -29,22 +31,20 @@ splash.bmp</programArgs>
       startupForegroundColor="FFFFFF" />
    <launcher name="gumtree">
       <macosx icon="../../../images/g-icon.icns"/>
-      <solaris/>
       <win useIco="false">
          <bmp
             winSmallHigh="../../../images/g-icon_16x16_32-bit.bmp"
             winSmallLow="../../../images/g-icon_16x16_8-bit.bmp"
             winMediumHigh="../../../images/g-icon_32x32_32-bit.bmp"
             winMediumLow="../../../images/g-icon_32x32_8-bit.bmp"
-            winLargeHigh="../../../images/g-icon_48x48_32-bit.bmp"
-            winLargeLow="../../../images/g-icon_48x48_8-bit.bmp"/>
+            winLargeHigh="images/g-icon_48x48_32-bit.bmp"
+            winLargeLow="../../../images/g-icon_48x48_8-bit.bmp"
+            winExtraLargeHigh="images/g-icon_256x256_32-bit.bmp"/>
       </win>
    </launcher>
 
-
    <vm>
    </vm>
-
 
    <plugins>
    </plugins>
