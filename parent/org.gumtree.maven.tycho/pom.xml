@@ -19,8 +19,9 @@
 		<maven.resources.version>3.3.1</maven.resources.version>
 		<mavan.docbkx.version>2.0.17</mavan.docbkx.version>
 		<maven.findbugs.version>3.0.5</maven.findbugs.version>
-		<maven.antrun.version>3.0.0</maven.antrun.version>
-		<maven.emma.version>2.0.5320</maven.emma.version>
+		<!-- maven.antrun.version>3.0.0</maven.antrun.version>
+		<maven.emma.version>2.0.5320</maven.emma.version -->
+		<org.jacoco.version>0.8.11</org.jacoco.version>
 		<maven.helper.version>3.5.0</maven.helper.version>
 		<maven.scala.version>2.15.2</maven.scala.version>
 		<scala.version>2.9.0</scala.version>
