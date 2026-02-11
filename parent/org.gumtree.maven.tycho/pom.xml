@@ -125,7 +125,7 @@
 		<repository>
 			<id>gumtree_bundles</id>
 			<layout>p2</layout>
-			<url>file:/x:/eclipse/p2/repo/gumtree/bundles/1.8.x</url>
+			<url>file:/x:/eclipse/p2/repo/gumtree/bundles/2.0.x</url>
 		</repository>
 		<!--
 		<repository>
