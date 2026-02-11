@@ -21,7 +21,7 @@
 
 	<modules>
 		<module>${common.path}/org.gumtree.data.core</module>
-		<!-- module>${common.path}/ucar.netcdf</module -->
+		<module>${common.path}/ucar.netcdf</module>
 		<module>${common.path}/org.gumtree.data.impl.netcdf</module>
 		
 		<module>${common.path}/com.itext.pdf</module>
