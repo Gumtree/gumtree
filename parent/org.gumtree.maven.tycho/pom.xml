@@ -110,7 +110,7 @@
 		<repository>
 			<id>eclipse_2506</id>
 			<layout>p2</layout>
-			<url>file:/D:/NewGumtree/repo/2025-06</url>
+			<url>file:/X:/eclipse/p2/repo/eclipse/releases/2025-06</url>
 		</repository>
 		<!--
 		<repository>
@@ -124,7 +124,7 @@
 		<repository>
 			<id>gumtree_bundles</id>
 			<layout>p2</layout>
-			<url>file:/D:/NewGumtree/exports/manually/repository</url>
+			<url>file:/x:/eclipse/p2/repo/gumtree/bundles/1.8.x</url>
 		</repository>
 		<!--
 		<repository>
@@ -133,6 +133,11 @@
 			<url>http://dist.codehaus.org/gumtree/sites/bundles/1.8.x</url>
 		</repository>
 		-->
+		  <repository>
+		    <id>maven libs</id>
+		    <name>dependency plugins</name>
+		    <url>file:/x:/eclipse/libs</url>
+		  </repository>
 		  <repository>
 		    <id>central maven repo</id>
 		    <name>central maven repo https</name>
