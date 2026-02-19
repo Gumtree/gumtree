@@ -123,9 +123,14 @@
 		
 		<!-- Gumtree customised p2 repository -->
 		<repository>
-			<id>gumtree_bundles</id>
+			<id>gumtree_workbench_bundles</id>
 			<layout>p2</layout>
-			<url>file:/x:/eclipse/p2/repo/gumtree/bundles/2.0.x</url>
+			<url>file:/x:/eclipse/p2/repo/gumtree/bundles/2.0.x.workbench</url>
+		</repository>
+		<repository>
+			<id>gumtree_webserver_bundles</id>
+			<layout>p2</layout>
+			<url>file:/x:/eclipse/p2/repo/gumtree/bundles/2.0.x.webserver</url>
 		</repository>
 		<!--
 		<repository>
@@ -134,11 +139,11 @@
 			<url>http://dist.codehaus.org/gumtree/sites/bundles/1.8.x</url>
 		</repository>
 		-->
-		  <repository>
+		  <!-- repository>
 		    <id>maven libs</id>
 		    <name>dependency plugins</name>
 		    <url>file:/x:/eclipse/libs</url>
-		  </repository>
+		  <repository -->
 		  <repository>
 		    <id>central maven repo</id>
 		    <name>central maven repo https</name>
