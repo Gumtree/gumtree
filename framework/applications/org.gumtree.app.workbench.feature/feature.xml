@@ -49,6 +49,10 @@
          id="org.gumtree.e4tools.feature"
          version="0.0.0"/>
 
+   <includes
+         id="org.gumtree.pydev.feature"
+         version="0.0.0"/>
+
    <plugin
          id="org.gumtree.app.workbench"
          version="0.0.0"/>
