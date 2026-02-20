@@ -358,4 +358,8 @@
          id="com.sun.jna.platform"
          version="0.0.0"/>
 
+   <plugin
+         id="org.apache.xerces"
+         version="0.0.0"/>
+
 </feature>
