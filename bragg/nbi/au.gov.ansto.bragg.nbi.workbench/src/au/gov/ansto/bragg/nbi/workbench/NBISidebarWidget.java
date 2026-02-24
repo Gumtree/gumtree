@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
-import org.gumtree.app.workbench.support.SidebarWidget;
+//import org.gumtree.app.workbench.support.SidebarWidget;
 import org.gumtree.ui.missioncontrol.IHubRegistry;
 import org.gumtree.ui.missioncontrol.support.MissionControlWidget;
 import org.gumtree.widgets.swt.ExtendedComposite;
