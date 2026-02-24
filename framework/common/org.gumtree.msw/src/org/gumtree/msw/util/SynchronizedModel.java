@@ -10,9 +10,12 @@ import org.gumtree.msw.IModelListener;
 import org.gumtree.msw.IRefIdProvider;
 import org.gumtree.msw.model.DataSource;
 
+import org.w3c.dom.*;
+
 public class SynchronizedModel implements IModel {
 	// fields
 	private final IModel model;
+	private Element rootElement;
 	
 	// construction
 	public SynchronizedModel(IModel model) {
