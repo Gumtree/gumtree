@@ -1,7 +1,7 @@
 package au.gov.ansto.bragg.taipan.workbench;
 
-import jakarta.inject.Inject;
-import jakarta.annotation.PostConstruct;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
@@ -17,9 +17,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.gumtree.gumnix.sics.ui.widgets.BMVetoGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
+import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget.LabelConverter;
 import org.gumtree.gumnix.sics.widgets.swt.EnvironmentControlWidget;
 import org.gumtree.gumnix.sics.widgets.swt.ShutterStatusWidget;
-import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget.LabelConverter;
 import org.gumtree.gumnix.sics.widgets.swt.SicsStatusWidget;
 import org.gumtree.service.dataaccess.IDataAccessManager;
 import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;

@@ -1,7 +1,7 @@
 package au.gov.ansto.bragg.pelican.workbench;
 
-import jakarta.inject.Inject;
-import jakarta.annotation.PostConstruct;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;

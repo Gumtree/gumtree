@@ -1,5 +1,8 @@
 package au.gov.ansto.bragg.echidna.workbench;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -33,12 +36,14 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 
 	private IDelayEventExecutor delayEventExecutor;
 
+	@Inject
 	private IDataAccessManager dataAccessManager;
 
 	public EchidnaCruisePageWidget(Composite parent, int style) {
 		super(parent, style);
 	}
 
+	@PostConstruct
 	public EchidnaCruisePageWidget render() {
 		GridLayoutFactory.swtDefaults().applyTo(this);
 		getEclipseContext().set(IDelayEventExecutor.class,
@@ -205,6 +210,7 @@ public class EchidnaCruisePageWidget extends AbstractCruisePageWidget {
 		return eclipseContext;
 	}
 
+	@Inject
 	public void setEclipseContext(IEclipseContext eclipseContext) {
 		this.eclipseContext = eclipseContext;
 	}
