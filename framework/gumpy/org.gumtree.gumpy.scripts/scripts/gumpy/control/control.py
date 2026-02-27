@@ -1,7 +1,7 @@
 from org.gumtree.control.core import SicsManager as manager
 from org.gumtree.control.core import ServerStatus
 from org.gumtree.control.model.PropertyConstants import ControllerState
-from org.gumtree.control.events import ISicsControllerListener, ISicsCallback
+from org.gumtree.control.events import ISicsControllerListener
 from org.gumtree.control.model import SicsModelUtils
 from org.gumtree.control.events import SicsCallbackAdapter
 from org.gumtree.control.batch import SicsMessageAdapter as MessageAdapter
@@ -362,7 +362,7 @@ class SicsError(Exception):
         return repr(self.value)
     
 __time_out__ = 1
-class __SICS_Callback__(ISicsCallback):
+class __SICS_Callback__(SicsCallbackAdapter):
      
     def __init__(self, use_full_feedback = False):
         self.__status__ = None
