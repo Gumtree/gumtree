@@ -266,10 +266,12 @@ public class BatchControl implements IBatchControl {
 		try {
 			sicsProxy.asyncRun("exe print " + batchName, new SicsCallbackAdapter() {
 				@Override
-				public void receiveFinish(final ISicsReplyData data) {
+				public void receiveReply(final ISicsReplyData data) {
 					try {
 						BatchControl.logger.warn("set batch text for " + batchName);
-						setBatchText(data.getString());
+						if (data.getString() != null) {
+							setBatchText(data.getString());
+						}
 //						batchText = data.getString();
 					} catch (Exception e) {
 						BatchControl.logger.error("failed to get batch text of file: " + batchName, e);

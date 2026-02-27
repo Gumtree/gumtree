@@ -12,7 +12,8 @@ public class SicsCommunicationConstants {
 		TEXT("text"),
 		FINAL("final"),
 		FLAG("flag"),
-		REPLY("reply");
+		REPLY("reply"),
+		OUTPUT("output");
 
 		private JSONTag(String text) {
 			this.text = text;
@@ -35,6 +36,16 @@ public class SicsCommunicationConstants {
 		 * Status output
 		 */
 		STATUS,
+
+		/**
+		 * eValue output
+		 */
+		eValue,
+
+		/**
+		 * eError output
+		 */
+		eError,
 
 		/**
 		 * Event output

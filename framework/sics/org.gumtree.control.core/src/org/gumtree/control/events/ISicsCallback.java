@@ -11,6 +11,7 @@
 
 package org.gumtree.control.events;
 
+import org.gumtree.control.core.ISicsOutputData;
 import org.gumtree.control.core.ISicsReplyData;
 
 /**
@@ -29,6 +30,14 @@ public interface ISicsCallback {
 	 *            output from sics in json format
 	 */
 	public void receiveReply(ISicsReplyData data);
+
+	/**
+	 * This method is called from client receives output with tag "OUTPUT".
+	 *
+	 * @param response
+	 *            output from sics in json format
+	 */
+	public void receiveOutput(ISicsOutputData data);
 
 	/**
 	 * This method is called from client receives output with tag "ERROR".

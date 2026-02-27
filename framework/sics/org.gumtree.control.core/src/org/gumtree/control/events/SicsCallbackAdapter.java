@@ -17,6 +17,7 @@
 
 package org.gumtree.control.events;
 
+import org.gumtree.control.core.ISicsOutputData;
 import org.gumtree.control.core.ISicsReplyData;
 
 /**
@@ -35,6 +36,10 @@ public class SicsCallbackAdapter implements ISicsCallback {
 	public void receiveReply(ISicsReplyData data) {
 	}
 
+	@Override
+	public void receiveOutput(ISicsOutputData data) {
+	}
+	
 	/* (non-Javadoc)
 	 * @see sycamoretest.io.ISicsProxyListener#receiveError(sycamoretest.io.ISycamoreResponse)
 	 */

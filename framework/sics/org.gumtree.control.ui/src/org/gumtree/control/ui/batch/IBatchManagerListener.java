@@ -20,5 +20,7 @@ public interface IBatchManagerListener {
 
 	void queueStopped();
 	
+	void outputReceived(String outputText);
+	
 	void scriptFinished(String replyText);
 }

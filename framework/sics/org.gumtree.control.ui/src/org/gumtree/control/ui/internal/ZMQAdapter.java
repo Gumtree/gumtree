@@ -4,7 +4,9 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.ui.actions.CommandNotMappedException;
 import org.gumtree.control.core.ISicsConnectionContext;
 import org.gumtree.control.core.ISicsProxy;
+import org.gumtree.control.core.SicsCommunicationConstants.Flag;
 import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.imp.SicsOutputData;
 import org.gumtree.control.imp.SicsReplyData;
 import org.gumtree.control.imp.client.ClientChannel;
 import org.gumtree.control.imp.client.IClientListener;
@@ -94,7 +96,19 @@ public class ZMQAdapter implements ICommunicationAdapter {
 				
 				@Override
 				public void processMessage(JSONObject json) {
-					if (json.has(PropertyConstants.PROP_COMMAND_REPLY)) {
+					if (json.has(PropertyConstants.PROP_COMMAND_OUTPUT)) {
+						try {
+							OutputStyle style = OutputStyle.NORMAL;
+							SicsOutputData output = new SicsOutputData(json);
+							String text = output.getString();
+							if (output.getFlag() == Flag.eError) {
+								style = OutputStyle.ERROR;
+								text = "ERROR: " + text;
+							}
+							getOutputBuffer().appendOutput(text, style);
+						} catch (JSONException e) {
+						}
+					} else if (json.has(PropertyConstants.PROP_COMMAND_REPLY)) {
 						try {
 							OutputStyle style = OutputStyle.NORMAL;
 							String text = json.getString(PropertyConstants.PROP_COMMAND_REPLY);
@@ -168,7 +182,7 @@ public class ZMQAdapter implements ICommunicationAdapter {
 //		}
 		if (channel != null) {
 			try {
-				channel.asyncSend(text, null);
+				channel.asyncSend(text, null, true);
 			} catch (Exception e) {
 				throw new CommunicationAdapterException("failed to send command", e);
 			}

@@ -250,24 +250,33 @@ public class SicsProxy implements ISicsProxy {
 	public String syncRun(String command) throws SicsException {
 		return syncRun(command, null);
 	}
-	
+
+	@Override
+	public String syncRun(String command, ISicsCallback callback) throws SicsException {
+		return syncRun(command, callback, false);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.gumtree.control.core.ISicsProxy#send(java.lang.String, org.gumtree.control.core.ISicsCallback, java.lang.String)
 	 */
 	@Override
-	public String syncRun(String command, ISicsCallback callback) throws SicsException {
+	public String syncRun(String command, ISicsCallback callback, boolean progressOn) throws SicsException {
 		if (channel != null && channel.isConnected()) {
 //			return channel.syncSend(command, callback);
-			return monitoredSyncSend(command, callback, 0);
+			return monitoredSyncSend(command, callback, 0, progressOn);
 		} else {
 			throw new SicsCommunicationException("not connected");
 		}
 	}
-
 	@Override
 	public void asyncRun(String command, ISicsCallback callback) throws SicsException {
+		asyncRun(command, callback, false);
+	}
+
+	@Override
+	public void asyncRun(String command, ISicsCallback callback, boolean progressOn) throws SicsException {
 		if (channel != null && channel.isConnected()) {
-			channel.asyncSend(command, callback);
+			channel.asyncSend(command, callback, progressOn);
 		} else {
 			throw new SicsCommunicationException("not connected");
 		}
@@ -549,16 +558,12 @@ public class SicsProxy implements ISicsProxy {
      * If retry still fails (or no reconnect within RECONNECT_TIMEOUT), the original
      * SicsCommunicationException is thrown.
      */
-    private String monitoredSyncSend(String command, ISicsCallback callback, int timeout) throws SicsException {
+    private String monitoredSyncSend(String command, ISicsCallback callback, int timeout, boolean progressOn) throws SicsException {
         if (channel == null) {
             throw new SicsCommunicationException("not connected");
         }
         try {
-            if (timeout > 0) {
-                return channel.syncSend(command, callback, timeout);
-            } else {
-                return channel.syncSend(command, callback);
-            }
+        	return channel.syncSend(command, callback, timeout, progressOn);
         } catch (SicsCommunicationException sce) {
             logger.warn("Detected SicsCommunicationException on command '{}': {}", command, sce.getMessage());
             // If channel is not connected or proxy marked as broken, wait for reconnect and retry

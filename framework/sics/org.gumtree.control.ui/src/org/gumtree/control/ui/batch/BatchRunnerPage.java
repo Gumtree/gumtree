@@ -55,16 +55,14 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ResourceSelectionDialog;
+import org.gumtree.control.batch.BatchControl.BatchInfo;
 import org.gumtree.control.batch.BatchStatus;
 import org.gumtree.control.batch.IBatchScript;
 import org.gumtree.control.batch.ResourceBasedBatchScript;
 import org.gumtree.control.batch.SicsMessageAdapter;
-import org.gumtree.control.batch.BatchControl.BatchInfo;
-import org.gumtree.control.core.ISicsReplyData;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsProxyListener;
-import org.gumtree.control.events.SicsCallbackAdapter;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.model.PropertyConstants;
 import org.gumtree.control.model.PropertyConstants.MessageType;
@@ -137,7 +135,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					try {
 						String type = message.getString(PropertyConstants.PROP_UPDATE_TYPE);
 						if (MessageType.BATCH.getId().equalsIgnoreCase(type)) {
-							updateLogText(message.getString(PropertyConstants.PROP_UPDATE_VALUE));
+//							updateLogText(message.getString(PropertyConstants.PROP_UPDATE_VALUE));
 						}
 					} catch (Exception e) {
 					}
@@ -196,8 +194,17 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 			}
 			
 			@Override
+			public void outputReceived(String outputText) {
+				if (outputText != null) {
+					updateLogText(outputText);
+				}				
+			}
+			
+			@Override
 			public void scriptFinished(String replyText) {
-				updateLogText(replyText);
+				if (replyText != null) {
+					updateLogText(replyText);
+				}
 			}
 		};
 		
@@ -716,7 +723,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	}
 
 	private void updateLogText(final String message) {
-		System.err.println("BatchRunner " + message);
+//		System.err.println("BatchRunner " + message);
 		SafeUIRunner.asyncExec(new SafeRunnable() {
 			public void run() throws Exception {
 				// Don't update when is disposed
