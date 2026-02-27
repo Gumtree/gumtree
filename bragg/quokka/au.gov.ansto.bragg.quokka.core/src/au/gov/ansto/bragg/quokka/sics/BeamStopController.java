@@ -1,9 +1,11 @@
 package au.gov.ansto.bragg.quokka.sics;
 
+import org.gumtree.control.core.ISicsOutputData;
 import org.gumtree.control.core.ISicsReplyData;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.events.ISicsControllerListener;
+import org.gumtree.control.events.SicsCallbackAdapter;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsExecutionException;
@@ -131,25 +133,7 @@ public class BeamStopController {
 		}
 		synchronized (position) {
 			position = BeamStopPosition.unknown;
-			SicsManager.getSicsProxy().asyncRun(deviceId + " status", new ISicsCallback() {
-				
-				@Override
-				public void setError(boolean error) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void setCallbackCompleted(boolean completed) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void receiveWarning(ISicsReplyData data) {
-					// TODO Auto-generated method stub
-					
-				}
+			SicsManager.getSicsProxy().asyncRun(deviceId + " status", new SicsCallbackAdapter() {
 				
 				@Override
 				public void receiveReply(ISicsReplyData data) {
@@ -160,35 +144,6 @@ public class BeamStopController {
 					setCallbackCompleted(true);
 				}
 				
-				@Override
-				public void receiveRawData(Object data) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void receiveFinish(ISicsReplyData data) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void receiveError(ISicsReplyData data) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public boolean isCallbackCompleted() {
-					// TODO Auto-generated method stub
-					return false;
-				}
-				
-				@Override
-				public boolean hasError() {
-					// TODO Auto-generated method stub
-					return false;
-				}
 			});
 			// 5 sec time out
 			LoopRunner.run(new ILoopExitCondition() {
