@@ -292,7 +292,6 @@ def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, datat
             force = 'true', savetype = 'save', step_cmd = None, save_cmd = None):
     # Initialisation
     controller = get_controller('/commands/scan/runscan')
-    controller = get_controller(deviceId)
     if (controller == None):
         raise SicsError('Model path /commands/scan/runscan not found')
     p = dict()
@@ -740,3 +739,5 @@ def disable_all_ms(controller_name = 'tc1', print_all = True):
             async_command(cmd)
         elif print_all :
             print('/MEER{0:02d}'.format(i + 1) + ' already disabled')
+
+    
