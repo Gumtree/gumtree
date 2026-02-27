@@ -182,7 +182,7 @@ __sampleMap__ = {
 __meer_devices__ = ['meer16']
 
 # __sampleNum__ = 12
-__sampleStage__ = '12'
+__sampleStage__ = 'meer16'
 
 def att_pos(val = None):
     if not val is None :
@@ -257,7 +257,8 @@ def sample(val = None):
                 log('using fixed sample stage, skipped')
             else:
                 control.drive('samx', __cal_samx__(val))
-    raw = control.get_raw_value('samx')
+#     raw = control.get_raw_value('samx')
+    raw = control.get_value('samx')
     samNum = -1;
     if _table[0] > _table[len(_table) - 1] :
         for i in xrange(len(_table)) :
