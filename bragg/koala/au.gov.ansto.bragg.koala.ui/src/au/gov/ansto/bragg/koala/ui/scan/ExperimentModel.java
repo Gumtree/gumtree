@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
@@ -235,13 +236,13 @@ public class ExperimentModel {
 		
 		public UserControl() {
 			if (controlHelper.isConnected()) {
-				initialise();
+				initialise(SicsManager.getSicsModel());
 			}
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void modelUpdated() {
-					initialise();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					initialise(sicsModel);
 				}
 				
 				@Override
@@ -253,8 +254,8 @@ public class ExperimentModel {
 			controlHelper.addProxyListener(proxyListener);
 		}
 		
-		private void initialise() {
-			userController = SicsManager.getSicsModel().findControllerByPath(
+		private void initialise(final ISicsModel sicsModel) {
+			userController = sicsModel.findControllerByPath(
 					System.getProperty(ControlHelper.GUMTREE_USER_NAME));
 		}
 		

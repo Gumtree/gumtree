@@ -3,6 +3,7 @@
  */
 package org.gumtree.control.events;
 
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ServerStatus;
 
 /**
@@ -31,7 +32,7 @@ public abstract class SicsProxyListenerAdapter implements ISicsProxyListener {
 	 * @see org.gumtree.control.events.ISicsProxyListener#modelUpdated()
 	 */
 	@Override
-	public void modelUpdated() {
+	public void modelUpdated(final ISicsModel sicsModel) {
 	}
 
 	/* (non-Javadoc)

@@ -4,6 +4,7 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsProxyListener;
@@ -61,12 +62,12 @@ public abstract class ControlViewerContentProvider implements ITreeContentProvid
 	}
 
 	class ProxyListener extends SicsProxyListenerAdapter {
-		public void modelUpdated() {
+		public void modelUpdated(final ISicsModel sicsModel) {
 			logger.debug("Proxy connected");
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				public void run() {
 					if(viewer != null && !viewer.getControl().isDisposed()) {
-						viewer.setInput(SicsManager.getSicsModel());
+						viewer.setInput(sicsModel);
 						viewer.refresh();
 						viewer.expandToLevel(2);
 						logger.debug("Viewer refreshed");

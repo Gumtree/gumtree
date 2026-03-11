@@ -399,7 +399,7 @@ public class SicsProxy implements ISicsProxy {
 				ISicsProxyListener listener = iter.next();
 				if (listener.isActive()) {
 					try {
-						listener.modelUpdated();
+						listener.modelUpdated(null);
 					} catch (Exception e) {
 						logger.error("failed fire model updating event", e);
 					}

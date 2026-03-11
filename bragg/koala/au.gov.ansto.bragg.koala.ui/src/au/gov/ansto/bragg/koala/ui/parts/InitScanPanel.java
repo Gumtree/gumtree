@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
@@ -744,13 +745,13 @@ public class InitScanPanel extends AbstractControlPanel {
 		
 		public ConditionControl() {
 			if (controlHelper.isConnected()) {
-				init();
+				init(SicsManager.getSicsModel());
 			}
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void modelUpdated() {
-					init();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					init(sicsModel);
 				}
 				
 				@Override
@@ -781,18 +782,18 @@ public class InitScanPanel extends AbstractControlPanel {
 			controlHelper.addProxyListener(proxyListener);
 		}
 		
-		private void init() {
-			phiController = SicsManager.getSicsModel().findController(
+		private void init(final ISicsModel sicsModel) {
+			phiController = sicsModel.findController(
 					System.getProperty(ControlHelper.SAMPLE_PHI));
-			chiController = SicsManager.getSicsModel().findController(
+			chiController = sicsModel.findController(
 					System.getProperty(ControlHelper.SAMPLE_CHI));
-			tempController = SicsManager.getSicsModel().findController(
+			tempController = sicsModel.findController(
 					System.getProperty(ControlHelper.ENV_VALUE));
-			stepController = SicsManager.getSicsModel().findController(
+			stepController = sicsModel.findController(
 					System.getProperty(ControlHelper.STEP_TEXT_PATH));
-			sampleController = SicsManager.getSicsModel().findController(
+			sampleController = sicsModel.findController(
 					System.getProperty(ControlHelper.GUMTREE_SAMPLE_NAME));
-			commentsController = SicsManager.getSicsModel().findController(
+			commentsController = sicsModel.findController(
 					System.getProperty(ControlHelper.GUMTREE_COMMENTS));
 			if (phiController != null) {
 				phiController.addControllerListener(

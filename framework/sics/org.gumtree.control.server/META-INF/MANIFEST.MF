@@ -14,4 +14,5 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: org.slf4j
-Export-Package: org.gumtree.control.server.restlet
+Export-Package: org.gumtree.control.server.log,
+ org.gumtree.control.server.restlet

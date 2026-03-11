@@ -1,12 +1,13 @@
 package org.gumtree.control.events;
 
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ServerStatus;
 
 public interface ISicsProxyListener {
 
 	void connect();
 	void disconnect();
-	void modelUpdated();
+	void modelUpdated(final ISicsModel sicsModel);
 	void interrupt(boolean isInterrupted);
 	void setStatus(ServerStatus newStatus);
 	void proxyConnectionReqested();

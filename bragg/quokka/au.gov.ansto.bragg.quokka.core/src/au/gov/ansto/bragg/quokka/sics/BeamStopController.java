@@ -1,9 +1,8 @@
 package au.gov.ansto.bragg.quokka.sics;
 
-import org.gumtree.control.core.ISicsOutputData;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ISicsReplyData;
 import org.gumtree.control.core.SicsManager;
-import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.SicsCallbackAdapter;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
@@ -46,13 +45,13 @@ public class BeamStopController {
 			SicsManager.getSicsProxy().addProxyListener(new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void modelUpdated() {
-					setupStateMonListener();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					setupStateMonListener(sicsModel);
 				}
 				
 			});
 		} else {
-			setupStateMonListener();
+			setupStateMonListener(SicsManager.getSicsModel());
 		}
 	}
 
@@ -155,8 +154,8 @@ public class BeamStopController {
 		return position;
 	}
 	
-	private void setupStateMonListener() {
-		SicsManager.getSicsModel().findControllerById(deviceId).addControllerListener(new ISicsControllerListener() {
+	private void setupStateMonListener(final ISicsModel sicsModel) {
+		sicsModel.findControllerById(deviceId).addControllerListener(new ISicsControllerListener() {
 			
 			@Override
 			public void updateValue(Object oldValue, Object newValue) {

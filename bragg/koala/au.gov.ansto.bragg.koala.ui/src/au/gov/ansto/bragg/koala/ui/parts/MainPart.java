@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
@@ -149,15 +150,15 @@ public class MainPart extends Composite {
 
 				
 				@Override
-				public void modelUpdated() {
-					final IDynamicController fnController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+				public void modelUpdated(final ISicsModel sicsModel) {
+					final IDynamicController fnController = (IDynamicController) sicsModel.findControllerByPath(
 							System.getProperty(ControlHelper.FILENAME_PATH));
 
 					if (fnController != null) {
 						fnController.addControllerListener(new FilenameControllerListener());
 					}
 					
-					final IDynamicController versionController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+					final IDynamicController versionController = (IDynamicController) sicsModel.findControllerByPath(
 							System.getProperty(ControlHelper.GUMTREE_VERSION_PATH));
 					if (versionController != null) {
 						String version = System.getProperty(ControlHelper.GUMTREE_VERSION_PROP);

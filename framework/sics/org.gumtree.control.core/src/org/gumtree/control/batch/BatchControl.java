@@ -265,6 +265,7 @@ public class BatchControl implements IBatchControl {
 		this.batchName = batchName;
 		try {
 			sicsProxy.asyncRun("exe print " + batchName, new SicsCallbackAdapter() {
+				
 				@Override
 				public void receiveReply(final ISicsReplyData data) {
 					try {
@@ -276,6 +277,11 @@ public class BatchControl implements IBatchControl {
 					} catch (Exception e) {
 						BatchControl.logger.error("failed to get batch text of file: " + batchName, e);
 					}
+				}
+				
+				@Override
+				public void receiveFinish(ISicsReplyData data) {
+					this.receiveReply(data);
 				}
 			});
 		} catch (SicsException e) {

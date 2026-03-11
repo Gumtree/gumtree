@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
@@ -645,13 +646,13 @@ public class OldMjpegViewer extends Composite {
 		
 		public PhiControlSuite() {
 			if (controlHelper.isConnected()) {
-				initialise();
+				initialise(SicsManager.getSicsModel());
 			}
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void modelUpdated() {
-					initialise();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					initialise(sicsModel);
 				}
 				
 				@Override
@@ -663,8 +664,8 @@ public class OldMjpegViewer extends Composite {
 			controlHelper.addProxyListener(proxyListener);
 		}
 		
-		private void initialise() {
-			final ISicsController phiController = SicsManager.getSicsModel().findController(
+		private void initialise(final ISicsModel sicsModel) {
+			final ISicsController phiController = sicsModel.findController(
 					System.getProperty(ControlHelper.SAMPLE_PHI));
 			if (phiController != null) {
 				if (phiController instanceof DriveableController) {

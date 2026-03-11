@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsControllerAdapter;
@@ -112,13 +113,13 @@ public class EnvironmentPanel extends AbstractPanel {
 		
 		public TemperatureControllerHelper() {
 			if (controlHelper.isConnected()) {
-				initialise();
+				initialise(SicsManager.getSicsModel());
 			}
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 
 				@Override
-				public void modelUpdated() {
-					initialise();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					initialise(sicsModel);
 				}
 				
 				@Override
@@ -143,12 +144,12 @@ public class EnvironmentPanel extends AbstractPanel {
 			controlHelper.addProxyListener(proxyListener);
 		}
 		
-		private void initialise() {
+		private void initialise(final ISicsModel sicsModel) {
 			String pathValues = System.getProperty(ControlHelper.ENV_VALUE);
 			String[] paths = pathValues.split(",");
 			ISicsController controller = null;
 			for (int i = 0; i < paths.length; i++) {
-				controller = SicsManager.getSicsModel().findController(paths[i]);
+				controller = sicsModel.findController(paths[i]);
 				if (controller != null) {
 					break;
 				}
@@ -158,7 +159,7 @@ public class EnvironmentPanel extends AbstractPanel {
 			paths = pathValues.split(",");
 			controller = null;
 			for (int i = 0; i < paths.length; i++) {
-				controller = SicsManager.getSicsModel().findController(paths[i]);
+				controller = sicsModel.findController(paths[i]);
 				if (controller != null) {
 					break;
 				}

@@ -26,8 +26,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
-import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
@@ -1093,13 +1093,13 @@ public class MjpegViewer extends Composite {
 		
 		public LightSourceHelper() {
 			if (controlHelper.isConnected()) {
-				initialise();
+				initialise(SicsManager.getSicsModel());
 			}
 			ISicsProxyListener proxyLedListener = new SicsProxyListenerAdapter() {
 
 				@Override
-				public void modelUpdated() {
-					initialise();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					initialise(sicsModel);
 				}
 				
 				@Override
@@ -1117,8 +1117,8 @@ public class MjpegViewer extends Composite {
 			controlHelper.addProxyListener(proxyLedListener);
 		}
 		
-		private void initialise() {
-			final ISicsController ledController = SicsManager.getSicsModel().findController(
+		private void initialise(final ISicsModel sicsModel) {
+			final ISicsController ledController = sicsModel.findController(
 					System.getProperty(ControlHelper.LED_PATH));	
 			if (ledController != null) {
 				if (ledController instanceof DynamicController) {
@@ -1188,13 +1188,13 @@ public class MjpegViewer extends Composite {
 	class SzHelper {
 		public SzHelper() {
 			if (controlHelper.isConnected()) {
-				initialise();
+				initialise(SicsManager.getSicsModel());
 			}
 			ISicsProxyListener proxySzListener = new SicsProxyListenerAdapter() {
 
 				@Override
-				public void modelUpdated() {
-					initialise();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					initialise(sicsModel);
 				}
 				
 				@Override
@@ -1209,8 +1209,8 @@ public class MjpegViewer extends Composite {
 			controlHelper.addProxyListener(proxySzListener);
 		}
 		
-		private void initialise() {
-			final ISicsController szController = SicsManager.getSicsModel().findController(
+		private void initialise(final ISicsModel sicsModel) {
+			final ISicsController szController = sicsModel.findController(
 					System.getProperty(ControlHelper.SZ_PATH));	
 			if (szController != null) {
 				if (szController instanceof DynamicController) {
@@ -1266,13 +1266,13 @@ public class MjpegViewer extends Composite {
 		
 		public DrumZHelper() {
 			if (controlHelper.isConnected()) {
-				initialise();
+				initialise(SicsManager.getSicsModel());
 			}
 			ISicsProxyListener proxyDrumZListener = new SicsProxyListenerAdapter() {
 
 				@Override
-				public void modelUpdated() {
-					initialise();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					initialise(sicsModel);
 				}
 				
 				@Override
@@ -1289,8 +1289,8 @@ public class MjpegViewer extends Composite {
 			controlHelper.addProxyListener(proxyDrumZListener);
 		}
 		
-		private void initialise() {
-			final ISicsController drumZController = SicsManager.getSicsModel().findController(
+		private void initialise(final ISicsModel sicsModel) {
+			final ISicsController drumZController = sicsModel.findController(
 					System.getProperty(ControlHelper.DRUM_PATH));	
 			if (drumZController != null) {
 				if (drumZController instanceof DynamicController) {
@@ -1354,13 +1354,13 @@ public class MjpegViewer extends Composite {
 		
 		public PhiControlSuite() {
 			if (controlHelper.isConnected()) {
-				initialise();
+				initialise(SicsManager.getSicsModel());
 			}
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void modelUpdated() {
-					initialise();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					initialise(sicsModel);
 				}
 				
 				@Override
@@ -1372,8 +1372,8 @@ public class MjpegViewer extends Composite {
 			controlHelper.addProxyListener(proxyListener);
 		}
 		
-		private void initialise() {
-			final ISicsController phiController = SicsManager.getSicsModel().findController(
+		private void initialise(final ISicsModel sicsModel) {
+			final ISicsController phiController = sicsModel.findController(
 					System.getProperty(ControlHelper.SAMPLE_PHI));
 			if (phiController != null) {
 				if (phiController instanceof DriveableController) {

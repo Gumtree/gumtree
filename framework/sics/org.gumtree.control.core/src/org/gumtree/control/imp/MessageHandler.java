@@ -79,7 +79,7 @@ public class MessageHandler {
 				} else if (type.equalsIgnoreCase(MessageType.VALUE.getId())) {
 					String name = json.getString(PropertyConstants.PROP_UPDATE_NAME);
 					String value = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
-//					logger.info("UPDATE value " + name + " = " + value);
+					logger.error("UPDATE value " + name + " = " + value);
 					processUpdate(name, value);
 				} else if (type.equalsIgnoreCase(MessageType.STATE.getId())) {
 					String name = json.getString(PropertyConstants.PROP_UPDATE_VALUE);

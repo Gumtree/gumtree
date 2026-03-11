@@ -2,12 +2,16 @@ package org.gumtree.control.server;
 
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.gumtree.control.core.ISicsConnectionContext;
+import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.SicsCoreProperties;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.model.ModelUtils;
+import org.gumtree.control.server.log.ControlLogManager;
 import org.gumtree.util.eclipse.EclipseUtils;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Activator implements BundleActivator {
 
@@ -21,6 +25,8 @@ public class Activator implements BundleActivator {
 	
 	private ISicsConnectionContext connectionContext;
 	
+	private static final Logger logger = LoggerFactory.getLogger(Activator.class);
+	
 	static BundleContext getContext() {
 		return context;
 	}
@@ -32,6 +38,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
 		instance = this;
+		logger.error("SICS proxy module started");
 		boolean newProxy = false;
 		try {
 			newProxy = Boolean.valueOf(SicsCoreProperties.USE_NEW_PROXY.getValue());
@@ -54,10 +61,10 @@ public class Activator implements BundleActivator {
 		Thread connectionMonitor = new Thread(new Runnable() {
 			public void run() {
 				while (!SicsManager.getSicsProxy().isConnected()) {
-					try {
-						SicsManager.getSicsProxy().connect(
-								connectionContext.getServerAddress(), 
-								connectionContext.getPublisherAddress());
+					try {ISicsProxy sicsProxy = SicsManager.getSicsProxy();
+						sicsProxy.connect(connectionContext.getServerAddress(), 
+										  connectionContext.getPublisherAddress());
+						ControlLogManager.getInstance().initiate(sicsProxy);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

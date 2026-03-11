@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsControllerAdapter;
@@ -222,14 +223,14 @@ public class QueueScanStatusPart {
 		public StatusControl() {
 			
 			if (controlHelper.isConnected()) {
-				initialise();
+				initialise(SicsManager.getSicsModel());
 			}
 			
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void modelUpdated() {
-					initialise();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					initialise(sicsModel);
 				}
 				
 				@Override
@@ -247,13 +248,13 @@ public class QueueScanStatusPart {
 			controlHelper.addProxyListener(proxyListener);
 		}
 		
-		public void initialise() {
+		public void initialise(final ISicsModel sicsModel) {
 
-//			phaseController = SicsManager.getSicsModel().findController(
+//			phaseController = sicsModel.findController(
 //					System.getProperty(ControlHelper.PHASE_PATH));
-			gumtreeStatusController = SicsManager.getSicsModel().findController(
+			gumtreeStatusController = sicsModel.findController(
 					System.getProperty(ControlHelper.GUMTREE_STATUS_PATH));
-//			gumtreeTimeController = SicsManager.getSicsModel().findController(
+//			gumtreeTimeController = sicsModel.findController(
 //					System.getProperty(ControlHelper.GUMTREE_TIME_PATH));
 			
 //			if (phaseController != null) {

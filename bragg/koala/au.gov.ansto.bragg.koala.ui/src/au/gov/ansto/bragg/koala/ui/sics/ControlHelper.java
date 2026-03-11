@@ -258,7 +258,7 @@ public class ControlHelper {
 		getProxy().addProxyListener(new SicsProxyListenerAdapter() {
 			
 			@Override
-			public void modelUpdated() {
+			public void modelUpdated(final ISicsModel sicsModel) {
 //				if (controller instanceof IDynamicController) {
 //					try {
 //						Object value = ((IDynamicController) controller).getValue();
@@ -268,7 +268,7 @@ public class ControlHelper {
 //					}
 //				}
 				final ISicsControllerListener listener = new ControllerListener(currentControl, targetControl);
-				final ISicsController controller = SicsManager.getSicsModel().findController(path);
+				final ISicsController controller = sicsModel.findController(path);
 				if (controller != null) {
 					controller.addControllerListener(listener);
 				}
@@ -766,13 +766,13 @@ public class ControlHelper {
 			});
 			
 			if (getProxy().isConnected()) {
-				initialise();
+				initialise(SicsManager.getSicsModel());
 			}
 			ISicsProxyListener proxyDrumZListener = new SicsProxyListenerAdapter() {
 
 				@Override
-				public void modelUpdated() {
-					initialise();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					initialise(sicsModel);
 				}
 				
 				@Override
@@ -789,8 +789,8 @@ public class ControlHelper {
 			getProxy().addProxyListener(proxyDrumZListener);
 		}
 		
-		private void initialise() {
-			final ISicsController drumZController = SicsManager.getSicsModel().findController(
+		private void initialise(final ISicsModel sicsModel) {
+			final ISicsController drumZController = sicsModel.findController(
 					System.getProperty(ControlHelper.DRUM_PATH));	
 			if (drumZController != null) {
 				if (drumZController instanceof DynamicController) {
@@ -931,13 +931,13 @@ public class ControlHelper {
 			});
 			
 			if (getProxy().isConnected()) {
-				initialise();
+				initialise(SicsManager.getSicsModel());
 			}
 			ISicsProxyListener proxySamZListener = new SicsProxyListenerAdapter() {
 
 				@Override
-				public void modelUpdated() {
-					initialise();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					initialise(sicsModel);
 				}
 				
 				@Override
@@ -954,8 +954,8 @@ public class ControlHelper {
 			getProxy().addProxyListener(proxySamZListener);
 		}
 		
-		private void initialise() {
-			final ISicsController samZController = SicsManager.getSicsModel().findController(
+		private void initialise(final ISicsModel sicsModel) {
+			final ISicsController samZController = sicsModel.findController(
 					System.getProperty(ControlHelper.SZ_PATH));	
 			if (samZController != null) {
 				if (samZController instanceof DynamicController) {

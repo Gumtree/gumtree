@@ -4,14 +4,12 @@ import javax.annotation.PostConstruct;
 
 import org.eclipse.swt.widgets.Composite;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
-import org.gumtree.util.ILoopExitCondition;
-import org.gumtree.util.JobRunner;
-import org.gumtree.util.messaging.EventHandler;
 import org.gumtree.widgets.swt.ExtendedComposite;
 
 public abstract class ExtendedWidgetComposite extends ExtendedComposite {
@@ -77,7 +75,7 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 			}
 
 			@Override
-			public void modelUpdated() {
+			public void modelUpdated(final ISicsModel sicsModel) {
 				handleModelUpdate();
 			}
 			

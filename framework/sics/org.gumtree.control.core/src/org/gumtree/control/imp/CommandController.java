@@ -81,7 +81,7 @@ public class CommandController extends GroupController implements ICommandContro
 		setErrorMessage(null);
 		registerStatusListener();
 		try {
-			getSicsProxy().syncRun("hset " + getPath() + " start", callback);
+			getSicsProxy().asyncRun("hset " + getPath() + " start", callback);
 		} catch (SicsException e) {
 			setErrorMessage(e.getMessage());
 			throw e;
