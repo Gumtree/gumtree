@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="text/javascript" src="core/ckeditor_base.js"></script>
+  <script type="text/javascript" src="core/loader.js"></script>
+  <script>
+    // Manually load the ckeditor core scripts
+    if (CKEDITOR.loader) {
+      console.log('Loading ckeditor core scripts...');
+      CKEDITOR.loader.load('ckeditor');
+    } else {
+      console.error('CKEDITOR.loader not available');
+    }
+  </script>
+  <script>
+    // Add debugging before CKEditor loads
+    console.log('HTML head script starting');
+    window.addEventListener('load', function() {
+      console.log('Window load event fired');
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOMContentLoaded event fired');
+    });
+  </script>
+</head>
+<body>
+  <textarea name="editor1"></textarea>
+  <div id="debug"></div>
+  <script>
+    console.log('Body script starting');
+    console.log('CKEDITOR object exists:', typeof window.CKEDITOR);
+    console.log('Document readyState:', document.readyState);
+
+    // Wait for CKEditor to be fully loaded
+    function checkCKEditorReady() {
+      if (typeof CKEDITOR.replace === 'function' && CKEDITOR.env) {
+        console.log('CKEditor is ready!');
+        runCKEditorTest();
+      } else {
+        console.log('CKEditor not ready yet, waiting...');
+        setTimeout(checkCKEditorReady, 100);
+      }
+    }
+
+    function runCKEditorTest() {
+      console.log('Starting CKEditor initialization');
+      console.log('CKEDITOR object:', typeof CKEDITOR);
+      console.log('CKEDITOR.replace function:', typeof CKEDITOR.replace);
+
+      // Check if we're in Firefox 148+
+      var isFirefox148 = CKEDITOR.env && CKEDITOR.env.gecko && CKEDITOR.env.version >= 1480000;
+      console.log('Is Firefox 148+:', isFirefox148);
+      console.log('CKEDITOR.env:', CKEDITOR.env);
+
+      // Check plugin availability
+      console.log('wysiwygarea plugin available:', CKEDITOR.plugins.get ? !!CKEDITOR.plugins.get('wysiwygarea') : 'CKEDITOR.plugins not available');
+      console.log('Available plugins:', CKEDITOR.plugins ? Object.keys(CKEDITOR.plugins) : 'CKEDITOR.plugins not available');
+
+      try {
+        var editor;
+        if (isFirefox148) {
+          console.log('Using inline mode for Firefox 148+');
+          document.getElementById('debug').innerHTML += 'Using inline mode<br>';
+          // Make the textarea contenteditable for inline mode
+          var textarea = document.getElementsByName('editor1')[0];
+          textarea.style.display = 'none';
+          var div = document.createElement('div');
+          div.contentEditable = 'true';
+          div.innerHTML = textarea.value || 'Type here...';
+          div.id = 'editor1';
+          textarea.parentNode.insertBefore(div, textarea);
+
+          editor = CKEDITOR.inline('editor1', {
+            on: {
+              instanceReady: function(evt) {
+                console.log('CKEditor instance ready');
+                document.getElementById('debug').innerHTML += 'Instance ready<br>';
+                // Try to focus after a delay
+                setTimeout(function() {
+                  try {
+                    evt.editor.focus();
+                    console.log('Focus attempted');
+                    document.getElementById('debug').innerHTML += 'Focus attempted<br>';
+                  } catch(e) {
+                    console.error('Focus failed:', e);
+                    document.getElementById('debug').innerHTML += 'Focus failed: ' + e.message + '<br>';
+                  }
+                }, 1000);
+              },
+              pluginsLoaded: function(evt) {
+                console.log('Plugins loaded');
+                document.getElementById('debug').innerHTML += 'Plugins loaded<br>';
+              },
+              load: function(evt) {
+                console.log('Editor load event');
+                document.getElementById('debug').innerHTML += 'Editor load<br>';
+              }
+            }
+          });
+        } else {
+          console.log('Using replace mode');
+          document.getElementById('debug').innerHTML += 'Using replace mode<br>';
+          editor = CKEDITOR.replace('editor1', {
+            on: {
+              instanceReady: function(evt) {
+                console.log('CKEditor instance ready');
+                document.getElementById('debug').innerHTML += 'Instance ready<br>';
+                // Try to focus after a delay
+                setTimeout(function() {
+                  try {
+                    evt.editor.focus();
+                    console.log('Focus attempted');
+                    document.getElementById('debug').innerHTML += 'Focus attempted<br>';
+                  } catch(e) {
+                    console.error('Focus failed:', e);
+                    document.getElementById('debug').innerHTML += 'Focus failed: ' + e.message + '<br>';
+                  }
+                }, 1000);
+              },
+              pluginsLoaded: function(evt) {
+                console.log('Plugins loaded');
+                document.getElementById('debug').innerHTML += 'Plugins loaded<br>';
+              },
+              load: function(evt) {
+                console.log('Editor load event');
+                document.getElementById('debug').innerHTML += 'Editor load<br>';
+              }
+            }
+          });
+        }
+
+        console.log('CKEDITOR.replace/inline returned:', editor);
+        document.getElementById('debug').innerHTML += 'CKEDITOR call returned<br>';
+
+        if (editor) {
+          console.log('Editor instance created');
+          document.getElementById('debug').innerHTML += 'Editor instance created<br>';
+        } else {
+          console.log('Editor instance NOT created');
+          document.getElementById('debug').innerHTML += 'Editor instance NOT created<br>';
+        }
+
+      } catch (e) {
+        console.error('CKEDITOR call failed:', e);
+        document.getElementById('debug').innerHTML += 'CKEDITOR call failed: ' + e.message + '<br>';
+      }
+    }
+
+    checkCKEditorReady();
+  </script>
+            instanceReady: function(evt) {
+              console.log('CKEditor instance ready');
+              document.getElementById('debug').innerHTML += 'Instance ready<br>';
+              // Try to focus after a delay
+              setTimeout(function() {
+                try {
+                  evt.editor.focus();
+                  console.log('Focus attempted');
+                  document.getElementById('debug').innerHTML += 'Focus attempted<br>';
+                } catch(e) {
+                  console.error('Focus failed:', e);
+                  document.getElementById('debug').innerHTML += 'Focus failed: ' + e.message + '<br>';
+                }
+              }, 1000);
+            },
+            pluginsLoaded: function(evt) {
+              console.log('Plugins loaded');
+              document.getElementById('debug').innerHTML += 'Plugins loaded<br>';
+            },
+            load: function(evt) {
+              console.log('Editor load event');
+              document.getElementById('debug').innerHTML += 'Editor load<br>';
+            }
+          }
+        });
+      }
+
+      console.log('CKEDITOR.replace/inline returned:', editor);
+      document.getElementById('debug').innerHTML += 'CKEDITOR call returned<br>';
+
+      if (editor) {
+        console.log('Editor instance created');
+        document.getElementById('debug').innerHTML += 'Editor instance created<br>';
+      } else {
+        console.log('Editor instance NOT created');
+        document.getElementById('debug').innerHTML += 'Editor instance NOT created<br>';
+      }
+
+    } catch (e) {
+      console.error('CKEDITOR call failed:', e);
+      document.getElementById('debug').innerHTML += 'CKEDITOR call failed: ' + e.message + '<br>';
+    }
+  }
+  </script>
+</body>
+</html>
