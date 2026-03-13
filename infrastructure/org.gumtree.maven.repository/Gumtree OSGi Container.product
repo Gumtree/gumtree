@@ -30,15 +30,15 @@ splash.bmp
       startupMessageRect="5,257,571,17"
       startupForegroundColor="FFFFFF" />
    <launcher name="gumtree">
-      <macosx icon="../../../images/g-icon.icns"/>
+      <macosx icon="images/g-icon.icns"/>
       <win useIco="false">
          <bmp
-            winSmallHigh="../../../images/g-icon_16x16_32-bit.bmp"
-            winSmallLow="../../../images/g-icon_16x16_8-bit.bmp"
-            winMediumHigh="../../../images/g-icon_32x32_32-bit.bmp"
-            winMediumLow="../../../images/g-icon_32x32_8-bit.bmp"
+            winSmallHigh="images/g-icon_16x16_32-bit.bmp"
+            winSmallLow="images/g-icon_16x16_8-bit.bmp"
+            winMediumHigh="images/g-icon_32x32_32-bit.bmp"
+            winMediumLow="images/g-icon_32x32_8-bit.bmp"
             winLargeHigh="images/g-icon_48x48_32-bit.bmp"
-            winLargeLow="../../../images/g-icon_48x48_8-bit.bmp"
+            winLargeLow="images/g-icon_48x48_8-bit.bmp"
             winExtraLargeHigh="images/g-icon_256x256_32-bit.bmp"/>
       </win>
    </launcher>
