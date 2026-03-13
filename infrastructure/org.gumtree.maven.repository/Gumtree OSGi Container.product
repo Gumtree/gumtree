@@ -10,14 +10,17 @@
    <launcherArgs>
       <programArgs>-console
 -showSplash
-splash.bmp</programArgs>
+splash.bmp
+      </programArgs>
       <vmArgs>-Dosgi.locking=none
 -Dosgi.noShutdown=true
 -Declipse.ignoreApp=true
--Dlogback.configurationFile=logback.xml</vmArgs>
+-Dlogback.configurationFile=logback.xml
+      </vmArgs>
       <vmArgsMac>-Xdock:icon=../Resources/Eclipse.icns
 -XstartOnFirstThread
--Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+-Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
    </launcherArgs>
 
    <windowImages/>
@@ -28,23 +31,21 @@ splash.bmp</programArgs>
       startupMessageRect="5,257,571,17"
       startupForegroundColor="FFFFFF" />
    <launcher name="gumtree">
-      <macosx icon="../../../images/g-icon.icns"/>
-      <solaris/>
+      <macosx icon="images/g-icon.icns"/>
       <win useIco="false">
          <bmp
-            winSmallHigh="../../../images/g-icon_16x16_32-bit.bmp"
-            winSmallLow="../../../images/g-icon_16x16_8-bit.bmp"
-            winMediumHigh="../../../images/g-icon_32x32_32-bit.bmp"
-            winMediumLow="../../../images/g-icon_32x32_8-bit.bmp"
-            winLargeHigh="../../../images/g-icon_48x48_32-bit.bmp"
-            winLargeLow="../../../images/g-icon_48x48_8-bit.bmp"/>
+            winSmallHigh="images/g-icon_16x16_32-bit.bmp"
+            winSmallLow="images/g-icon_16x16_8-bit.bmp"
+            winMediumHigh="images/g-icon_32x32_32-bit.bmp"
+            winMediumLow="images/g-icon_32x32_8-bit.bmp"
+            winLargeHigh="images/g-icon_48x48_32-bit.bmp"
+            winLargeLow="images/g-icon_48x48_8-bit.bmp"/>
       </win>
    </launcher>
 
 
    <vm>
    </vm>
-
 
    <plugins>
    </plugins>
