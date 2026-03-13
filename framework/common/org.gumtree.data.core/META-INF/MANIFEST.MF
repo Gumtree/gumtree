@@ -12,8 +12,8 @@ Export-Package: org.gumtree.data,
  org.gumtree.data.io,
  org.gumtree.data.math,
  org.gumtree.data.utils
-Import-Package: org.jdom;version="0.0.0";resolution:=optional,
- org.jdom.input;version="0.0.0";resolution:=optional,
+Import-Package: org.jdom2;version="[2.0.0,3.0.0)";resolution:=optional,
+ org.jdom2.input;version="[2.0.0,3.0.0)",
  org.osgi.framework;version="1.10.0";resolution:=optional
 Bundle-Activator: org.gumtree.data.internal.Activator
 Bundle-ActivationPolicy: lazy

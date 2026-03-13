@@ -32,10 +32,10 @@ import org.gumtree.data.dictionary.IPathMethod;
 import org.gumtree.data.exception.FileAccessException;
 import org.gumtree.data.interfaces.IDictionary;
 import org.gumtree.data.interfaces.IKey;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 
 
 /**

@@ -57,10 +57,8 @@ Eclipse Foundation http://www.eclipse.org/
       </win>
    </launcher>
 
-
    <vm>
    </vm>
-
 
    <plugins>
    </plugins>

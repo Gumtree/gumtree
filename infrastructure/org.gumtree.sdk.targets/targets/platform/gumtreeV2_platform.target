@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target includeMode="feature" name="gumtree2">
+	<locations>
+		<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+			<repository location="file:/D:/NewGumtree/repo/2025-06/"/>
+			<unit id="org.eclipse.collections.feature.source.feature.group" version="11.1.0.v20220705-1455"/>
+			<unit id="org.eclipse.dltk.core.feature.group" version="6.4.1.202405291003"/>
+			<unit id="org.eclipse.e4.core.tools.feature.source.feature.group" version="4.30.500.v20250415-1756"/>
+			<unit id="org.eclipse.ecf.core.feature.feature.group" version="1.7.0.v20250304-2338"/>
+			<unit id="org.eclipse.eclemma.feature.feature.group" version="3.1.10.202505212130"/>
+			<unit id="org.eclipse.egit.feature.group" version="7.3.0.202506031305-r"/>
+			<unit id="org.eclipse.egit.gitflow.feature.feature.group" version="7.3.0.202506031305-r"/>
+			<unit id="org.eclipse.emf.ecore.xcore.sdk.feature.group" version="1.33.0.v20250415-0903"/>
+			<unit id="org.eclipse.emf.rap.sdk.feature.group" version="2.41.0.v20250414-1351"/>
+			<unit id="org.eclipse.emf.sdk.feature.group" version="2.42.0.v20250415-0852"/>
+			<unit id="org.eclipse.emf.transaction.sdk.feature.group" version="1.14.1.202409160716"/>
+			<unit id="org.eclipse.equinox.sdk.feature.group" version="3.23.1700.v20250526-2018"/>
+			<unit id="org.eclipse.jdt.feature.group" version="3.20.200.v20250528-1830"/>
+			<unit id="org.eclipse.jgit.feature.group" version="7.3.0.202506031305-r"/>
+			<unit id="org.eclipse.jgit.gpg.bc.feature.group" version="7.3.0.202506031305-r"/>
+			<unit id="org.eclipse.jgit.http.apache.feature.group" version="7.3.0.202506031305-r"/>
+			<unit id="org.eclipse.jgit.ssh.apache.feature.group" version="7.3.0.202506031305-r"/>
+			<unit id="org.eclipse.jsf.feature.feature.group" version="3.14.0.v202504070144"/>
+			<unit id="org.eclipse.jst.enterprise_ui.feature.feature.group" version="3.38.0.v202504240052"/>
+			<unit id="org.eclipse.jst.web_ui.feature.feature.group" version="3.37.0.v202502280419"/>
+			<unit id="org.eclipse.m2e.feature.feature.group" version="2.9.0.20250514-0352"/>
+			<unit id="org.eclipse.m2e.logback.feature.feature.group" version="2.7.100.20250418-1315"/>
+			<unit id="org.eclipse.m2e.sdk.feature.feature.group" version="2.9.0.20250514-0353"/>
+			<unit id="org.eclipse.mylyn.builds.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.commons.activity.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.commons.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.commons.identity.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.commons.notifications.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.ide.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.jdt.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.jenkins.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.monitor.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.pde.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.team.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.pde.feature.group" version="3.16.300.v20250528-1830"/>
+			<unit id="org.eclipse.pde.spies.feature.group" version="1.0.700.v20250521-0419"/>
+			<unit id="org.eclipse.rap.equinox.target.feature.feature.group" version="4.3.0.20250530-1200"/>
+			<unit id="org.eclipse.rap.sdk.feature.feature.group" version="4.3.0.20250530-1200"/>
+			<unit id="org.eclipse.sdk.feature.group" version="4.36.0.v20250528-2229"/>
+			<unit id="org.eclipse.swt.tools.feature.feature.group" version="3.109.700.v20250516-0845"/>
+			<unit id="org.eclipse.wst.jsdt.feature.feature.group" version="2.4.500.v202307190318"/>
+			<unit id="org.eclipse.wst.web_ui.feature.feature.group" version="3.36.0.v202503020853"/>
+			<unit id="org.eclipse.wst.xml_ui.feature.feature.group" version="3.37.0.v202503020853"/>
+			<unit id="org.eclipse.wst.xsl.feature.feature.group" version="1.3.1800.v202409142305"/>
+			<unit id="org.eclipse.xwt.feature.feature.group" version="1.9.200.202406050834"/>
+			<unit id="org.eclipse.xwt.workbench.feature.feature.group" version="1.9.0.202406050834"/>
+			<unit id="org.eclipse.buildship.feature.group" version="3.1.10.v20240802-1314"/>
+			<unit id="org.eclipse.dltk.itcl.feature.group" version="6.4.1.202405291003"/>
+			<unit id="org.eclipse.dltk.tcl.feature.group" version="6.4.1.202405291003"/>
+			<unit id="org.eclipse.ecf.remoteservice.sdk.feature.feature.group" version="3.16.2.v20250528-1917"/>
+			<unit id="org.eclipse.emf.ecoretools.design.feature.group" version="3.5.2.202409301715"/>
+			<unit id="org.eclipse.gmf.feature.group" version="1.16.6.202501291447"/>
+			<unit id="org.eclipse.gmf.runtime.sdk.feature.group" version="1.16.6.202501291447"/>
+			<unit id="org.eclipse.jdt.astview.feature.feature.group" version="1.2.500.v20250501-1924"/>
+			<unit id="org.eclipse.jdt.jeview.feature.feature.group" version="1.1.700.v20250428-2158"/>
+			<unit id="org.eclipse.jgit.lfs.feature.group" version="7.3.0.202506031305-r"/>
+			<unit id="org.eclipse.jgit.ssh.jsch.feature.group" version="7.3.0.202506031305-r"/>
+			<unit id="org.eclipse.jst.server_adapters.feature.feature.group" version="3.38.0.v202504140102"/>
+			<unit id="org.eclipse.jst.server_ui.feature.feature.group" version="3.4.500.v202401292331"/>
+			<unit id="org.eclipse.jst.webpageeditor.feature.feature.group" version="2.12.200.v202502281952"/>
+			<unit id="org.eclipse.linuxtools.javadocs.feature.feature.group" version="8.19.0.202506031941"/>
+			<unit id="org.eclipse.linuxtools.rpm.feature.group" version="8.19.0.202506031941"/>
+			<unit id="org.eclipse.lsp4j.sdk.feature.group" version="0.24.0.v20250131-1747"/>
+			<unit id="org.eclipse.mylyn.commons.repositories.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.rap.tools.feature.feature.group" version="4.3.0.20250530-1200"/>
+			<unit id="org.eclipse.remote.console.feature.group" version="12.1.0.202505062016"/>
+			<unit id="org.eclipse.remote.feature.group" version="12.1.0.202505281655"/>
+			<unit id="org.eclipse.swtbot.eclipse.feature.group" version="4.3.0.202505280955"/>
+			<unit id="org.eclipse.swtbot.feature.group" version="4.3.0.202505280955"/>
+			<unit id="org.eclipse.swtbot.ide.feature.group" version="4.3.0.202505280955"/>
+			<unit id="org.eclipse.wb.core.feature.feature.group" version="1.20.0.202505271655"/>
+			<unit id="org.eclipse.wb.core.java.feature.feature.group" version="1.20.0.202505230404"/>
+			<unit id="org.eclipse.wb.core.ui.feature.feature.group" version="1.20.0.202505171009"/>
+			<unit id="org.eclipse.wb.layout.group.feature.feature.group" version="1.20.0.202505171009"/>
+			<unit id="org.eclipse.wb.rcp.SWT_AWT_support.feature.group" version="1.20.0.202505171009"/>
+			<unit id="org.eclipse.wb.rcp.doc.user.feature.feature.group" version="1.20.0.202505271654"/>
+			<unit id="org.eclipse.wb.rcp.feature.feature.group" version="1.20.0.202505221748"/>
+			<unit id="org.eclipse.wb.swt.feature.feature.group" version="1.20.0.202505230404"/>
+			<unit id="org.eclipse.wildwebdeveloper.feature.feature.group" version="1.3.9.202411190713"/>
+			<unit id="org.eclipse.wst.common.fproj.feature.group" version="3.7.4.v202501090237"/>
+			<unit id="org.eclipse.wst.jsdt.chromium.debug.feature.feature.group" version="0.7.0.v202307190351"/>
+			<unit id="org.eclipse.wst.server_adapters.feature.feature.group" version="3.36.0.v202503251436"/>
+			<unit id="org.eclipse.wst.web_js_support.feature.feature.group" version="3.33.0.v202403030558"/>
+			<unit id="org.eclipse.mylyn.git.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.github.feature.feature.group" version="6.8.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.versions.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.context.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.egit.feature.feature.group" version="4.7.0.v20250326-1000"/>
+			<unit id="org.eclipse.mylyn.tasks.feature.feature.group" version="4.7.0.v20250521-0822"/>
+		</location>
+		<location path="D:\NewGumtree\maven\libs" type="Directory"/>
+		<location path="D:\NewGumtree\exports\manually\repository" type="Directory"/>
+		<location path="D:\NewGumtree\repo\2025-06\plugins" type="Directory"/>
+		<location includeAllPlatforms="true" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+			<repository location="https://www.pydev.org/updates"/>
+			<unit id="org.python.pydev.feature.feature.group" version="13.1.0.202509210817"/>
+			<unit id="org.python.pydev.feature.source.feature.group" version="13.1.0.202509210817"/>
+		</location>
+	</locations>
+</target>
