@@ -15,7 +15,7 @@
 	############################################################################
 	-->
 
-	<property name="version" value="1.13.11" />
+	<property name="version" value="2.0.0" />
 	<property name="exportDirectory" value="${buildDirectory}/export" />
 	<property name="repositoryProject" value="org.gumtree.maven.repository" />
 	<property name="repositoryPath" value="infrastructure/${repositoryProject}/target" />
@@ -67,18 +67,18 @@
 	<target name="copyRuntime">
 		<echo message="Copying runtime container..." />
 		<delete dir="${exportDirectory}/container" failonerror="false" />
-		<!-- win32 -->
+		<!-- win32>
 		<copy todir="${exportDirectory}/container/win32">
 			<fileset dir="${sourceDirectory}/${repositoryPath}/products/${containerProduct}/win32/win32/x86" excludes="eclipsec.exe" />
-		</copy>
+		</copy -->
 		<!-- win64 -->
 		<copy todir="${exportDirectory}/container/win64">
 			<fileset dir="${sourceDirectory}/${repositoryPath}/products/${containerProduct}/win32/win32/x86_64" excludes="eclipsec.exe" />
 		</copy>
-		<!-- gtk32 -->
+		<!-- gtk32 >
 		<copy todir="${exportDirectory}/container/gtk32">
 			<fileset dir="${sourceDirectory}/${repositoryPath}/products/${containerProduct}/linux/gtk/x86" />
-		</copy>
+		</copy -->
 		<!-- gtk64 -->
 		<copy todir="${exportDirectory}/container/gtk64">
 			<fileset dir="${sourceDirectory}/${repositoryPath}/products/${containerProduct}/linux/gtk/x86_64" />
@@ -253,9 +253,9 @@
 			<delete includeEmptyDirs="true" failonerror="false">
 				<fileset dir="${exportDirectory}/products/@{applicationType}/@{applicationName}" />
 			</delete>
-			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" />
+			<!-- buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" / -->
 			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="win64" os="win32" ws="win32" arch="x86_64" />
-			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="gtk32" os="linux" ws="gtk" arch="x86" />
+			<!-- buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="gtk32" os="linux" ws="gtk" arch="x86" / -->
 			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="gtk64" os="linux" ws="gtk" arch="x86_64" />
 			<buildApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="cocoa64" os="macoxs" ws="cocoa" arch="x86_64" />
 			<tar destfile="${exportDirectory}/products/@{applicationType}/@{applicationLabel}-${version}.tar.gz" compression="gzip">
@@ -313,9 +313,9 @@
 			<delete includeEmptyDirs="true" failonerror="false">
 				<fileset dir="${exportDirectory}/products/@{applicationType}/@{applicationName}" />
 			</delete>
-			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" />
+			<!-- buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="win32" os="win32" ws="win32" arch="x86" / -->
 			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="win64" os="win32" ws="win32" arch="x86_64" />
-			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="gtk32" os="linux" ws="gtk" arch="x86" />
+			<!-- buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="gtk32" os="linux" ws="gtk" arch="x86" / -->
 			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="gtk64" os="linux" ws="gtk" arch="x86_64" />
 			<buildBraggApplication applicationType="@{applicationType}" applicationName="@{applicationName}" osType="cocoa64" os="macoxs" ws="cocoa" arch="x86_64" />
 			<tar destfile="${exportDirectory}/products/@{applicationType}/@{applicationLabel}-${version}.tar.gz" compression="gzip">
@@ -760,7 +760,7 @@
 			applicationLabel		(eg. Gumtree)
 			applicationShortcut		(eg. Gumtree Workbench)
 	-->
-	<macrodef name="buildWin32Installer">
+	<!-- macrodef name="buildWin32Installer">
 		<attribute name="applicationName" />
 		<attribute name="applicationLabel" />
 		<attribute name="applicationShortcut" />
@@ -782,7 +782,7 @@
 			</delete>
 			<move file="${exportDirectory}/scripts/nbi/nsis/@{applicationLabel}WorkbenchSetup-${version}-win32.exe" todir="${exportDirectory}/products/installer/bragg32" />
 		</sequential>
-	</macrodef>
+	</macrodef -->
 
 	<!--
 		Build Win64 installer
@@ -819,7 +819,7 @@
 		</sequential>
 	</macrodef>
 	
-	<target name="buildBraggWin32Installers">
+	<!-- target name="buildBraggWin32Installers">
 		<delete dir="${exportDirectory}/products/installer/bragg32" failonerror="false" />
 		<buildWin32Installer applicationName="echidna" applicationLabel="Echidna" applicationShortcut="Echidna Workbench" />
 		<buildWin32Installer applicationName="wombat" applicationLabel="Wombat" applicationShortcut="Wombat Workbench" />
@@ -835,7 +835,7 @@
 		<buildWin32Installer applicationName="spatz" applicationLabel="Spatz" applicationShortcut="Spatz Workbench" />
 		<buildWin32Installer applicationName="koala" applicationLabel="Koala" applicationShortcut="Koala Workbench" />
 		<buildWin32Installer applicationName="banksia" applicationLabel="Banksia" applicationShortcut="Banksia Workbench" />
-	</target>
+	</target -->
 
 	<target name="buildBraggWin64Installers">
 		<delete dir="${exportDirectory}/products/installer/bragg64" failonerror="false" />
