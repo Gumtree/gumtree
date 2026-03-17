@@ -80,13 +80,13 @@ CKEDITOR.plugins.add( 'imagepaste',
 							img.onload = function() {
 							  console.log(this.width + 'x' + this.height);
 							  try {
-								  if (this.width / this.height > 660 / 880) {
+								  if (this.width / this.height > 660 / 720) {
 									  if (this.width > 660) {
 										  theImage.setAttribute( 'width', 660);										  
 									  }
 								  } else {
-									  if (this.height > 880) {
-										  theImage.setAttribute( 'height', 880);
+									  if (this.height > 720) {
+										  theImage.setAttribute( 'height', 720);
 									  }
 								  }
 								} catch (e) {
@@ -191,13 +191,13 @@ CKEDITOR.plugins.add( 'imagepaste',
 					img.onload = function() {
 					  console.log(this.width + 'x' + this.height);
 					  try {
-						  if (this.width / this.height > 660 / 880) {
+						  if (this.width / this.height > 660 / 720) {
 							  if (this.width > 660) {
 								  theImage.setAttribute( 'width', 660);										  
 							  }
 						  } else {
-							  if (this.height > 880) {
-								  theImage.setAttribute( 'height', 880);
+							  if (this.height > 720) {
+								  theImage.setAttribute( 'height', 720);
 							  }
 						  }
 						} catch (e) {

@@ -72,7 +72,7 @@ CKEDITOR.editorConfig = function( config ) {
 
 	config.autosave_delay = 300;
 
-	CKEDITOR.config.imageResize = { maxWidth : 660, maxHeight : 880 };
+	CKEDITOR.config.imageResize = { maxWidth : 660, maxHeight : 680 };
 
 	config.undoStackSize = 50;
 };

@@ -96,6 +96,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String PROP_NOTEBOOK_TABLEEXTENSION = "gumtree.notebook.headerTableExtension";
 	private final static String PROP_DATABASE_SAVEPATH = "gumtree.loggingDB.savePath";
 	private final static String PROP_PDF_FOLDER = "gumtree.notebook.pdfPath";
+	private final static String PROP_CSS_FOLDER = "gumtree.notebook.cssPath";
 	private final static String PROP_IMAGE_FOLDER = "gumtree.notebook.imagePath";
 	private final static String NOTEBOOK_TEMPLATEFILENAME = "template.xml";
 	private final static String NOTEBOOK_HELPFILENAME = "guide.xml";
@@ -150,6 +151,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private static String instrumentId;
 	private static NotebookPDFService pdfService;
 	private static String pdfFolder;
+	private static String cssFolder;
 	private static String imageFolder;
 	
 	private String currentDBFolder;
@@ -170,7 +172,10 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	static {
 		instrumentId = System.getProperty(PROP_INSTRUMENT_ID);
 		currentFileFolder = System.getProperty(PROP_NOTEBOOK_SAVEPATH);
-		pdfService = new NotebookPDFService(pdfFolder);
+		pdfFolder = System.getProperty(PROP_PDF_FOLDER);
+		imageFolder = System.getProperty(PROP_IMAGE_FOLDER);
+		cssFolder = System.getProperty(PROP_CSS_FOLDER, pdfFolder);
+		pdfService = new NotebookPDFService(cssFolder);
 	}
 	/**
 	 * @param context
@@ -183,8 +188,6 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		sessionDb = SessionDB.getInstance();
 		controlDb = ControlDB.getInstance();
 		proposalDb = ProposalDB.getInstance();
-		pdfFolder = System.getProperty(PROP_PDF_FOLDER);
-		imageFolder = System.getProperty(PROP_IMAGE_FOLDER);
 		IHttpClientFactory clienntFactory = new HttpClientFactory();
 		externalHttpClient = clienntFactory.createHttpClient(1);
 		internalHttpClient = clienntFactory.createHttpClient(1);

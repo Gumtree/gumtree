@@ -2,15 +2,18 @@ package au.gov.ansto.bragg.nbi.server.notebook;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.gumtree.service.pdf.HtmlPDFException;
 import org.gumtree.service.pdf.HtmlPDFService;
 
 public class NotebookPDFService {
 
-	private final static String[] CSS_FILENAMES = new String[]{"raptor-front-end.css", "theme.css", "theme-icons.css", "notebook.css"};
+	private final static String[] CSS_FILENAMES = new String[]{"raptor-front-end.css", "theme.css", "theme-icons.css", "notebook.css", "contents.css"};
 	private final static String HTML_HEADER = "<html><head><title>ACNS Instrument Notebook</title></head><body>" +
     		"<div class=\"class_editable_page\" id=\"id_editable_page\" data-id=\"data_editable_page\">";
 	private final static String HTML_FOOTER = "</div></body></html>";
@@ -50,7 +53,12 @@ public class NotebookPDFService {
 	}
 	
 	public boolean createPDF(String sourceFilename, String imageFolder, String targetFilename) throws HtmlPDFException, IOException {
-		String htmlString = new String(Files.readAllBytes(Paths.get(sourceFilename)));
+//		String htmlString = new String(Files.readAllBytes(Paths.get(sourceFilename)));
+		String htmlString;
+
+		try (Stream<String> lines = Files.lines(Paths.get(sourceFilename), StandardCharsets.UTF_8)) {
+		    htmlString = lines.collect(Collectors.joining("\n"));
+		}
 		htmlString = htmlString.replaceAll("<br>", "<p/>");
 		return pdfService.createPdf(HTML_HEADER + htmlString + HTML_FOOTER, imageFolder, targetFilename);
 	}
