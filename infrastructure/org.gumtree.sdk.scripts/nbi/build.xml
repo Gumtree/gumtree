@@ -53,7 +53,7 @@
 			<fileset dir="${sourceDirectory}/${repositoryPath}/repository" />
 		</copy>
 		<!-- Copy archived version -->
-		<copy file="${sourceDirectory}/${repositoryPath}/${repositoryProject}.zip" tofile="${exportDirectory}/repository/GumtreeRepository_${version}.zip" overwrite="true" />
+		<copy file="${sourceDirectory}/${repositoryPath}/${repositoryProject}-${version}.zip" tofile="${exportDirectory}/repository/GumtreeRepository_${version}.zip" overwrite="true" />
 	</target>
 
 	<!--
