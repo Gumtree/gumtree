@@ -73,18 +73,18 @@ public class MessageHandler {
 				String type = json.getString(PropertyConstants.PROP_UPDATE_TYPE);
 				if (type.equalsIgnoreCase(MessageType.STATUS.getId())) {
 					String status = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
-//					logger.info("UPDATE status to " + status);
+					logger.debug("UPDATE status to " + status);
 					ServerStatus ss = ServerStatus.parseStatus(status);
 					sicsProxy.setServerStatus(ss);
 				} else if (type.equalsIgnoreCase(MessageType.VALUE.getId())) {
 					String name = json.getString(PropertyConstants.PROP_UPDATE_NAME);
 					String value = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
-					logger.error("UPDATE value " + name + " = " + value);
+					logger.debug("UPDATE value " + name + " = " + value);
 					processUpdate(name, value);
 				} else if (type.equalsIgnoreCase(MessageType.STATE.getId())) {
 					String name = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
 					String state = json.getString(PropertyConstants.PROP_UPDATE_NAME);
-//					logger.info("UPDATE state of " + name + " to " + state);
+					logger.debug("UPDATE state of " + name + " to " + state);
 //					if (name.startsWith("exe")) {
 //						sicsProxy.getBatchControl().fireBatchEvent(PropertyConstants.PROP_BATCH_START, 
 //								name.substring(4));
@@ -92,6 +92,7 @@ public class MessageHandler {
 						processState(name, state);
 //					}
 				} else if (type.equalsIgnoreCase(MessageType.BATCH.getId())) {
+					logger.debug("process batch message: " + json);
 					processBatch(json);
 				} else {
 					logger.error(json.toString());
