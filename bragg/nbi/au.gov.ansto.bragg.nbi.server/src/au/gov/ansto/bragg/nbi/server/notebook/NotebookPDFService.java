@@ -53,12 +53,7 @@ public class NotebookPDFService {
 	}
 	
 	public boolean createPDF(String sourceFilename, String imageFolder, String targetFilename) throws HtmlPDFException, IOException {
-//		String htmlString = new String(Files.readAllBytes(Paths.get(sourceFilename)));
-		String htmlString;
-
-		try (Stream<String> lines = Files.lines(Paths.get(sourceFilename), StandardCharsets.UTF_8)) {
-		    htmlString = lines.collect(Collectors.joining("\n"));
-		}
+		String htmlString = new String(Files.readAllBytes(Paths.get(sourceFilename)));
 		htmlString = htmlString.replaceAll("<br>", "<p/>");
 		return pdfService.createPdf(HTML_HEADER + htmlString + HTML_FOOTER, imageFolder, targetFilename);
 	}
