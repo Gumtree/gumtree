@@ -20,6 +20,8 @@ public class BinLoadHelper {
 
 	public static int FILE_FRAME_LENGTH = 40000; // 50hz -> microseconds (detector)
 	
+	public final static int DEFAULT_NUM_TIMEBINS = 100;
+	
 	public final static int HISTO_BINS_X = 192; // pixel
 	public final static int HISTO_BINS_Y = 192; // pixel
 	private             float HISTO_BINS_T =   0; // seconds
@@ -135,6 +137,7 @@ public class BinLoadHelper {
 	public void loadHistogram() {
 		loadHistogram(0, -1.0);
 	}
+
 	public void loadHistogram(double startTime, double endTime) {
 		if (_timeBins == null)
 			throw new IllegalStateException("no bin file has been loaded yet.");
@@ -189,7 +192,62 @@ public class BinLoadHelper {
 			}
 		}
 	}
-	public void loadTimeHistogram() {
+	
+
+    /**
+     * Count events grouped into a requested number of time bins.
+     *
+     * The total recorded time is split into {@code number_of_bins} equal segments
+     * (based on the number of internal time bins already loaded into {@code _timeBins}).
+     * Each internal time-bin (an IArray of detector pixels) is summed and added to
+     * the corresponding output segment. The method returns a long[] where each
+     * element is the total number of events in that output time segment.
+     *
+     * @param number_of_bins number of output time segments (must be > 0)
+     * @return long[] array of length number_of_bins with counts per output segment
+     * @throws IllegalStateException if no bin file has been loaded
+     * @throws IllegalArgumentException if number_of_bins <= 0
+     */
+    public long[] countEventsPerBins(int number_of_bins) {
+        if (_timeBins == null)
+            throw new IllegalStateException("no bin file has been loaded yet.");
+        if (number_of_bins <= 0)
+            throw new IllegalArgumentException("number_of_bins must be > 0");
+
+        final int totalTimeBins = _timeBins.size();
+        long[] counts = new long[number_of_bins];
+        if (totalTimeBins == 0) {
+            // nothing recorded -> return all zeros
+            return counts;
+        }
+
+        // Map each internal time-bin index -> output bin index using proportional mapping
+        for (int t = 0; t < totalTimeBins; t++) {
+            // compute target index in [0, number_of_bins-1]
+            int outIndex = (int) Math.floor(((double) t / (double) totalTimeBins) * number_of_bins);
+            if (outIndex >= number_of_bins) // guard against rounding edge-case for last element
+                outIndex = number_of_bins - 1;
+
+            IArray timeBin = _timeBins.get(t);
+            IIndex tbIndex = timeBin.getIndex();
+
+            long sum = 0L;
+            // iterate over detector pixels and sum counts
+            for (int y = 0; y < DetectorDimensions[0]; y++) {
+                tbIndex.set0(y);
+                for (int x = 0; x < DetectorDimensions[1]; x++) {
+                    tbIndex.set1(x);
+                    sum += timeBin.getInt(tbIndex);
+                }
+            }
+
+            counts[outIndex] += sum;
+        }
+
+        return counts;
+    }
+
+    public void loadTimeHistogram() {
 		if (_timeBins == null)
 			throw new IllegalStateException("no bin file has been loaded yet.");
 
