@@ -48,8 +48,9 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.part.EditorInputTransfer;
 import org.gumtree.control.batch.IBatchScript;
 import org.gumtree.control.batch.ResourceBasedBatchScript;
+import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.ui.batch.taskeditor.DNDHandler;
-import org.gumtree.control.ui.viewer.InternalImage;
+import org.gumtree.control.ui.internal.InternalImage;
 import org.gumtree.core.service.ServiceUtils;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.forms.FormControlWidget;
@@ -112,7 +113,8 @@ public class BatchQueueViewer extends FormControlWidget {
 
 	public void afterParametersSet() {
 		if (getManager() == null) {
-			setManager(ServiceUtils.getService(IBatchManager.class));
+//			setManager(ServiceUtils.getService(IBatchManager.class));
+			setManager(BatchManager.getBatchScriptManager(SicsManager.getSicsProxy()));
 		}
 	}
 	

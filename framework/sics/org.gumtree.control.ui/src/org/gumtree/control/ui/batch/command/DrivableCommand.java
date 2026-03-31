@@ -26,6 +26,7 @@ public class DrivableCommand extends AbstractSicsCommand {
 	private List<DrivableParameter> parameters;
 	
 	public DrivableCommand() {
+		super("drive");
 		parameters = new ArrayList<DrivableParameter>(2);
 	}
 	

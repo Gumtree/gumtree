@@ -7,8 +7,7 @@ Bundle-Activator: au.gov.ansto.bragg.pelican.exp.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.gumtree.core,
- au.gov.ansto.bragg.nbi.ui,
- org.gumtree.gumnix.sics.batch.ui
+ au.gov.ansto.bragg.nbi.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: au.gov.ansto.bragg.pelican.exp,

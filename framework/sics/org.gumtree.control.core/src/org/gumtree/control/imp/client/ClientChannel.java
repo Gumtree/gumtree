@@ -82,6 +82,8 @@ public class ClientChannel implements ISicsChannel {
     
     private List<IClientListener> listeners;
     
+    private static final List<IClientListener> staticListeners = new ArrayList<IClientListener>();
+    
 	public ClientChannel(ISicsProxy sicsProxy) {
 	    id = String.valueOf(System.currentTimeMillis()).substring(3);
 //	    context = ZMQ.context(1);
@@ -298,6 +300,11 @@ public class ClientChannel implements ISicsChannel {
 		for (IClientListener listener : listeners) {
 			listener.processMessage(json);
 		}
+		synchronized (staticListeners) {
+			for (IClientListener listener : staticListeners) {
+				listener.processMessage(json);
+			}
+		}
 	}
 	
 	class SicsCommand {
@@ -498,4 +505,14 @@ public class ClientChannel implements ISicsChannel {
 			return error;
 		}
 	}
+	
+	public static synchronized void addStaticClientListener(IClientListener listener) {
+		staticListeners.add(listener);
+	}
+
+	public static synchronized void removeStaticClientListener(IClientListener listener) {
+		staticListeners.remove(listener);
+	}
+
+	
 }

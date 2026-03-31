@@ -16,7 +16,7 @@ public class ScriptCommand extends AbstractSicsCommand {
 	private String text = "";
 	
 	public ScriptCommand() {
-		super();
+		super("script");
 	}
 
 	public String getText() {

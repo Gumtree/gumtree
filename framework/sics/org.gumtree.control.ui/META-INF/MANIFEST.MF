@@ -21,6 +21,7 @@ Bundle-ActivationPolicy: lazy
 Export-Package: org.gumtree.control.ui,
  org.gumtree.control.ui.batch,
  org.gumtree.control.ui.batch.command,
+ org.gumtree.control.ui.batch.model,
  org.gumtree.control.ui.batch.taskeditor,
  org.gumtree.control.ui.login,
  org.gumtree.control.ui.statusline,

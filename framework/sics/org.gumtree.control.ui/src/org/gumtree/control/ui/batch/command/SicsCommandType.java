@@ -14,8 +14,8 @@ package org.gumtree.control.ui.batch.command;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.gumtree.control.batch.tasks.ISicsCommand;
-import org.gumtree.control.ui.viewer.InternalImage;
 import org.gumtree.control.ui.batch.taskeditor.*;
+import org.gumtree.control.ui.internal.InternalImage;
 import org.gumtree.core.object.ObjectNotFoundException;
 
 public enum SicsCommandType {

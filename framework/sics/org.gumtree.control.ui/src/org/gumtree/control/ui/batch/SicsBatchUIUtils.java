@@ -21,7 +21,7 @@ import org.gumtree.control.core.IDriveableController;
 import org.gumtree.control.ui.batch.command.ISicsCommandView;
 import org.gumtree.control.ui.batch.command.SicsCommandType;
 import org.gumtree.control.ui.batch.taskeditor.CommandBlockTask;
-import org.gumtree.control.ui.viewer.InternalImage;
+import org.gumtree.control.ui.internal.InternalImage;
 import org.gumtree.core.object.ObjectCreateException;
 import org.gumtree.core.object.ObjectFactory;
 import org.gumtree.workflow.ui.IWorkflow;

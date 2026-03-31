@@ -63,7 +63,7 @@ import org.gumtree.control.batch.tasks.ISicsBatchTask;
 import org.gumtree.control.batch.tasks.ISicsCommandBlock;
 import org.gumtree.control.ui.batch.SicsBatchUIUtils;
 import org.gumtree.control.ui.batch.SicsBatchViewer;
-import org.gumtree.control.ui.viewer.InternalImage;
+import org.gumtree.control.ui.internal.InternalImage;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.widgets.swt.util.UIResources;
 import org.gumtree.workflow.ui.ITask;

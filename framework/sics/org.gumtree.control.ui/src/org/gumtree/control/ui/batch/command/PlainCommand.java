@@ -22,6 +22,10 @@ public class PlainCommand extends AbstractSicsCommand implements IPlainCommand {
 	
 	private List<ICommandArg> args;
 	
+	public PlainCommand() {
+		super("plain");
+	}
+	
 	public PlainCommand(String name) {
 		args = new ArrayList<ICommandArg>(2);
 	}

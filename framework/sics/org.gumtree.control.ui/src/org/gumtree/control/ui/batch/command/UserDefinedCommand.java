@@ -15,6 +15,10 @@ import org.gumtree.control.batch.tasks.ISicsCommand;
 
 public class UserDefinedCommand extends DynamicCommand {
 
+	public UserDefinedCommand() {
+		super("user");
+	}
+	
 	@Override
 	public ISicsCommand[] generateAvailableCommands() {
 		return SicsCommandFactory.createUserCommands();

@@ -13,7 +13,7 @@
             class="au.gov.ansto.bragg.pelican.ui.views.TclEditorView"
             icon="icons/workflow.gif"
             id="au.gov.ansto.bragg.pelican.ui.views.TclEditorView"
-            name="① Batch Editor">
+            name="Batch Editor">
       </view>
       <view
             allowMultiple="false"

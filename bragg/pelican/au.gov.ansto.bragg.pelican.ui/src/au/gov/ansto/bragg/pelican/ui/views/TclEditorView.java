@@ -14,7 +14,11 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
+import org.gumtree.control.ui.batch.taskeditor.BatchTaskFrameViewer;
 import org.gumtree.gumnix.sics.batch.ui.VisualBatchBufferViewer;
+import org.gumtree.workflow.ui.viewer2.AbstractWorkflowViewer;
+
+import au.gov.ansto.bragg.pelican.ui.internal.PelicanWorkbenchLauncher;
 
 
 
@@ -24,7 +28,7 @@ import org.gumtree.gumnix.sics.batch.ui.VisualBatchBufferViewer;
  */
 public class TclEditorView extends ViewPart {
 
-	private VisualBatchBufferViewer viewer;
+	private AbstractWorkflowViewer viewer;
 	/**
 	 * 
 	 */
@@ -36,7 +40,12 @@ public class TclEditorView extends ViewPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		viewer = new VisualBatchBufferViewer(parent, SWT.NONE);
+		boolean newProxy = Boolean.valueOf(System.getProperty(PelicanWorkbenchLauncher.USE_NEW_PROXY, "false"));
+		if (newProxy) {
+			viewer = new BatchTaskFrameViewer(parent, SWT.NONE);
+		} else {
+			viewer = new VisualBatchBufferViewer(parent, SWT.NONE);
+		}
 		GridLayoutFactory.fillDefaults().applyTo(viewer);
 		viewer.afterParametersSet();
 	}

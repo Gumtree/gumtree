@@ -48,7 +48,7 @@ import org.gumtree.control.model.SicsModelUtils;
 import org.gumtree.control.ui.batch.command.AbstractSicsCommandView;
 import org.gumtree.control.ui.batch.command.DrivableCommand;
 import org.gumtree.control.ui.batch.command.DrivableParameter;
-import org.gumtree.control.ui.viewer.InternalImage;
+import org.gumtree.control.ui.internal.InternalImage;
 
 public class DrivableCommandView extends AbstractSicsCommandView<DrivableCommand> {
 	

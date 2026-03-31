@@ -46,4 +46,37 @@
          point="org.eclipse.ui.startup">
       <startup class="org.gumtree.control.ui.statusline.StatusLineStartup"/>
    </extension>      
+   <extension
+         point="org.gumtree.workflow.ui.tasks">
+      <task
+            class="org.gumtree.control.ui.batch.task.BatchExecutorTask"
+            icon="icons/tasks/executable-script16x16.png"
+            icon32="icons/tasks/executable-script32x32.png"
+            label="SICS Batch Executor"
+            provider="ACNS"
+            tags="sics">
+         <description>
+            This tasks runs a batch script in the SICS server.  It excepts inputs from batch command task, or from a text file.
+         </description>
+      </task>
+      <!-- task
+            class="org.gumtree.control.ui.batch.task.CommandBlockTask"
+            icon="icons/tasks/tcl16x16.png"
+            icon32="icons/tasks/tcl32x32.png"
+            label="SICS Batch Commands"
+            provider="ACNS"
+            tags="tcl">
+         <description>
+            This task helps to construct a SICS tcl script for batch execution.
+         </description>
+      </task>
+      <task
+            class="org.gumtree.control.ui.batch.task.HeaderInformationBlockTask"
+			icon="icons/tasks/H_16x16.png"
+			icon32="icons/tasks/H_32x32.png"	
+            label="User Header Information"
+            provider="ACNS"
+            tags="tcl">
+      </task -->
+   </extension>
 </plugin>

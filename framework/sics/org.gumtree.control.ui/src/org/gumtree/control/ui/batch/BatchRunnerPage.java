@@ -42,6 +42,7 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -62,17 +63,25 @@ import org.gumtree.control.batch.ResourceBasedBatchScript;
 import org.gumtree.control.batch.SicsMessageAdapter;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.core.SicsCommunicationConstants.Flag;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
+import org.gumtree.control.imp.SicsOutputData;
+import org.gumtree.control.imp.SicsReplyData;
+import org.gumtree.control.imp.client.ClientChannel;
+import org.gumtree.control.imp.client.IClientListener;
 import org.gumtree.control.model.PropertyConstants;
+import org.gumtree.control.model.PropertyConstants.FlagType;
 import org.gumtree.control.model.PropertyConstants.MessageType;
-import org.gumtree.control.ui.viewer.InternalImage;
+import org.gumtree.control.ui.internal.InternalImage;
+import org.gumtree.ui.terminal.ITerminalOutputBuffer.OutputStyle;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.swt.IDNDHandler;
 import org.gumtree.ui.widgets.AutoScrollStyledText;
 import org.gumtree.ui.widgets.TimerWidget;
 import org.gumtree.util.bean.AbstractModelObject;
 import org.gumtree.widgets.swt.forms.ExtendedFormComposite;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class BatchRunnerPage extends ExtendedFormComposite {
@@ -80,6 +89,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	private static final String KEY_PREV_DOC_LEN = "previousDocLength";
 	
 	private static final String CLEAR_LOT_FOR_NEW_SCRIPT = "gumtree.sics.clearLogForNewScript";
+	
+	private static final String PROP_LOG_CLIENT_CHANNELS = "gumtree.sics.logAllInBatchChannel";
 	
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
@@ -99,6 +110,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	
 	private boolean clearLog;
 	
+	private boolean logClients;
+	
 	private SashForm sashForm;
 	
 	// Listener to the batch buffer queue and auto run
@@ -107,6 +120,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 	private IBatchManagerListener batchManagerListener;
 	
 	private SicsMessageAdapter messageListener;
+	
+	private IClientListener clientListener;
 	
 	private boolean defaultCheckInstrumentReady = true;
 	
@@ -150,7 +165,8 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 			public void statusChanged(BatchStatus newStatus, String message) {
 				updateStatus(newStatus);
 				if (message != null) {
-					updateLogText(message);
+					OutputStyle style = newStatus == BatchStatus.ERROR ? OutputStyle.ERROR : OutputStyle.NORMAL;
+					updateLogText(message, style);
 				}
 			}
 			
@@ -196,14 +212,16 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 			@Override
 			public void outputReceived(String outputText) {
 				if (outputText != null) {
-					updateLogText(outputText);
+					OutputStyle style = OutputStyle.NORMAL;
+					updateLogText(outputText, style);
 				}				
 			}
 			
 			@Override
 			public void scriptFinished(String replyText) {
 				if (replyText != null) {
-					updateLogText(replyText);
+					OutputStyle style = OutputStyle.NORMAL;
+					updateLogText(replyText, style);
 				}
 			}
 		};
@@ -252,10 +270,51 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 			}
 		};
 		
-		clearLog = true;
-		String prop = System.getProperty(CLEAR_LOT_FOR_NEW_SCRIPT);
-		if (prop != null) {
-			clearLog = Boolean.parseBoolean(prop);
+		clientListener = new IClientListener() {
+			
+			@Override
+			public void processMessage(JSONObject json) {
+				if (json.has(PropertyConstants.PROP_COMMAND_OUTPUT)) {
+					try {
+						OutputStyle style = OutputStyle.NORMAL;
+						SicsOutputData output = new SicsOutputData(json);
+						String text = output.getString();
+						if (output.getFlag() == Flag.eError) {
+							style = OutputStyle.ERROR;
+							text = "ERROR: " + text;
+						}
+//						getOutputBuffer().appendOutput(text, style);
+						updateLogText(text, style);
+					} catch (JSONException e) {
+					}
+				} else if (json.has(PropertyConstants.PROP_COMMAND_REPLY)) {
+					try {
+						OutputStyle style = OutputStyle.NORMAL;
+						String text = json.getString(PropertyConstants.PROP_COMMAND_REPLY);
+						if (!text.equals(SicsReplyData.COMMAND_REPLY_DEFERRED) && !text.equals(SicsReplyData.COMMAND_REPLY_RUNNING)) {
+							if (json.has(PropertyConstants.PROP_COMMAND_FLAG)) {
+								if (FlagType.parseString(json.getString(PropertyConstants.PROP_COMMAND_FLAG)) == FlagType.ERROR) {
+									style = OutputStyle.ERROR;
+									text = "ERROR: " + text;
+								}
+							}
+//							getOutputBuffer().appendOutput(text, style);
+							updateLogText(text, style);
+						}
+					} catch (JSONException e) {
+					}
+				}
+			}
+		};
+		
+		String prop = System.getProperty(CLEAR_LOT_FOR_NEW_SCRIPT, "true");
+		clearLog = Boolean.parseBoolean(prop);
+		
+		prop = System.getProperty(PROP_LOG_CLIENT_CHANNELS, "false");
+		logClients = Boolean.parseBoolean(prop);
+		
+		if (logClients) {
+			ClientChannel.addStaticClientListener(clientListener);
 		}
 	}
 
@@ -527,10 +586,10 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					if (isAutoRun) {
 						context.autoRunButton.setText("Pause");
 						context.autoRunButton.setImage(InternalImage.PAUSE.getImage());
-//						if (!clearLog) {
+						if (clearLog) {
 							context.logText.setText("");
 							context.logText.resetScroll();
-//						}
+						}
 					} else {
 						context.autoRunButton.setText("Play");
 						context.autoRunButton.setImage(InternalImage.PLAY.getImage());
@@ -722,7 +781,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		});
 	}
 
-	private void updateLogText(final String message) {
+	private void updateLogText(final String message, final OutputStyle style) {
 //		System.err.println("BatchRunner " + message);
 		SafeUIRunner.asyncExec(new SafeRunnable() {
 			public void run() throws Exception {
@@ -744,6 +803,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					// Clear log
 					if (clearLog) {
 						context.logText.setText("");
+						context.logText.setStyleRange(new StyleRange());
 						context.logText.resetScroll();
 					}
 				} else if (message.startsWith("BATCHEND=")) {
@@ -752,11 +812,21 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 					highlightBuffer(message);
 				} else {
 					// Otherwise append log message
-					context.logText.append("[");
-					context.logText.append(dateFormat.format(Calendar.getInstance().getTime()));
-					context.logText.append("] ");
-					context.logText.append(message);
-					context.logText.append("\n");
+					StyleRange styleRange = new StyleRange();
+					styleRange.start = context.logText.getCharCount();
+					Color styleColor = style == OutputStyle.ERROR ? Display.getDefault().getSystemColor(SWT.COLOR_DARK_RED) 
+							: Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
+					String text = String.format("[%s] %s\n", dateFormat.format(Calendar.getInstance().getTime()), message);
+					context.logText.append(text);
+//					context.logText.append("[");
+//					context.logText.append(dateFormat.format(Calendar.getInstance().getTime()));
+//					context.logText.append("] ");
+//					context.logText.append(message);
+//					context.logText.append("\n");
+
+					styleRange.length = text.length();
+					styleRange.foreground = styleColor;
+					context.logText.setStyleRange(styleRange);
 				}
 				// Update UI
 				context.logText.autoScroll();
@@ -791,6 +861,7 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 
 	@Override
 	protected void disposeWidget() {
+		ClientChannel.removeStaticClientListener(clientListener);
 		if (batchBufferManager != null) {
 			batchBufferManager.removeBatchManagerListener(batchManagerListener);
 			SicsManager.getSicsProxy().removeProxyListener(batchChannelListener);

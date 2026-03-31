@@ -47,7 +47,7 @@ import org.gumtree.control.ui.batch.command.ISicsCommandView;
 import org.gumtree.control.ui.batch.command.SicsCommandFactory;
 import org.gumtree.control.ui.batch.command.SicsCommandType;
 import org.gumtree.control.ui.internal.Activator;
-import org.gumtree.control.ui.viewer.InternalImage;
+import org.gumtree.control.ui.internal.InternalImage;
 import org.gumtree.core.object.ObjectCreateException;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.widgets.swt.util.UIResourceManager;

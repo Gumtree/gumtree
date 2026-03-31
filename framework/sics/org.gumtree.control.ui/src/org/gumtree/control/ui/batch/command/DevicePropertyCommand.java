@@ -20,7 +20,7 @@ public class DevicePropertyCommand extends AbstractSicsCommand {
 	private String value;
 	
 	public DevicePropertyCommand() {
-		super();
+		super("device");
 	}
 	
 	public String getDeviceId() {

@@ -13,6 +13,10 @@ package org.gumtree.control.ui.batch.command;
 
 public class SicsVariableCommand extends AbstractSicsCommand {
 
+	public SicsVariableCommand() {
+		super("variable");
+	}
+	
 	public SicsVariableCommand(String name) {
 		super(name);
 	}

@@ -32,8 +32,9 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
+import org.gumtree.control.ui.batch.CommandRegistry;
 import org.gumtree.control.ui.batch.ICommandRegistry;
-import org.gumtree.control.ui.viewer.InternalImage;
+import org.gumtree.control.ui.internal.InternalImage;
 import org.gumtree.core.object.ObjectCreateException;
 import org.gumtree.core.service.ServiceUtils;
 import org.gumtree.ui.util.jface.ITreeNode;
@@ -88,7 +89,8 @@ public class BatchTaskLibrary extends AbstractWorkflowViewerComponent {
 			}
 		});
 		toolViewer.setLabelProvider(new TreeLabelProvider());
-		toolViewer.setInput(ServiceUtils.getService(ICommandRegistry.class));
+//		toolViewer.setInput(ServiceUtils.getService(ICommandRegistry.class));
+		toolViewer.setInput(new CommandRegistry());
 		toolViewer.addDragSupport(DND.DROP_MOVE,
 				new Transfer[] { LocalSelectionTransfer.getTransfer() },
 				new DragSourceAdapter() {
