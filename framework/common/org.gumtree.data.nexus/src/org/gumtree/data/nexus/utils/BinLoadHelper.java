@@ -13,8 +13,10 @@ import java.lang.IllegalStateException;
 
 import org.gumtree.data.IFactory;
 import org.gumtree.data.interfaces.IArray;
+import org.gumtree.data.interfaces.IArrayIterator;
 import org.gumtree.data.interfaces.IIndex;
 import org.gumtree.data.utils.FactoryManager;
+import org.python.modules.math;
 
 public class BinLoadHelper {
 
@@ -41,6 +43,9 @@ public class BinLoadHelper {
 	private int[] _numPixelsVsRadius = null;
 	private double _centerX;
 	private double _centerY;
+	private int intensityBinSize = 1;
+	private List<long[]> _intensityBins = null;
+	private int numIntensityBinsPerSec = 1000*1000/FILE_FRAME_LENGTH;
 
 	// properties
 	public float getTimeBinLength() {
@@ -78,6 +83,10 @@ public class BinLoadHelper {
 			loadFile(path, histo_bins_t);
 	}
 
+	public void setIntensityBinSize(int intensityBinSize) {
+		this.intensityBinSize = intensityBinSize;
+	}
+	
 	// functions
 	private void initCenterDependencies(double centerX, double centerY, int minPixelCount) {
 		if (centerX < 0 || centerX >= HISTO_BINS_X)
@@ -208,43 +217,60 @@ public class BinLoadHelper {
      * @throws IllegalStateException if no bin file has been loaded
      * @throws IllegalArgumentException if number_of_bins <= 0
      */
-    public long[] countEventsPerBins(int number_of_bins) {
-        if (_timeBins == null)
-            throw new IllegalStateException("no bin file has been loaded yet.");
-        if (number_of_bins <= 0)
-            throw new IllegalArgumentException("number_of_bins must be > 0");
-
-        final int totalTimeBins = _timeBins.size();
-        long[] counts = new long[number_of_bins];
-        if (totalTimeBins == 0) {
-            // nothing recorded -> return all zeros
-            return counts;
-        }
-
-        // Map each internal time-bin index -> output bin index using proportional mapping
-        for (int t = 0; t < totalTimeBins; t++) {
-            // compute target index in [0, number_of_bins-1]
-            int outIndex = (int) Math.floor(((double) t / (double) totalTimeBins) * number_of_bins);
-            if (outIndex >= number_of_bins) // guard against rounding edge-case for last element
-                outIndex = number_of_bins - 1;
-
-            IArray timeBin = _timeBins.get(t);
-            IIndex tbIndex = timeBin.getIndex();
-
-            long sum = 0L;
-            // iterate over detector pixels and sum counts
-            for (int y = 0; y < DetectorDimensions[0]; y++) {
-                tbIndex.set0(y);
-                for (int x = 0; x < DetectorDimensions[1]; x++) {
-                    tbIndex.set1(x);
-                    sum += timeBin.getInt(tbIndex);
-                }
-            }
-
-            counts[outIndex] += sum;
-        }
-
-        return counts;
+    public long[] countEventsPerBins(int binSizeInSec) {
+//        if (_timeBins == null)
+//            throw new IllegalStateException("no bin file has been loaded yet.");
+//        if (number_of_bins <= 0)
+//            throw new IllegalArgumentException("number_of_bins must be > 0");
+//
+//        final int totalTimeBins = _timeBins.size();
+//        long[] counts = new long[number_of_bins];
+//        if (totalTimeBins == 0) {
+//            // nothing recorded -> return all zeros
+//            return counts;
+//        }
+//
+//        int binIndex = 0;
+//        for (IArray timeBin : _timeBins) {
+//        	double baseTime = binIndex * HISTO_BINS_T;
+//        	double subBinSize = HISTO_BINS_T / timeBin.getSize();
+//        	IArrayIterator iter = timeBin.getIterator();
+//        	double subBinTime = baseTime;
+//        	while(iter.hasNext()) {
+//            	int outIndex = (int) Math.floor(subBinTime);
+//                if (outIndex >= number_of_bins) // guard against rounding edge-case for last element
+//                    outIndex = number_of_bins - 1;
+//                counts[outIndex] += iter.getFloatNext();
+//                subBinTime += subBinSize;
+//        	}
+//            binIndex ++;
+//        }
+    	long[] counts = null;
+    	if (binSizeInSec == 1) {
+    		counts = new long[_intensityBins.size()];
+    		int idx = 0;
+    		for (long[] bin : _intensityBins) {
+    			long ct = 0;
+    			for (int i = 0; i < numIntensityBinsPerSec; i++) {
+    				ct += bin[i];
+    			}
+				counts[idx] = ct;
+				idx ++;
+    		}
+    	} else {
+    		counts = new long[_intensityBins.size() / binSizeInSec];
+    		int idx = 0;
+    		for (long[] bin : _intensityBins) {
+    			long ct = 0;
+    			for (int i = 0; i < numIntensityBinsPerSec; i++) {
+    				ct += bin[i];
+    			}
+    			int cidx = idx / binSizeInSec;
+				counts[cidx] += ct;
+				idx ++;
+    		}
+    	}
+    	return counts;
     }
 
     public void loadTimeHistogram() {
@@ -302,6 +328,7 @@ public class BinLoadHelper {
 			throw new IllegalArgumentException("histo_bins_t");
 
 		_timeBins = new ArrayList<IArray>();
+		_intensityBins = new ArrayList<long[]>();
 		DataInputStream f = new DataInputStream(new BufferedInputStream(new FileInputStream(path)));
 		try {
 			// remember path
@@ -350,7 +377,9 @@ public class BinLoadHelper {
 			IIndex timeBinIndex = timeBin.getIndex();
 			long err = 0;
 			long tt = 0;
-
+			numIntensityBinsPerSec = 1000*1000/FILE_FRAME_LENGTH;
+			long[] intensityArrayEachSec = new long[numIntensityBinsPerSec];
+			int binCnt = 0;
 			if (xLen == 10 && yLen == 9 && vLen == 4 && wLen == 0) {
 				try {
 					while (true) {
@@ -396,6 +425,13 @@ public class BinLoadHelper {
 									t1          = t0;
 									_beamTime  += frameLengthSec;
 									timeBinEnd -= (long)FILE_FRAME_LENGTH;
+									if (binCnt == numIntensityBinsPerSec) {
+										intensityArrayEachSec = new long[numIntensityBinsPerSec];
+										_intensityBins.add(intensityArrayEachSec);
+										binCnt = 0;
+									} else {
+										binCnt ++;
+									}
 								} else {
 									int t1_new = t1 + dt;
 									if (t1_new < t0 || t1_new > t2) {
@@ -420,6 +456,8 @@ public class BinLoadHelper {
 											System.err.println("add an event to (" + x + ", " + y + ", " + dt + ")");
 										timeBinIndex.set(y, x);
 										timeBin.setInt(timeBinIndex, 1 + timeBin.getInt(timeBinIndex));
+										int intensityBinIdx = (int) Math.floor((t1 - (int)t1) / numIntensityBinsPerSec);
+										intensityArrayEachSec[intensityBinIdx] += 1L;
 									}
 								}
 							}
@@ -481,6 +519,13 @@ public class BinLoadHelper {
 									t1          = t0;
 									_beamTime  += frameLengthSec;
 									timeBinEnd -= (long)FILE_FRAME_LENGTH;
+									if (binCnt == numIntensityBinsPerSec) {
+										intensityArrayEachSec = new long[numIntensityBinsPerSec];
+										_intensityBins.add(intensityArrayEachSec);
+										binCnt = 0;
+									} else {
+										binCnt ++;
+									}
 								} else {
 									int t1_new = t1 + dt;
 									if (t1_new < t0 || t1_new > t2) {
@@ -505,6 +550,9 @@ public class BinLoadHelper {
 											System.err.println("add an event to (" + x + ", " + y + ", " + dt + ")");
 										timeBinIndex.set(y, x);
 										timeBin.setInt(timeBinIndex, 1 + timeBin.getInt(timeBinIndex));
+										timeBin.setInt(timeBinIndex, 1 + timeBin.getInt(timeBinIndex));
+										int intensityBinIdx = (int) math.floor((t1 - (int)t1) / numIntensityBinsPerSec);
+										intensityArrayEachSec[intensityBinIdx] += 1L;
 									}
 								}
 							}
@@ -879,6 +927,10 @@ public class BinLoadHelper {
 		}
 		
 		return resultingTimeBins;
+	}
+	
+	public static void setFileFrameLength(int length) {
+		FILE_FRAME_LENGTH = length;
 	}
 
 	// testing
