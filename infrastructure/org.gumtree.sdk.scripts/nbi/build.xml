@@ -23,7 +23,7 @@
 	<property name="mavenBuildPath" value="infrastructure/org.gumtree.maven.all/target" />
 	<property name="javadocBuildPath" value="infrastructure/org.gumtree.maven.javadoc/target" />
 	<property name="referenceBuildPath" value="infrastructure/org.gumtree.sdk.doc.developer/asciidoc/output" />
-	<property name="equinoxJarLocation" value="${buildDirectory}/tools/eclipse-SDK-4.2.2-${ideOS}/eclipse/plugins/org.eclipse.equinox.launcher_1.3.0.v20120522-1813.jar" />
+	<property name="equinoxJarLocation" value="${buildDirectory}/tools/eclipse/plugins/org.eclipse.equinox.launcher_1.7.100.v20251111-0406.jar" />
 	<property name="containerProduct" value="org.gumtree.app.osgi.product" />
 	<property name="nsisDirectory" value="X:/apps/PortableApps/1.6/PortableApps/NSISPortable/App/NSIS" />
 	<property name="cygwinDirectory" value="X:/apps/Cygwin/1.7.15-1/bin" />
@@ -53,7 +53,7 @@
 			<fileset dir="${sourceDirectory}/${repositoryPath}/repository" />
 		</copy>
 		<!-- Copy archived version -->
-		<copy file="${sourceDirectory}/${repositoryPath}/${repositoryProject}-${version}.zip" tofile="${exportDirectory}/repository/GumtreeRepository_${version}.zip" overwrite="true" />
+		<copy file="${sourceDirectory}/${repositoryPath}/${repositoryProject}-${version}-SNAPSHOT.zip" tofile="${exportDirectory}/repository/GumtreeRepository_${version}.zip" overwrite="true" />
 	</target>
 
 	<!--
@@ -87,9 +87,9 @@
 		<copy todir="${exportDirectory}/container/cocoa64">
 			<fileset dir="${sourceDirectory}/${repositoryPath}/products/${containerProduct}/macosx/cocoa/x86_64" />
 		</copy>
-		<move file="${exportDirectory}/container/cocoa64/splash.bmp" todir="${exportDirectory}/container/cocoa64/gumtree.app/Contents/MacOS" />
+		<!-- move file="${exportDirectory}/container/cocoa64/splash.bmp" todir="${exportDirectory}/container/cocoa64/gumtree.app/Contents/MacOS" / -->
 		<exec executable="${cygwinDirectory}/mv">
-			<arg value="${exportDirectory}/container/cocoa64/gumtree.app"/>
+			<arg value="${exportDirectory}/container/cocoa64/Eclipse.app"/>
 			<arg value="${exportDirectory}/container/cocoa64/Gumtree.app"/>
 		</exec>
 	</target>
