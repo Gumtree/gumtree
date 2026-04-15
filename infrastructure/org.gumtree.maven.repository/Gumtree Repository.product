@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Gumtree Repository Product" uid="org.gumtree.app.repository.product" id="org.gumtree.app.osgi.product" application="org.gumtree.app.osgi.application" version="2.0.0.qualifier" type="features" includeLaunchers="true" autoIncludeRequirements="true">
+
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <windowImages/>
+
+
+   <launcher>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+
+   <vm>
+   </vm>
+
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="au.gov.ansto.bragg.banksia.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.banksia.workbench.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.bilby.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.bilby.workbench.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.dingo.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.dingo.workbench.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.echidna.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.echidna.workbench.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.emu.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.emu.workbench.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.koala.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.koala.workbench.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.kookaburra.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.kookaburra.workbench.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.kowari.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.kowari.workbench.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.nbi.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.nbi.workbench.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.pelican.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.pelican.workbench.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.platypus.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.platypus.workbench.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.quokka.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.quokka.workbench.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.sika.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.spatz.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.spatz.workbench.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.taipan.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.taipan.workbench.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.wombat.webserver.feature" installMode="root"/>
+      <feature id="au.gov.ansto.bragg.wombat.workbench.feature" installMode="root"/>
+   </features>
+
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
+
+</product>
