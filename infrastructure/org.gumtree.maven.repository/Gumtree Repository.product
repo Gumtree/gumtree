@@ -61,6 +61,7 @@
       <feature id="au.gov.ansto.bragg.taipan.workbench.feature" installMode="root"/>
       <feature id="au.gov.ansto.bragg.wombat.webserver.feature" installMode="root"/>
       <feature id="au.gov.ansto.bragg.wombat.workbench.feature" installMode="root"/>
+      <feature id="org.eclipse.equinox.core.feature" installMode="root"/>
    </features>
 
 
