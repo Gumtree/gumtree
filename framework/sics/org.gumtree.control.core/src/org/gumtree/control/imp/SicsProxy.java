@@ -393,13 +393,13 @@ public class SicsProxy implements ISicsProxy {
 		}
 	}
 	
-	private void fireModelUpdatedEvent() {
+	private void fireModelUpdatedEvent(final ISicsModel sicsModel) {
 		synchronized (proxyListeners) {
 			for (Iterator<ISicsProxyListener> iter = proxyListeners.iterator(); iter.hasNext();) {
 				ISicsProxyListener listener = iter.next();
 				if (listener.isActive()) {
 					try {
-						listener.modelUpdated(null);
+						listener.modelUpdated(sicsModel);
 					} catch (Exception e) {
 						logger.error("failed fire model updating event", e);
 					}
@@ -486,7 +486,7 @@ public class SicsProxy implements ISicsProxy {
 					sicsModel = new SicsModel(this);
 					sicsModel.loadFromString(msg);
 					isModelAvailable = true;
-					fireModelUpdatedEvent();
+					fireModelUpdatedEvent(sicsModel);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -519,7 +519,7 @@ public class SicsProxy implements ISicsProxy {
 				sicsModel = new SicsModel(this);
 				sicsModel.loadFromString(msg);
 				isModelAvailable = true;
-				fireModelUpdatedEvent();
+				fireModelUpdatedEvent(sicsModel);
 			}
 		} catch (IOException e) {
 			throw new SicsModelException("failed to interpret SICS model text");
