@@ -712,6 +712,8 @@ public class ControllerStatusWidget extends ExtendedWidgetComposite {
 	protected void disposeAllDevices() {
 		if (deviceContexts == null) {
 			return;
+		} else {
+			deviceContexts.clear();
 		}
 		try {
 			for (final LabelContext labelContext : labelContexts) {
