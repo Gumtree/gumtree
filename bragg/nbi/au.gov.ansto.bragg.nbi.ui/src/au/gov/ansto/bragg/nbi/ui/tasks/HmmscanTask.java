@@ -18,7 +18,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.gumtree.gumnix.sics.batch.ui.model.ISicsCommandElement;
+import org.gumtree.control.batch.tasks.ISicsCommand;
 import org.gumtree.workflow.ui.AbstractTaskView;
 import org.gumtree.workflow.ui.ITask;
 import org.gumtree.workflow.ui.ITaskView;
@@ -49,7 +49,7 @@ public class HmmscanTask extends AbstractScanTask {
 	@Override
 	public String getTitle() {
 		String description = null;
-		ISicsCommandElement[] commands = getDataModel().getCommands();
+		ISicsCommand[] commands = getDataModel().getCommands();
 		if (commands != null && commands.length > 0){
 			try{
 				description = ((HmmscanCommand) commands[0]).getScanDescription();
@@ -94,7 +94,7 @@ public class HmmscanTask extends AbstractScanTask {
 			createLabelArea(parent);
 //			Composite commandComposite = getToolkit().createComposite(parent);
 //			GridDataFactory.fillDefaults().grab(true, false).applyTo(commandComposite);
-			for (ISicsCommandElement command : getDataModel().getCommands()){
+			for (ISicsCommand command : getDataModel().getCommands()){
 				if (command instanceof HmmscanCommand){
 					createCommandUI(parent, (HmmscanCommand) command);
 //					addCommandListener(command);
@@ -123,7 +123,7 @@ public class HmmscanTask extends AbstractScanTask {
 			getToolkit().createLabel(parent, "preset");
 		}
 		
-		private void addCommandListener(final ISicsCommandElement command) {
+		private void addCommandListener(final ISicsCommand command) {
 			if (command instanceof AbstractModelObject)
 				((AbstractModelObject) command).addPropertyChangeListener(new PropertyChangeListener() {
 					

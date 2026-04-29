@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.gumtree.gumnix.sics.batch.ui.util.SicsBatchUIUtils;
+import org.gumtree.control.ui.batch.SicsBatchUIUtils;
 import org.slf4j.LoggerFactory;
 
 import au.gov.ansto.bragg.nbi.ui.core.commands.AbstractScanCommand;

@@ -11,6 +11,7 @@
 package au.gov.ansto.bragg.spatz.ui.tasks;
 
 import java.beans.PropertyChangeEvent;
+
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,7 +34,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
-import org.gumtree.gumnix.sics.batch.ui.model.ISicsCommandElement;
+import org.gumtree.control.batch.tasks.ISicsCommand;
 import org.gumtree.workflow.ui.AbstractTaskView;
 import org.gumtree.workflow.ui.ITask;
 import org.gumtree.workflow.ui.ITaskView;
@@ -78,7 +79,7 @@ public class PositionTableTask extends AbstractScanTask {
 
 	public void savePreference() {
 		String value = "";
-		for (ISicsCommandElement command : getDataModel().getCommands()){
+		for (ISicsCommand command : getDataModel().getCommands()){
 			if (command instanceof PositionCommand){
 				value += ((PositionCommand) command).getPrintable().replace("\n", "//");
 			}
@@ -130,7 +131,7 @@ public class PositionTableTask extends AbstractScanTask {
 					command.insertParameter(parameter);
 				}
 			}
-			ISicsCommandElement[] commands = getDataModel().getCommands();
+			ISicsCommand[] commands = getDataModel().getCommands();
 			if (commands.length > 0) {
 				getDataModel().removeCommand(commands[0]);
 			}
@@ -165,7 +166,7 @@ public class PositionTableTask extends AbstractScanTask {
 		}
 		fileDialogPath = pickedFile.getParent();
 		
-		for (ISicsCommandElement command : getDataModel().getCommands()){
+		for (ISicsCommand command : getDataModel().getCommands()){
 			if (command instanceof PositionCommand){
 				PositionCommand tableCommand = (PositionCommand) command;
 				FileWriter outputfile = new FileWriter(pickedFile);
@@ -272,7 +273,7 @@ public class PositionTableTask extends AbstractScanTask {
 //			createLabelArea(parent);
 //			Composite commandComposite = getToolkit().createComposite(parent);
 //			GridDataFactory.fillDefaults().grab(true, false).applyTo(commandComposite);
-			for (ISicsCommandElement command : getDataModel().getCommands()){
+			for (ISicsCommand command : getDataModel().getCommands()){
 				if (command instanceof PositionCommand){
 					commandArea = getToolkit().createComposite(parent);
 					createCommandUI(commandArea, (PositionCommand) command);
@@ -293,7 +294,7 @@ public class PositionTableTask extends AbstractScanTask {
 					if (command == null) {
 						return;
 					}
-					ISicsCommandElement[] commands = getDataModel().getCommands();
+					ISicsCommand[] commands = getDataModel().getCommands();
 					if (commands.length > 0) {
 						getDataModel().removeCommand(commands[0]);
 					}
@@ -348,7 +349,7 @@ public class PositionTableTask extends AbstractScanTask {
 		}
 
 		
-		private void addCommandListener(final ISicsCommandElement command) {
+		private void addCommandListener(final ISicsCommand command) {
 			if (command instanceof AbstractModelObject)
 				((AbstractModelObject) command).addPropertyChangeListener(new PropertyChangeListener() {
 					

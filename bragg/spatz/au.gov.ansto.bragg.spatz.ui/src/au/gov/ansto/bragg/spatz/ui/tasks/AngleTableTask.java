@@ -32,7 +32,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
-import org.gumtree.gumnix.sics.batch.ui.model.ISicsCommandElement;
+//import org.gumtree.gumnix.sics.batch.ui.model.ISicsCommandElement;
+import org.gumtree.control.batch.tasks.ISicsCommand;
 import org.gumtree.workflow.ui.AbstractTaskView;
 import org.gumtree.workflow.ui.ITask;
 import org.gumtree.workflow.ui.ITaskView;
@@ -77,7 +78,7 @@ public class AngleTableTask extends AbstractScanTask {
 
 	public void savePreference() {
 		String value = "";
-		for (ISicsCommandElement command : getDataModel().getCommands()){
+		for (ISicsCommand command : getDataModel().getCommands()){
 			if (command instanceof AngleCommand){
 				value += ((AngleCommand) command).getPrintable().replace("\n", "//");
 			}
@@ -129,7 +130,7 @@ public class AngleTableTask extends AbstractScanTask {
 					command.insertParameter(parameter);
 				}
 			}
-			ISicsCommandElement[] commands = getDataModel().getCommands();
+			ISicsCommand[] commands = getDataModel().getCommands();
 			if (commands.length > 0) {
 				getDataModel().removeCommand(commands[0]);
 			}
@@ -164,7 +165,7 @@ public class AngleTableTask extends AbstractScanTask {
 		}
 		fileDialogPath = pickedFile.getParent();
 		
-		for (ISicsCommandElement command : getDataModel().getCommands()){
+		for (ISicsCommand command : getDataModel().getCommands()){
 			if (command instanceof AngleCommand){
 				AngleCommand tableCommand = (AngleCommand) command;
 				FileWriter outputfile = new FileWriter(pickedFile);
@@ -271,7 +272,7 @@ public class AngleTableTask extends AbstractScanTask {
 //			createLabelArea(parent);
 //			Composite commandComposite = getToolkit().createComposite(parent);
 //			GridDataFactory.fillDefaults().grab(true, false).applyTo(commandComposite);
-			for (ISicsCommandElement command : getDataModel().getCommands()){
+			for (ISicsCommand command : getDataModel().getCommands()){
 				if (command instanceof AngleCommand){
 					commandArea = getToolkit().createComposite(parent);
 					createCommandUI(commandArea, (AngleCommand) command);
@@ -292,7 +293,7 @@ public class AngleTableTask extends AbstractScanTask {
 					if (command == null) {
 						return;
 					}
-					ISicsCommandElement[] commands = getDataModel().getCommands();
+					ISicsCommand[] commands = getDataModel().getCommands();
 					if (commands.length > 0) {
 						getDataModel().removeCommand(commands[0]);
 					}
@@ -347,7 +348,7 @@ public class AngleTableTask extends AbstractScanTask {
 		}
 
 		
-		private void addCommandListener(final ISicsCommandElement command) {
+		private void addCommandListener(final ISicsCommand command) {
 			if (command instanceof AbstractModelObject)
 				((AbstractModelObject) command).addPropertyChangeListener(new PropertyChangeListener() {
 					

@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class SpatzWorkbenchSetup implements IStartup {
 
 	private static final String PROP_START_EXP_LAYOUT = "gumtree.startExperimentLayout";
-	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
+	private static final String ID_PERSPECTIVE_SICS = "au.gov.ansto.bragg.nbi.ui.ControlExperimentPerspective";
 	private static final String ID_PERSPECTIVE_SCRIPTING = "au.gov.ansto.bragg.nbi.ui.scripting.ScriptingPerspective";
 	private static final String ID_PERSPECTIVE_ANALYSIS = "au.gov.ansto.bragg.nbi.ui.scripting.StandAloneScriptingPerspective";
 	

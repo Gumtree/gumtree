@@ -22,15 +22,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
+import org.gumtree.control.batch.tasks.ISicsCommand;
+import org.gumtree.control.ui.batch.SicsBatchUIUtils;
+import org.gumtree.control.ui.batch.command.ISicsCommandView;
+import org.gumtree.control.ui.batch.command.SicsCommandFactory;
+import org.gumtree.control.ui.batch.command.SicsCommandType;
+import org.gumtree.control.ui.batch.taskeditor.CommandBlockTask;
 import org.gumtree.core.object.ObjectCreateException;
-import org.gumtree.gumnix.sics.batch.ui.CommandBlockTask;
-import org.gumtree.gumnix.sics.batch.ui.model.ISicsCommandElement;
-import org.gumtree.gumnix.sics.batch.ui.model.SicsCommandType;
-import org.gumtree.gumnix.sics.batch.ui.util.SicsBatchUIUtils;
-import org.gumtree.gumnix.sics.batch.ui.util.SicsCommandFactory;
-import org.gumtree.gumnix.sics.batch.ui.views.ISicsCommandView;
 import org.gumtree.workflow.ui.AbstractTaskView;
 import org.gumtree.workflow.ui.ITaskView;
 import org.gumtree.workflow.ui.models.AbstractModelObject;
@@ -134,9 +133,9 @@ public class SicsScriptTask extends CommandBlockTask {
 				/*************************************************************
 				 * Model creation
 	   		     *************************************************************/
-				ISicsCommandElement command = SicsCommandFactory.createCommand(type);
+				ISicsCommand command = SicsCommandFactory.createCommand(type);
 				// Create custom view
-				ISicsCommandView<? extends ISicsCommandElement> commandView = 
+				ISicsCommandView<? extends ISicsCommand> commandView = 
 					SicsBatchUIUtils.createCommandView(command);
 				commandView.setTaskView(this);
 				if (location < 0)
@@ -152,8 +151,8 @@ public class SicsScriptTask extends CommandBlockTask {
 			}
 		}
 		
-		private void addCommandUI(Composite parent, ISicsCommandElement command, 
-				ISicsCommandView<? extends ISicsCommandElement> commandView) {
+		private void addCommandUI(Composite parent, ISicsCommand command, 
+				ISicsCommandView<? extends ISicsCommand> commandView) {
 			// [Tony] [2009-3-20] Strange bug: parent's menu is dispose previously
 			// We must reset menu to make UI creation valid
 			parent.setMenu(new Menu(parent));
@@ -208,7 +207,7 @@ public class SicsScriptTask extends CommandBlockTask {
 			fireRefresh();
 		}
 
-		private void addPropertyChangeListener(final ISicsCommandElement command) {
+		private void addPropertyChangeListener(final ISicsCommand command) {
 			if (command instanceof AbstractModelObject){
 				((AbstractModelObject) command).addPropertyChangeListener(new PropertyChangeListener() {
 
@@ -229,11 +228,11 @@ public class SicsScriptTask extends CommandBlockTask {
 
 		// Reconstruct the whole UI
 		private void reconstructUI(Composite parent) {
-			for (ISicsCommandElement command : getDataModel().getCommands()) {
+			for (ISicsCommand command : getDataModel().getCommands()) {
 				Composite commandArea = getToolkit().createComposite(parent);
 				try {
 					// Create custom view
-					ISicsCommandView<? extends ISicsCommandElement> commandView = 
+					ISicsCommandView<? extends ISicsCommand> commandView = 
 						SicsBatchUIUtils.createCommandView(command);
 					commandView.setTaskView(this);
 					addCommandUI(commandArea, command, commandView);
@@ -271,7 +270,7 @@ public class SicsScriptTask extends CommandBlockTask {
 		taskPropertyChangeListeners.remove(listener);
 	}
 	
-	public void notifyPropertyChanged(ISicsCommandElement command, PropertyChangeEvent event){
+	public void notifyPropertyChanged(ISicsCommand command, PropertyChangeEvent event){
 		for (ITaskPropertyChangeListener listener : taskPropertyChangeListeners){
 			listener.propertyChanged(command, event);
 		}
@@ -283,7 +282,7 @@ public class SicsScriptTask extends CommandBlockTask {
 
 	public String getTitle(){
 //		String title = "Sics Command";
-//		ISicsCommandElement[] commands = getDataModel().getCommands();
+//		ISicsCommand[] commands = getDataModel().getCommands();
 //		if (commands == null || commands.length == 0)
 //			return title;
 //		else {

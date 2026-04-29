@@ -11,6 +11,7 @@
 package au.gov.ansto.bragg.nbi.ui.tasks;
 
 import java.beans.PropertyChangeEvent;
+
 import java.beans.PropertyChangeListener;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -21,7 +22,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.gumtree.gumnix.sics.batch.ui.model.ISicsCommandElement;
+import org.gumtree.control.batch.tasks.ISicsCommand;
 import org.gumtree.workflow.ui.AbstractTaskView;
 import org.gumtree.workflow.ui.ITask;
 import org.gumtree.workflow.ui.ITaskView;
@@ -54,7 +55,7 @@ public class ScanNDTask extends AbstractScanTask {
 	@Override
 	public String getTitle() {
 		String description = null;
-		ISicsCommandElement[] commands = getDataModel().getCommands();
+		ISicsCommand[] commands = getDataModel().getCommands();
 		if (commands != null && commands.length > 0){
 			try{
 				description = ((AbstractScanCommand) commands[0]).getScanDescription();
@@ -104,7 +105,7 @@ public class ScanNDTask extends AbstractScanTask {
 			createLabelArea(parent);
 //			Composite commandComposite = getToolkit().createComposite(parent);
 //			GridDataFactory.fillDefaults().grab(true, false).applyTo(commandComposite);
-			for (ISicsCommandElement command : getDataModel().getCommands()){
+			for (ISicsCommand command : getDataModel().getCommands()){
 				if (command instanceof ScanNDCommand){
 					createCommandUI(parent, (ScanNDCommand) command);
 //					addCommandListener(command);
@@ -142,7 +143,7 @@ public class ScanNDTask extends AbstractScanTask {
 				
 				@Override
 				public void widgetSelected(SelectionEvent arg0) {
-					for (ISicsCommandElement command : getDataModel().getCommands()){
+					for (ISicsCommand command : getDataModel().getCommands()){
 						if (command instanceof ScanNDCommand){
 							for (AbstractScanParameter parameter : ((ScanNDCommand) command).
 									getParameterList()){
@@ -160,7 +161,7 @@ public class ScanNDTask extends AbstractScanTask {
 			});
 //			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
 //				public void run() {
-//					ISicsCommandElement[] commands = getDataModel().getCommands();
+//					ISicsCommand[] commands = getDataModel().getCommands();
 //					if (commands.length > 0){
 //						DataBindingContext bindingContext = new DataBindingContext();
 //						bindingContext.bindValue(SWTObservables.observeSelection(singleFileRadio),
@@ -173,7 +174,7 @@ public class ScanNDTask extends AbstractScanTask {
 			getToolkit().createLabel(parent, "preset");
 		}
 		
-		private void addCommandListener(final ISicsCommandElement command) {
+		private void addCommandListener(final ISicsCommand command) {
 			if (command instanceof AbstractModelObject)
 				((AbstractModelObject) command).addPropertyChangeListener(new PropertyChangeListener() {
 					
@@ -201,7 +202,7 @@ public class ScanNDTask extends AbstractScanTask {
 		}
 		
 		private boolean isSingleFile(){
-			ISicsCommandElement[] commands = getDataModel().getCommands();
+			ISicsCommand[] commands = getDataModel().getCommands();
 			if (commands.length > 0){
 				return ((ScanNDCommand) commands[0]).isSingleFile();
 			}
