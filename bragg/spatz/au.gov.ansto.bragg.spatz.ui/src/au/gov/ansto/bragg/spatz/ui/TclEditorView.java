@@ -37,7 +37,11 @@ public class TclEditorView extends ViewPart {
 	private BatchTaskFrameViewer viewer;
 	private String SICS_SCRIPT_HEADER = "# to select an angle, use 'angler $a', e.g., angler 1\r\n" + 
 			"# to select a position, use 'position $p', e.g., positioner 1\r\n" + 
-			"# to drive a device, use 'drive some_motor some_place', e.g., drive att 10\n";
+			"# to drive a device, use 'drive some_motor some_place', e.g., drive att 10\r\n" +
+			"# to start acquisition, use 'acquire preset mode samplename', \r\n" +
+			"# e.g., acquire 60 \"time\" \"My sample 1\" (make sure to use double quotes)\r\n\r\n" +
+			"#angler 1\r\n\r\n#position 1\r\n\r\n" +
+			"#acquire 60 \"time\" \"My sample 1\"\r\n\r\n";
 	
 	/**
 	 * 
