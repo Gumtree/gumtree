@@ -26,7 +26,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
-import org.gumtree.gumnix.sics.batch.ui.model.ISicsCommandElement;
+import org.gumtree.control.batch.tasks.ISicsCommand;
 
 import au.gov.ansto.bragg.nbi.ui.core.commands.AbstractScanParameter;
 import au.gov.ansto.bragg.nbi.ui.core.commands.SimpleTableScanCommand;
@@ -75,7 +75,7 @@ public class KowariTableScanTask extends SimpleTableScanTask {
 		}
 		fileDialogPath = pickedFile.getParent();
 
-		for (ISicsCommandElement command : getDataModel().getCommands()){
+		for (ISicsCommand command : getDataModel().getCommands()){
 			if (command instanceof SimpleTableScanCommand){
 				SimpleTableScanCommand tableCommand = (SimpleTableScanCommand) command;
 				FileWriter outputfile = new FileWriter(pickedFile);
