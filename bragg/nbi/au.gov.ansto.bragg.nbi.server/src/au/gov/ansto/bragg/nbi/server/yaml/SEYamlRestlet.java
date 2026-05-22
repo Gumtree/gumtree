@@ -391,9 +391,14 @@ public class SEYamlRestlet extends AbstractUserControlRestlet implements IDispos
 					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
 					String text = getSEConfigGitService(instrumentId).readRevisionOfFile(configName, objectId);
 					YamlRestlet.saveRevisionToTempFile(objectId, text);
+					JSONObject jsonWrap = new JSONObject();
 					Object model = YamlRestlet.loadConfigModelFromText(text);
 					JSONObject jsonObject = (JSONObject) _convertToJson(model);
-					response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+					jsonWrap.put(KEY_INSTRUMENT_MODEL, jsonObject);
+					text = getSEConfigGitService(instrumentId).readRevisionOfFile(additionalName, objectId);
+					model = YamlRestlet.loadConfigModelFromText(text);
+					jsonWrap.put(KEY_ADDITIONAL_MODEL, model);
+					response.setEntity(jsonWrap.toString(), MediaType.APPLICATION_JSON);
 					response.setStatus(Status.SUCCESS_OK);
 				} catch (Exception e) {
 					logger.error("failed to load yaml.", e);

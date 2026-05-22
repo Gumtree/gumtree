@@ -47,7 +47,7 @@ import au.gov.ansto.bragg.nbi.server.login.UserSessionObject;
  * @author nxi
  *
  */
-public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisposable {
+public class SicsAdminYamlRestlet extends AbstractUserControlRestlet implements IDisposable {
 
 	private static final String PROPERTY_SERVER_SEPD_NAME = "gumtree.server.SEPDName";
 	private static final String PROPERTY_SERVER_SECD_NAME = "gumtree.server.SECDName";
@@ -55,17 +55,19 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 	private static final String PROPERTY_SERVER_SECONFIG_NAME = "gumtree.server.SEConfigName";
 	private static final String PROPERTY_SERVER_SECONFIG_PATH = "gumtree.server.SEConfigPath";
 	private static final String PROPERTY_SERVER_SEDB_REMOTEGIT = "gumtree.server.SEDBRemoteGit";
+//	private static final String PROPERTY_SERVER_SEMOTOR_FILE = "gumtree.server.SEMotorFile";
 	private static final String PROPERTY_SERVER_ADDITIONAL_NAME = "gumtree.server.AdditionalConfig";
 
 	private static final String QUERY_ENTRY_INSTRUMENT = "inst";
 	private static final String QUERY_ENTRY_DBTYPE = "dbtype";
 	private static final String QUERY_ENTRY_DEVICEID = "did";
 	private static final String QUERY_ENTRY_MESSAGE = "msg";
-//	private static final String QUERY_ENTRY_OLDDID = "oldDid";
-//	private static final String QUERY_ENTRY_NEWDID = "newDid";
+	private static final String QUERY_ENTRY_OLDDID = "oldDid";
+	private static final String QUERY_ENTRY_NEWDID = "newDid";
 	private static final String QUERY_ENTRY_VERSION_ID = "version";
 	private static final String QUERY_ENTRY_TIMESTAMP = "timestamp";
 	private static final String QUERY_ENTRY_SELECTEDMOTOR = "selectedMotor";
+	private static final String QUERY_ENTRY_DEVICEMOTORPAIRS = "deviceMotorPairs";
 
 	private static final String SEG_NAME_SEDB = "sedb";
 	private static final String SEG_NAME_ADDITIONALLOAD = "adit";
@@ -74,14 +76,20 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 	private static final String SEG_NAME_CONFIGHISTORY = "confighistory";
 	private static final String SEG_NAME_ADDITIONALHISTORY = "adithistory";
 	private static final String SEG_NAME_CONFIGLOAD = "configload";
+	private static final String SEG_NAME_DBSAVE = "dbsave";
+	private static final String SEG_NAME_DBREMOVE = "dbremove";
+	private static final String SEG_NAME_DBLOAD = "dbload";
 	private static final String SEG_NAME_CONFIGSAVE = "configsave";
+	private static final String SEG_NAME_CONFIGREMOVE = "configremove";
+	private static final String SEG_NAME_CHANGENAME = "changeName";
 	
+	private static final String KEY_SAMPLESTAGE = "SAMPLE_STAGE";
+	private static final String KEY_DEVICE_MOTOR = "DEVICE_MOTOR_LINKS";
+	private static final String KEY_ADDITIONAL_MODEL = "additional_model";
+	private static final String KEY_INSTRUMENT_MODEL = "instrument_model";
 	private static final String QUERY_ENTRY_PATH = "path";
 	private static final String DBTYPE_PHYSICAL = "PD";
 	private static final String DBTYPE_COMPOSITE = "CD";
-	private static final String KEY_SAMPLESTAGE = "SAMPLE_STAGE";
-	private static final String KEY_ADDITIONAL_MODEL = "additional_model";
-	private static final String KEY_INSTRUMENT_MODEL = "instrument_model";
 
 	private static String dbPath;
 	private static String pdName;
@@ -96,7 +104,7 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 	private static Map<String, GitService> gitServiceMap;
 	private static SimpleDateFormat formater;
 
-	private static final Logger logger = LoggerFactory.getLogger(InstYamlRestlet.class);
+	private static final Logger logger = LoggerFactory.getLogger(SEYamlRestlet.class);
 
 	static {
 		dbPath = System.getProperty(PROPERTY_SERVER_SEDB_PATH);
@@ -122,13 +130,13 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 		}
 	}
 	
-	public InstYamlRestlet(){
+	public SicsAdminYamlRestlet(){
 		this(null);
 	}
 	/**
 	 * @param context
 	 */
-	public InstYamlRestlet(Context context) {
+	public SicsAdminYamlRestlet(Context context) {
 		super(context);
 	}
 
@@ -153,29 +161,7 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 		}
 
 		if (session != null && session.isValid()) {
-			if (SEG_NAME_SECONFIG.equalsIgnoreCase(seg)){
-				try {
-					Form form = request.getResourceRef().getQueryAsForm();
-//					response.setEntity("Done", MediaType.TEXT_PLAIN);
-//					copyFromRemote(instrumentId, session);
-					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
-					if (!hasInstrumentConfigurePrivilege(session, instrumentId)) {
-						throw new Exception("user not allowed to change instrument configuration.");
-					}
-					Object model = loadSEConfig(instrumentId);
-					JSONObject jsonObject = (JSONObject) _convertToJson(model);
-//					JSONObject jsonObject = new JSONObject(model.toString());
-					response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
-					response.setStatus(Status.SUCCESS_OK);
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error("failed to load config model", e);
-//					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
-					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
-					return;
-				}
-
-			} else if (SEG_NAME_SEDB.equalsIgnoreCase(seg)){
+			if (SEG_NAME_SEDB.equalsIgnoreCase(seg)){
 				try {
 					Form form = request.getResourceRef().getQueryAsForm();
 					String dbType = form.getValues(QUERY_ENTRY_DBTYPE);
@@ -213,7 +199,69 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 					return;
 				}			
 
-			} else if (SEG_NAME_CONFIGHISTORY.equalsIgnoreCase(seg)) {
+			} else if (SEG_NAME_SECONFIG.equalsIgnoreCase(seg)){
+				try {
+					Form form = request.getResourceRef().getQueryAsForm();
+//					response.setEntity("Done", MediaType.TEXT_PLAIN);
+//					copyFromRemote(instrumentId, session);
+					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
+					Object model = loadSEConfig(instrumentId);
+					JSONObject jsonObject = (JSONObject) _convertToJson(model);
+//					JSONObject jsonObject = new JSONObject(model.toString());
+					response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error("failed to load config model", e);
+//					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+					return;
+				}
+
+			} else if (SEG_NAME_DBHISTORY.equalsIgnoreCase(seg)) {
+				try {
+					Form form = request.getResourceRef().getQueryAsForm();
+					String dbType = form.getValues(QUERY_ENTRY_DBTYPE);
+					String did = form.getValues(QUERY_ENTRY_DEVICEID);
+					List<GitCommit> commits;
+					if (DBTYPE_PHYSICAL.equals(dbType)) {
+						commits = getSEDBGitService().getCommits(pdName);
+					} else {
+						commits = getSEDBGitService().getCommits(cdName);
+					}
+//					JSONObject jsonObject = new JSONObject(new LinkedHashMap<String, Object>());
+					JSONArray jsonArray = new JSONArray();
+//					int i = 0;
+					for (GitCommit commit : commits) {
+						if (did != null && did.trim().length() > 0) {
+							String message = commit.getMessage();
+							if (!message.contains(did)) {
+								if (!message.contains("fetch remote version")) {
+									continue;
+								}
+							}
+						}
+						JSONObject obj = new JSONObject();
+						obj.put("id", commit.getId());
+						obj.put("name", commit.getName());
+						obj.put("short message", commit.getShortMessage());
+						obj.put("message", commit.getMessage());
+						obj.put("timestamp", commit.getTimestamp());
+//						jsonObject.put(String.valueOf(i), obj);
+						jsonArray.put(obj);
+//						i ++;
+					}
+//					JSONObject jsonObject = new JSONObject(model.toString());
+					response.setEntity(jsonArray.toString(), MediaType.TEXT_PLAIN);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error("failed to load history", e);
+//					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+					return;
+				}
+			}  else if (SEG_NAME_CONFIGHISTORY.equalsIgnoreCase(seg)) {
 				try {
 					Form form = request.getResourceRef().getQueryAsForm();
 //					String did = form.getValues(QUERY_ENTRY_DEVICEID);
@@ -283,12 +331,47 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
 					return;
 				}
-			} else if (SEG_NAME_CONFIGLOAD.equalsIgnoreCase(seg)){
+			} else if (SEG_NAME_DBSAVE.equalsIgnoreCase(seg)){
+				try {
+					if (!hasSEConfigurePrivilege(session)) {
+						throw new Exception("user not allowed to change SE DB configuration.");
+					}
+					Representation rep = request.getEntity();
+					Form form = request.getResourceRef().getQueryAsForm();
+					String dbType = form.getValues(QUERY_ENTRY_DBTYPE);
+					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
+//					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
+					String text = rep.getText();
+					try {
+						text = URLDecoder.decode(text, "UTF-8");
+					} catch (Exception e) {
+						throw new Exception("model can not be empty.");
+					}
+//					if (versionId != null && versionId.length() > 0) {
+//						saveTempConfigModel(versionId, text, saveMessage, session);
+//					} else {
+					saveDBConfigModel(dbType, text, saveMessage, session);
+//					}
+//					copyToRemote();
+					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					logger.error("failed to do save", e);
+					response.setEntity(makeErrorJSON("failed to save, " + e.getLocalizedMessage()), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
+			} else if (SEG_NAME_DBLOAD.equalsIgnoreCase(seg)){
 				try {
 					Form form = request.getResourceRef().getQueryAsForm();
+					String dbType = form.getValues(QUERY_ENTRY_DBTYPE);
 					String objectId = form.getValues(QUERY_ENTRY_VERSION_ID);
-					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
-					String text = getSEConfigGitService(instrumentId).readRevisionOfFile(configName, objectId);
+					String text;
+					if (DBTYPE_COMPOSITE.equals(dbType)) {
+						text = getSEDBGitService().readRevisionOfFile(cdName, objectId);
+					} else {
+						text = getSEDBGitService().readRevisionOfFile(pdName, objectId);
+					}
 					YamlRestlet.saveRevisionToTempFile(objectId, text);
 					Object model = YamlRestlet.loadConfigModelFromText(text);
 					JSONObject jsonObject = (JSONObject) _convertToJson(model);
@@ -301,16 +384,97 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
 					return;
 				}
+			} else if (SEG_NAME_CONFIGLOAD.equalsIgnoreCase(seg)){
+				try {
+					Form form = request.getResourceRef().getQueryAsForm();
+					String objectId = form.getValues(QUERY_ENTRY_VERSION_ID);
+					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
+					String text = getSEConfigGitService(instrumentId).readRevisionOfFile(configName, objectId);
+					YamlRestlet.saveRevisionToTempFile(objectId, text);
+					JSONObject jsonWrap = new JSONObject();
+					Object model = YamlRestlet.loadConfigModelFromText(text);
+					JSONObject jsonObject = (JSONObject) _convertToJson(model);
+					jsonWrap.put(KEY_INSTRUMENT_MODEL, jsonObject);
+					text = getSEConfigGitService(instrumentId).readRevisionOfFile(additionalName, objectId);
+					model = YamlRestlet.loadConfigModelFromText(text);
+					jsonWrap.put(KEY_ADDITIONAL_MODEL, model);
+					response.setEntity(jsonWrap.toString(), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					logger.error("failed to load yaml.", e);
+					e.printStackTrace();
+//					response.setEntity("{'status':'ERROR','reason':'" + e.getMessage() + "'}", MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+					return;
+				}
+			} else if (SEG_NAME_CHANGENAME.equalsIgnoreCase(seg)){
+				try {
+					if (!hasSEConfigurePrivilege(session)) {
+						throw new Exception("user not allowed to change motor configuration.");
+					}
+					Representation rep = request.getEntity();
+					Form query = request.getResourceRef().getQueryAsForm();
+					String saveMessage = query.getValues(QUERY_ENTRY_MESSAGE);
+					String dbType = query.getValues(QUERY_ENTRY_DBTYPE);
+					Form form = new Form(rep);
+					String oldDid = form.getValues(QUERY_ENTRY_OLDDID);
+					String newDid = form.getValues(QUERY_ENTRY_NEWDID);
+//					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
+//					String text = rep.getText();
+//					try {
+//						text = URLDecoder.decode(text, "UTF-8");
+//					} catch (Exception e) {
+//						throw new Exception("model can not be empty.");
+//					}
+//					if (versionId != null && versionId.length() > 0) {
+//						saveTempConfigModel(versionId, text, saveMessage, session);
+//					} else {
+					changeDBDeviceName(dbType, oldDid, newDid, saveMessage, session);
+//					}
+//					copyToRemote();
+					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					logger.error("failed to change device name", e);
+					response.setEntity(makeErrorJSON("failed to change, " + e.getLocalizedMessage()), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
+			} else if (SEG_NAME_DBREMOVE.equalsIgnoreCase(seg)){
+				try {
+					if (!hasSEConfigurePrivilege(session)) {
+						throw new Exception("user not allowed to change configuration.");
+					}
+					Representation rep = request.getEntity();
+					Form form = request.getResourceRef().getQueryAsForm();
+					String dbType = form.getValues(QUERY_ENTRY_DBTYPE);
+					String did = form.getValues(QUERY_ENTRY_DEVICEID);
+					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
+//					if (versionId != null && versionId.length() > 0) {
+//						saveTempConfigModel(versionId, text, saveMessage, session);
+//					} else {
+					deleteDBConfigModel(dbType, did, saveMessage, session);
+//					}
+//					copyToRemote();
+					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					logger.error("failed to delete", e);
+					response.setEntity(makeErrorJSON("failed to delete, " + e.getLocalizedMessage()), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
 			} else if (SEG_NAME_CONFIGSAVE.equalsIgnoreCase(seg)){
 				try {
+					if (!hasSEConfigurePrivilege(session)) {
+						throw new Exception("user not allowed to change motor configuration.");
+					}
 					Representation rep = request.getEntity();
 					Form form = request.getResourceRef().getQueryAsForm();
 					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
-					if (!hasInstrumentConfigurePrivilege(session, instrumentId)) {
-						throw new Exception("user not allowed to change motor configuration.");
-					}
 					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
 //					String selectedMotor = form.getValues(QUERY_ENTRY_SELECTEDMOTOR);
+//					String deviceMotorPairs = form.getValues(QUERY_ENTRY_DEVICEMOTORPAIRS);
 //					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
 					String text = rep.getText();
 					try {
@@ -324,6 +488,7 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 					JSONObject rootModel = new LinkedJSONObject(text);
 					saveMotorConfiguration(instrumentId, (JSONObject) rootModel.get(KEY_ADDITIONAL_MODEL));
 					saveSEConfigModel(instrumentId, (JSONObject) rootModel.get(KEY_INSTRUMENT_MODEL), saveMessage, session);
+//					saveMotorConfiguration(instrumentId, selectedMotor, deviceMotorPairs);
 //					saveSEConfigModel(instrumentId, text, saveMessage, session);
 //					}
 //					copyToRemote();
@@ -332,6 +497,30 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 				} catch (Exception e) {
 					logger.error("failed to do save", e);
 					response.setEntity(makeErrorJSON("failed to save, " + e.getLocalizedMessage()), MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+					return;
+				}
+			} else if (SEG_NAME_CONFIGREMOVE.equalsIgnoreCase(seg)){
+				try {
+					if (!hasSEConfigurePrivilege(session)) {
+						throw new Exception("user not allowed to change configuration.");
+					}
+					Representation rep = request.getEntity();
+					Form form = request.getResourceRef().getQueryAsForm();
+					String instrumentId = form.getValues(QUERY_ENTRY_INSTRUMENT);
+					String did = form.getValues(QUERY_ENTRY_DEVICEID);
+					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
+//					if (versionId != null && versionId.length() > 0) {
+//						saveTempConfigModel(versionId, text, saveMessage, session);
+//					} else {
+					deleteSEConfigModel(instrumentId, did, saveMessage, session);
+//					}
+//					copyToRemote();
+					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
+					response.setStatus(Status.SUCCESS_OK);
+				} catch (Exception e) {
+					logger.error("failed to delete", e);
+					response.setEntity(makeErrorJSON("failed to delete, " + e.getLocalizedMessage()), MediaType.APPLICATION_JSON);
 					response.setStatus(Status.SUCCESS_OK);
 					return;
 				}
@@ -391,9 +580,9 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 		if (git != null) {
 			git.applyChange();
 			if (message == null || message.length() == 0) {
-				message = userName + " configured " + newDid + ": " + formater.format(new Date());
+				message = userName + " set up SE for " + newDid + ": " + formater.format(new Date());
 			} else {
-				message = userName + " configured " + newDid + ": " + message;
+				message = userName + " set up SE for " + newDid + ": " + message;
 			}
 			git.commit(message);
 			git.push();
@@ -451,6 +640,25 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 
 	}
 	
+	private static Object loadAdditionalModel(String instrumentId) throws IOException {
+		File addFile = new File(getAdditionalFilename(instrumentId));
+		if (addFile.exists()) {
+			DumperOptions options = new DumperOptions();
+			options.setPrettyFlow(true);
+			options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+			Yaml yaml = new Yaml(options);
+			InputStream input = new FileInputStream(new File(getAdditionalFilename(instrumentId)));
+			try {
+				Object data = yaml.load(input);
+				return data;
+			} finally {
+				input.close();
+			}
+		} else {
+			return "";
+		}
+	}
+ 
 	private static void saveMotorConfiguration(String instrumentId, JSONObject model) throws IOException, JSONException {
 		String filePath = getAdditionalFilename(instrumentId);
 		
@@ -458,6 +666,32 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 	    options.setPrettyFlow(true);
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         Yaml yaml = new Yaml(options);
+		
+//		Map<String, Object> model = null;
+//		File addFile = new File(filePath);
+//		if (!addFile.exists()) {
+//			if (addFile.createNewFile()) {
+//				model = new LinkedHashMap<String, Object>();
+//			} else {
+//				throw new IOException("failed to create " + additionalName + " file");
+//			}
+//		} else {
+//			InputStream input = new FileInputStream(addFile);
+//			try {
+//				model = yaml.loadAs(input, Map.class);
+//			} finally {
+//				input.close();
+//			}
+//		}
+//		
+//		model.put(KEY_SAMPLESTAGE, selectedMotor);
+//
+//		JSONObject deviceMotorJson = new LinkedJSONObject(deviceMotorPairs);
+//		if (deviceMotorJson.length() > 0) {
+//			model.put(KEY_DEVICE_MOTOR, YamlRestlet.toMap(deviceMotorJson));
+//		} else {
+//			model.remove(KEY_DEVICE_MOTOR);
+//		}
 		
         File addFile = new File(filePath);
 		FileWriter writer = new FileWriter(addFile);
@@ -471,7 +705,7 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 		}
 		
 	}
-		
+	
 	public static void saveDBConfigModel(String dbType, String text, String message, UserSessionObject session) 
 			throws IOException, JSONException, GitException {
 		String userName = session.getUserName().toUpperCase();
@@ -534,9 +768,9 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 		if (git != null) {
 			git.applyChange();
 			if (message == null || message.length() == 0) {
-				message = userName + " configured " + instrumentId + ": " + formater.format(new Date());
+				message = userName + " set up SE for " + instrumentId + ": " + formater.format(new Date());
 			} else {
-				message = userName + " configured " + instrumentId + ": " + message;
+				message = userName + " set up SE for " + instrumentId + ": " + message;
 			}
 			git.commit(message);
 		}
@@ -600,9 +834,9 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 		if (git != null) {
 			git.applyChange();
 			if (message == null || message.length() == 0) {
-				message = userName + " configured " + did + ": " + formater.format(new Date());
+				message = userName + " set up SE for " + did + ": " + formater.format(new Date());
 			} else {
-				message = userName + " configured " + did + ": " + message;
+				message = userName + " set up SE for " + did + ": " + message;
 			}
 			git.commit(message);
 			git.push();
@@ -747,25 +981,6 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 		}
 	}
 
-	private static Object loadAdditionalModel(String instrumentId) throws IOException {
-		File addFile = new File(getAdditionalFilename(instrumentId));
-		if (addFile.exists()) {
-			DumperOptions options = new DumperOptions();
-			options.setPrettyFlow(true);
-			options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-			Yaml yaml = new Yaml(options);
-			InputStream input = new FileInputStream(new File(getAdditionalFilename(instrumentId)));
-			try {
-				Object data = yaml.load(input);
-				return data;
-			} finally {
-				input.close();
-			}
-		} else {
-			return "";
-		}
-	}
- 
 	private static String getSEDBPath(String dbType) {
 		if (DBTYPE_COMPOSITE.equals(dbType)) {
 			return dbPath + "/" + cdName;
