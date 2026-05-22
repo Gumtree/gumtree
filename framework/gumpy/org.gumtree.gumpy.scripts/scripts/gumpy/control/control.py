@@ -513,7 +513,7 @@ MEERSTETTER_DRIVEABLE_NODE_NAME = 'Temp_TARGET'
 MEERSTETTER_DRIVEABLE_ID = '{0}_MEER{1:02d}_Temp_TARGET'
 MEERSTETTER_DRIVEABLE_NODE_PATH = '/sample/{0}/MEER{1:02d}/' + MEERSTETTER_DRIVEABLE_NODE_NAME
 # MEERSTETTER_CHANNEL_NAME = 'MEER{0:02d'
-MEERSTETTER_SENSOR_NODE_PATH = '/sample/{0}/MEER{1:02d/Temp_SENSOR'
+MEERSTETTER_SENSOR_NODE_PATH = '/sample/{0}/MEER{1:02d}/Temp_SENSOR'
 MEERSTETTER_ENABLE_NODE_NAME = 'Enable'
 MEERSTETTER_ENABLE_NODE_PATH = '/sample/{0}/MEER{1:02d}/' + MEERSTETTER_ENABLE_NODE_NAME
 
@@ -833,3 +833,13 @@ def set_bundle_tolerance(name, value, controller_name = 'tc1') :
     if not name in MEERSTETTER_BUNDLE :
         raise Exception, 'Meer bundle {} not defined'.format(name)
     set_ms_tolerance(MEERSTETTER_BUNDLE[str(name)], value, controller_name)
+
+def reset_ms(controller_name = 'tc1'):
+    tc = get_controller('/sample/' + controller_name)
+    if not tc:
+        raise Exception, 'MeerStetter controller not found'
+    reset_node = '/sample/' + controller_name + '/MEER/Reset'
+    meer = get_controller(reset_node)
+    if not meer:
+        raise Exception, 'Meer reset node not found: ' + reset_node
+    meer.setValue(1)
