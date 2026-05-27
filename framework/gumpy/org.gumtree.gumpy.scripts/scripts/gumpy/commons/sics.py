@@ -38,7 +38,7 @@ def execute(command, channel_id = 'general'):
 def set(name, value):
     controller = getDeviceController(name)
     if (controller == None):
-        raise SicsError('Device / Path ' + name + ' not found')
+        raise Exception('Device / Path ' + name + ' not found')
     else:
         controller.setTargetValue(ComponentData.createData(value))
         controller.commitTargetValue(None)
@@ -50,7 +50,7 @@ def setpos(device, value, real_value):
 def getValue(name, refresh = False):
     controller = getDeviceController(name)
     if (controller == None):
-        raise SicsError('Device / Path ' + name + ' not found')
+        raise Exception('Device / Path ' + name + ' not found')
     else:
         return controller.getValue(refresh)
     
@@ -551,49 +551,89 @@ def wait_until_value_reached(device, value, precision = 0.01, timeout_if_not_cha
     else:
         logger.log(str(device) + ' failed to reach value ' + str(value) + ' in ' + str(total_count) + ' seconds')
 
+
+
+
+############## new implementation #############
+
+MEERSTETTER_DRIVEABLE_NODE_NAME = 'Temp_TARGET'
+MEERSTETTER_DRIVEABLE_ID = '{0}_MEER{1:02d}_Temp_TARGET'
+MEERSTETTER_DRIVEABLE_NODE_PATH = '/sample/{0}/MEER{1:02d}/' + MEERSTETTER_DRIVEABLE_NODE_NAME
+# MEERSTETTER_CHANNEL_NAME = 'MEER{0:02d'
+MEERSTETTER_SENSOR_NODE_PATH = '/sample/{0}/MEER{1:02d}/Temp_SENSOR'
+MEERSTETTER_ENABLE_NODE_NAME = 'Enable'
+MEERSTETTER_ENABLE_NODE_PATH = '/sample/{0}/MEER{1:02d}/' + MEERSTETTER_ENABLE_NODE_NAME
+
+MEERSTETTER_BUNDLE = {}
+
+def get_ms_channels(tc):
+    channels = []
+    for child in tc.getChildControllers():
+        if not child.getChildController("/" + MEERSTETTER_DRIVEABLE_NODE_NAME) is None:
+            channels.append(child)
+    return channels 
+    
 def drive_ms(id, value, controller_name = 'tc1'):
+#     enable_ms(id, print_all = False)
     entries = dict()
     if type(id) is list or type(id) is tuple:
         for i in xrange(len(id)):
             did = id[i]
-            dname = controller_name + '_' + 'MEER{0:02d}'.format(did) + '_ObjectTemp_LOOP_0_TARGET'
+#             dname = controller_name + '_' + 'MEER{0:02d}'.format(did) + '_ObjectTemp_LOOP_0_TARGET'
+            if not is_ms_enabled(did, controller_name) :
+                raise Exception, 'MEER{:02d} not enabled'.format(did)
+            dname = MEERSTETTER_DRIVEABLE_ID.format(controller_name, did)
             if type(value) is list or type(value) is tuple:
                 dval = value[i]
             else:
                 dval = value
             entries[dname] = dval
         print("multi_drive " + str(entries))
-        multiDrive(entries)
+        multi_drive(entries)
     else :
-        did = controller_name + '_' + 'MEER{0:02d}'.format(id) + '_ObjectTemp_LOOP_0_TARGET'
+        if not is_ms_enabled(id, controller_name) :
+            raise Exception, 'MEER{:02d} not enabled'.format(id)
+        did = MEERSTETTER_DRIVEABLE_ID.format(controller_name, id)
         print("drive {} {}".format(did, value))
         drive(did, value)
 
+
 def drive_all_ms(value, controller_name = 'tc1'):
+#     enable_all_ms(print_all = False)
     entries = dict()
     if type(value) is list or type(value) is tuple:
         for i in xrange(len(value)):
-            dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
+#             dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
+            if not is_ms_enabled(i + 1, controller_name) :
+                continue
+            dname = MEERSTETTER_DRIVEABLE_ID.format(controller_name, i + 1)
             dval = value[i]
             entries[dname] = dval
         print("multi_drive " + str(entries))
-        multiDrive(entries)
+        multi_drive(entries)
     else :
         tc = getDeviceController('/sample/' + controller_name)
-        if tc is None :
-            raise Exception(controller_name + ' not found')
-        num = len(tc.getChildControllers())
+        if (tc == None):
+            raise Exception('/sample/' + controller_name + ' not found')
+        num = len(get_ms_channels(tc))
         for i in xrange(num):
-            dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
+#             dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
+            if not is_ms_enabled(i + 1, controller_name) :
+                continue
+            dname = MEERSTETTER_DRIVEABLE_ID.format(controller_name, i + 1)
             entries[dname] = value
         print("multi_drive " + str(entries))
         multi_drive(entries)
 
 def run_ms(id, value, controller_name = 'tc1'):
+#     enable_ms(id, print_all = False)
     if type(id) is list or type(id) is tuple:
         for i in xrange(len(id)):
             did = id[i]
-            dname = controller_name + '_' + 'MEER{0:02d}'.format(did) + '_ObjectTemp_LOOP_0_TARGET'
+            if not is_ms_enabled(did, controller_name) :
+                raise Exception, 'MEER{:02d} not enabled'.format(did)
+#             dname = controller_name + '_' + 'MEER{0:02d}'.format(did) + '_ObjectTemp_LOOP_0_TARGET'
+            dname = MEERSTETTER_DRIVEABLE_ID.format(controller_name, did)
             if type(value) is list or type(value) is tuple:
                 dval = value[i]
             else:
@@ -601,34 +641,259 @@ def run_ms(id, value, controller_name = 'tc1'):
             print("run " + dname + ' ' + str(dval))
             run(dname, dval)
     else :
-        did = controller_name + '_' + 'MEER{0:02d}'.format(id) + '_ObjectTemp_LOOP_0_TARGET'
+        if not is_ms_enabled(id, controller_name) :
+            raise Exception('MEER{:02d} not enabled'.format(id))
+#         did = controller_name + '_' + 'MEER{0:02d}'.format(id) + '_ObjectTemp_LOOP_0_TARGET'
+        did = MEERSTETTER_DRIVEABLE_ID.format(controller_name, id)
         print("run " + did + ' ' + str(value))
         run(did, value)
 
 def run_all_ms(value, controller_name = 'tc1'):
+#     enable_all_ms(print_all = False)
     if type(value) is list or type(value) is tuple:
         for i in xrange(len(value)):
-            dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
+            if not is_ms_enabled(i + 1, controller_name) :
+                continue
+#             dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
+            dname = MEERSTETTER_DRIVEABLE_ID.format(controller_name, i + 1)
             dval = value[i]
             print("run " + dname + ' ' + str(dval))
             run(dname, dval)
     else :
         tc = getDeviceController('/sample/' + controller_name)
-        if tc is None :
-            raise Exception(controller_name + ' not found')
-        num = len(tc.getChildControllers())
+        if (tc == None):
+            raise Exception, '/sample/' + controller_name + ' not found'
+        num = len(get_ms_channels(tc))
         for i in xrange(num):
-            dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
+            if not is_ms_enabled(i + 1, controller_name) :
+                continue
+#             dname = controller_name + '_' + 'MEER{0:02d}'.format(i + 1) + '_ObjectTemp_LOOP_0_TARGET'
+            dname = MEERSTETTER_DRIVEABLE_ID.format(controller_name, i + 1)
             print("run " + dname + ' ' + str(value))
             run(dname, value)
 
 def get_ms(meer_id, controller_name = 'tc1'):
+#     tc = getDeviceController('/sample/' + controller_name)
+#     if tc is None :
+#         raise Exception(controller_name + ' not found')
+#     dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/ObjectTemp_LOOP_0_SENSOR'
     tc = getDeviceController('/sample/' + controller_name)
     if tc is None :
         raise Exception(controller_name + ' not found')
-    dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/ObjectTemp_LOOP_0_SENSOR'
+    dpath = MEERSTETTER_SENSOR_NODE_PATH.format(controller_name, meer_id)
     dc = getDeviceController(dpath)
-    if dc is None :
+    if (dc == None):
         raise Exception(dpath + ' not found')
     return dc.getValue().getFloatData()
 
+def get_ms_tolerance(meer_id, controller_name = 'tc1'):
+#     tc = getDeviceController('/sample/' + controller_name)
+#     if tc is None :
+#         raise Exception(controller_name + ' not found')
+    dpath = MEERSTETTER_DRIVEABLE_NODE_PATH.format(controller_name, meer_id)
+    res = get_raw_value('hgetprop ' + dpath + ' tolerance')
+    if res is None :
+        raise Exception(dpath + ' tolerance not found')
+    return res
+
+def set_ms_tolerance(meer_id, value, controller_name = 'tc1'):
+    if type(meer_id) is list or type(id) is tuple:
+        for i in xrange(len(meer_id)):
+            did = meer_id[i]
+#             dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + '/ObjectTemp_LOOP_0_TARGET'
+            dpath = MEERSTETTER_DRIVEABLE_NODE_PATH.format(controller_name, did)
+            if type(value) is list or type(value) is tuple:
+                dval = value[i]
+            else:
+                dval = value
+            cmd = "hsetprop " + dpath + ' tolerance ' + str(dval)
+            print(cmd)
+            execute(cmd)
+    else :
+#         dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + '/ObjectTemp_LOOP_0_TARGET'
+        dpath = MEERSTETTER_DRIVEABLE_NODE_PATH.format(controller_name, meer_id)
+        cmd = "hsetprop " + dpath + ' tolerance ' + str(value)
+        print(cmd)
+        execute(cmd)
+
+def set_all_ms_tolerance(value, controller_name = 'tc1'):
+    if type(value) is list or type(value) is tuple:
+        for i in xrange(len(value)):
+#             dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + '/ObjectTemp_LOOP_0_TARGET'
+            dpath = MEERSTETTER_DRIVEABLE_NODE_PATH.format(controller_name, i + 1)
+            dval = value[i]
+            cmd = "hsetprop " + dpath + ' tolerance ' + str(dval)
+            print(cmd)
+            execute(cmd)
+    else :
+        tc = getDeviceController('/sample/' + controller_name)
+        if (tc == None):
+            raise Exception('/sample/' + controller_name + ' not found')
+        num = len(get_ms_channels(tc))
+        for i in xrange(num):
+#             dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + '/ObjectTemp_LOOP_0_TARGET'
+            dpath = MEERSTETTER_DRIVEABLE_NODE_PATH.format(controller_name, i + 1)
+            cmd = "hsetprop " + dpath + ' tolerance ' + str(value)
+            print(cmd)
+            execute(cmd)
+            
+def enable_ms(meer_id, controller_name = 'tc1', print_all = True):
+    if type(meer_id) is list or type(id) is tuple:
+        for i in xrange(len(meer_id)):
+            did = meer_id[i]
+#             ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + _enable_node
+            ipath = MEERSTETTER_ENABLE_NODE_PATH.format(controller_name, did)
+            rbv = getDeviceController(ipath)
+            if rbv == None:
+                raise Exception(ipath + ' not found')
+            if int(rbv.getValue().getFloatData()) <= 0 :
+#                 dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + _enable_node
+#                 dpath = MEERSTETTER_ENABLE_NODE_PATH.format(controller_name, did)
+                cmd = "hset " + ipath + ' 1'
+                print(cmd)
+                execute(cmd)
+#                 rbv.setValue(1)
+            elif print_all :
+                print('/MEER{0:02d}'.format(did) + ' already enabled')
+    else :
+#         ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + _enable_node
+        ipath = MEERSTETTER_ENABLE_NODE_PATH.format(controller_name, meer_id)
+        rbv = getDeviceController(ipath)
+        if rbv == None:
+            raise Exception(ipath + ' not found')
+        if int(rbv.getValue().getFloatData()) <= 0 :
+#             dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + _enable_node
+            cmd = "hset " + ipath + ' 1'
+            print(cmd)
+            execute(cmd)
+#             rbv.setValue(1)
+        elif print_all :
+            print('/MEER{0:02d}'.format(meer_id) + ' already enabled')
+
+def enable_all_ms(controller_name = 'tc1', print_all = True):
+    tc = getDeviceController('/sample/' + controller_name)
+    if tc is None :
+        raise Exception(controller_name + ' not found')
+    num = len(get_ms_channels(tc))
+    for i in xrange(num):
+#         ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + _enable_node
+        ipath = MEERSTETTER_ENABLE_NODE_PATH.format(controller_name, i + 1)
+        rbv = getDeviceController(ipath)
+        if rbv == None:
+            raise Exception(ipath + ' not found')
+        if int(rbv.getValue().getFloatData()) <= 0 :
+#             dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + _enable_node
+            cmd = "hset " + ipath + ' 1'
+            print(cmd)
+            execute(cmd)
+#             rbv.setValue(1)
+        elif print_all :
+            print('/MEER{0:02d}'.format(i + 1) + ' already enabled')
+            
+def disable_ms(meer_id, controller_name = 'tc1', print_all = True):
+    if type(meer_id) is list or type(id) is tuple:
+        for i in xrange(len(meer_id)):
+            did = meer_id[i]
+#             ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + _enable_node
+            ipath = MEERSTETTER_ENABLE_NODE_PATH.format(controller_name, did)
+            rbv = getDeviceController(ipath)
+            if rbv == None:
+                raise Exception(ipath + ' not found')
+            if int(rbv.getValue().getFloatData()) >= 1 :
+#                 dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(did) + _enable_node
+                cmd = "hset " + ipath + ' 0'
+                print(cmd)
+                execute(cmd)
+#                 rbv.setValue(0)
+            elif print_all :
+                print('/MEER{0:02d}'.format(did) + ' already disabled')
+    else :
+#         ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + _enable_node
+        ipath = MEERSTETTER_ENABLE_NODE_PATH.format(controller_name, meer_id)
+        rbv = getDeviceController(ipath)
+        if rbv == None:
+            raise Exception(ipath + ' not found')
+        if int(rbv.getValue().getFloatData()) >= 1 :
+#             dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(meer_id) + _enable_node
+            cmd = "hset " + ipath + ' 0'
+            print(cmd)
+            execute(cmd)
+#             rbv.setValue(0)
+        elif print_all :
+            print('/MEER{0:02d}'.format(meer_id) + ' already disabled')
+
+def disable_all_ms(controller_name = 'tc1', print_all = True):
+    tc = getDeviceController('/sample/' + controller_name)
+    if tc is None :
+        raise Exception(controller_name + ' not found')
+    num = len(get_ms_channels(tc))
+    for i in xrange(num):
+#         ipath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + _enable_node
+        ipath = MEERSTETTER_ENABLE_NODE_PATH.format(controller_name, i + 1)
+        rbv = getDeviceController(ipath)
+        if rbv == None:
+            raise Exception(ipath + ' not found')
+        if int(rbv.getValue().getFloatData()) >= 1 :
+#             dpath = '/sample/' + controller_name + '/MEER{0:02d}'.format(i + 1) + _enable_node
+            cmd = "hset " + ipath + ' 0'
+            print(cmd)
+            execute(cmd)
+#             rbv.setValue(0)
+        elif print_all :
+            print('/MEER{0:02d}'.format(i + 1) + ' already disabled')
+
+def is_ms_enabled(meer_id, controller_name = 'tc1'):
+    ipath = MEERSTETTER_ENABLE_NODE_PATH.format(controller_name, meer_id)
+    rbv = getDeviceController(ipath)
+    if rbv == None:
+        raise Exception(ipath + ' not found')
+    return int(rbv.getValue().getFloatData()) >= 1
+
+def make_ms_bundle(name, items):
+    global MEERSTETTER_BUNDLE
+    if not (type(items) == list) :
+        raise Exception, 'parameter items must be a list type'
+    MEERSTETTER_BUNDLE[str(name)] = items
+    
+def drive_ms_bundle(name, value, controller_name = 'tc1'):
+    global MEERSTETTER_BUNDLE
+    if not name in MEERSTETTER_BUNDLE :
+        raise Exception, 'Meer bundle {} not defined'.format(name)
+    drive_ms(MEERSTETTER_BUNDLE[str(name)], value, controller_name)
+    
+def run_ms_bundle(name, value, controller_name = 'tc1'):
+    global MEERSTETTER_BUNDLE
+    if not name in MEERSTETTER_BUNDLE :
+        raise Exception, 'Meer bundle {} not defined'.format(name)
+    run_ms(MEERSTETTER_BUNDLE[str(name)], value, controller_name)
+
+def enable_bundle(name, controller_name = 'tc1'):
+    global MEERSTETTER_BUNDLE
+    if not name in MEERSTETTER_BUNDLE :
+        raise Exception, 'Meer bundle {} not defined'.format(name)
+    enable_ms(MEERSTETTER_BUNDLE[str(name)], controller_name)
+    
+def disable_bundle(name, controller_name = 'tc1'):
+    global MEERSTETTER_BUNDLE
+    if not name in MEERSTETTER_BUNDLE :
+        raise Exception, 'Meer bundle {} not defined'.format(name)
+    disable_ms(MEERSTETTER_BUNDLE[str(name)], controller_name)
+    
+def set_bundle_tolerance(name, value, controller_name = 'tc1') :
+    global MEERSTETTER_BUNDLE
+    if not name in MEERSTETTER_BUNDLE :
+        raise Exception, 'Meer bundle {} not defined'.format(name)
+    set_ms_tolerance(MEERSTETTER_BUNDLE[str(name)], value, controller_name)
+
+def reset_ms(controller_name = 'tc1'):
+    tc = getDeviceController('/sample/' + controller_name)
+    if not tc:
+        raise Exception, 'MeerStetter controller not found'
+    reset_node = '/sample/' + controller_name + '/MEER/Reset'
+    meer = getDeviceController(reset_node)
+    if not meer:
+        raise Exception, 'Meer reset node not found: ' + reset_node
+    cmd = 'hset ' + reset_node + ' 1'
+    print(cmd)
+    execute(cmd)
+#     meer.setValue(1)
