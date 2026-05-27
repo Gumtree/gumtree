@@ -3,6 +3,15 @@
 <plugin>
 
    <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.gumtree.control.ui.editors.SicsControlEditor"
+            icon="icons/full/obj16/server.gif"
+            id="org.gumtree.control.ui.editors.SicsControlEditor"
+            name="SICS Control Editor">
+      </editor>
+   </extension>
+   <extension
          point="org.eclipse.ui.views">
       <view
             category="org.gumtree.gumnix.sics.ui"
@@ -41,6 +50,32 @@
             class="org.gumtree.control.ui.internal.ZMQAdapter"
             id="org.gumtree.control.ui.ZMQAdapter"
             label="ZMQ Adapter"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerContentBinding viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+         <includes>
+            <contentExtension pattern="org.gumtree.control.ui.instrumentContent"/>
+         </includes>
+      </viewerContentBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <navigatorContent
+            contentProvider="org.gumtree.control.ui.navigator.InstrumentContentProvider"
+            icon="icons/full/obj16/server.gif"
+            id="org.gumtree.control.ui.instrumentContent"
+            labelProvider="org.gumtree.ui.util.jface.TreeLabelProvider"
+            name="SICS Instrument">
+         <enablement>
+            <or>
+               <instanceof value="org.eclipse.core.resources.IWorkspaceRoot"/>
+            </or>
+         </enablement>
+         <actionProvider
+               class="org.gumtree.control.ui.navigator.ControlNavigatorActionProvider"
+               id="org.gumtree.control.ui.navigator.ControlNavigatorActionProvider"/>
+      </navigatorContent>
    </extension>
    <extension
          point="org.eclipse.ui.startup">
