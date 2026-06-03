@@ -10,7 +10,7 @@ import org.eclipse.ui.part.EditorPart;
 import org.gumtree.control.ui.viewer.ControlViewer;
 import org.gumtree.control.ui.viewer.model.INodeSet;
 
-public class SicsControlEditor extends EditorPart {
+public class ControlModelEditor extends EditorPart {
 
 	private ControlViewer viewer;
 
@@ -47,12 +47,12 @@ public class SicsControlEditor extends EditorPart {
 			nodeSet = (INodeSet) getEditorInput().getAdapter(INodeSet.class);
 			if (nodeSet != null) {
 				if (nodeSet.getTitle() != null) {
-					setPartName("SICS Server [" + nodeSet.getTitle() + "]");
+					setPartName("Sics Model [" + nodeSet.getTitle() + "]");
 				} else {
-					setPartName("SICS Server [filtered]");
+					setPartName("Sics Model [filtered]");
 				}
 			} else {
-				setPartName("SICS Server");
+				setPartName("SICS Model");
 			}
 		}
 		viewer.createPartControl(parent, nodeSet);

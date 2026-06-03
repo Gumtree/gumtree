@@ -68,7 +68,7 @@ public class ControlExperimentPerspective implements IPerspectiveFactory {
 //				top2.addView(CONTROL_TABLE_VIEW_ID);
 		
 		
-		factory.addStandaloneView(CONTROL_TABLE_VIEW_ID, false, IPageLayout.RIGHT, 0.70f, factory.getEditorArea());
+//		factory.addStandaloneView(CONTROL_TABLE_VIEW_ID, false, IPageLayout.RIGHT, 0.70f, factory.getEditorArea());
 
 		factory.addStandaloneView(CONTROL_BATCH_RUNNER_VIEW_ID, false, IPageLayout.RIGHT, 0.55f, factory.getEditorArea());
 
@@ -76,8 +76,8 @@ public class ControlExperimentPerspective implements IPerspectiveFactory {
 		factory.getViewLayout(CONTROL_TERMINAL_VIEW_ID).setMoveable(false);
 		factory.getViewLayout(CONTROL_BATCH_RUNNER_VIEW_ID).setCloseable(false);
 		factory.getViewLayout(CONTROL_BATCH_RUNNER_VIEW_ID).setMoveable(false);
-		factory.getViewLayout(CONTROL_TABLE_VIEW_ID).setCloseable(false);
-		factory.getViewLayout(CONTROL_TABLE_VIEW_ID).setMoveable(false);
+//		factory.getViewLayout(CONTROL_TABLE_VIEW_ID).setCloseable(false);
+//		factory.getViewLayout(CONTROL_TABLE_VIEW_ID).setMoveable(false);
 //		factory.getViewLayout("bottomLeft").setMoveable(false);
 //		factory.getViewLayout("bottomLeft").setCloseable(false);
 //		factory.getViewLayout("right").setMoveable(false);

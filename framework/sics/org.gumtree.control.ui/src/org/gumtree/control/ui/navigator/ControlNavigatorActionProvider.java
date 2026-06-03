@@ -21,6 +21,7 @@ import org.eclipse.ui.navigator.CommonActionProvider;
 import org.eclipse.ui.navigator.ICommonActionConstants;
 import org.eclipse.ui.navigator.ICommonActionExtensionSite;
 import org.eclipse.ui.navigator.ICommonMenuConstants;
+import org.gumtree.control.ui.editors.ControlModelEditorInput;
 import org.gumtree.control.ui.internal.Activator;
 import org.gumtree.control.ui.internal.SicsUIProperties;
 import org.gumtree.control.ui.viewer.model.INodeSet;
@@ -93,8 +94,8 @@ public class ControlNavigatorActionProvider extends CommonActionProvider {
 	@Override
 	public void init(ICommonActionExtensionSite site) {
 		viewer = site.getStructuredViewer();
-		openDefaultEditorAction = createOpenEditorAction("Full SICS Control", viewer, null);
-		openTerminalAction = new Action("SICS Control Terminal",
+		openDefaultEditorAction = createOpenEditorAction("Open New SICS Model", viewer, null);
+		openTerminalAction = new Action("Show SICS Control Terminal",
 				Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/terminal.png")) {
 			public void run() {
 				try {
@@ -121,7 +122,7 @@ public class ControlNavigatorActionProvider extends CommonActionProvider {
 			public void run() {
 				try {
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-							.openEditor(new org.gumtree.control.ui.editors.SicsControlEditorInput(null, nodeSet),
+							.openEditor(new ControlModelEditorInput(null, nodeSet),
 									InstrumentContentProvider.ID_EDITOR);
 				} catch (Exception e) {
 					logger.error("Cannot open SICS control editor", e);

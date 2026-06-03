@@ -8,17 +8,17 @@ import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.ui.internal.Activator;
 import org.gumtree.control.ui.viewer.model.INodeSet;
 
-public class SicsControlEditorInput implements IEditorInput {
+public class ControlModelEditorInput implements IEditorInput {
 
 	private ISicsController controller;
 
 	private INodeSet nodeSet;
 
-	public SicsControlEditorInput(ISicsController controller) {
+	public ControlModelEditorInput(ISicsController controller) {
 		this(controller, null);
 	}
 
-	public SicsControlEditorInput(ISicsController controller, INodeSet nodeSet) {
+	public ControlModelEditorInput(ISicsController controller, INodeSet nodeSet) {
 		this.controller = controller;
 		this.nodeSet = nodeSet;
 	}

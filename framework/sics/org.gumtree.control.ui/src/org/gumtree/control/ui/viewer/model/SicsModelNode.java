@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class SicsModelNode extends TreeNode implements ISicsTreeNode {
 
-	private static final String LABEL_SICS = "SIC Server";
+	private static final String LABEL_SICS = "SICS Instrument";
 
 	private static Image imageServer;
 

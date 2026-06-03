@@ -6,6 +6,7 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -14,15 +15,15 @@ import org.eclipse.ui.intro.IIntroPart;
 import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
-import org.gumtree.control.ui.editors.SicsControlEditorInput;
+import org.gumtree.control.ui.editors.ControlModelEditorInput;
 import org.gumtree.control.ui.viewer.model.SicsModelNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class InstrumentContentProvider implements ITreeContentProvider {
 
-	static final String ID_EDITOR = "org.gumtree.control.ui.editors.SicsControlEditor";
-	private static final String PROP_OPEN_EDITOR_PAGE = "gumtree.sics.controlEditorPageID";
+	static final String ID_EDITOR = "org.gumtree.control.ui.editors.ControlModelEditor";
+	private static final String PROP_OPEN_EDITOR_PAGE = "gumtree.sics.controlModelEditorPageID";
 
 	private static Object[] EMPTY_ARRAY = new Object[0];
 
@@ -109,7 +110,11 @@ public class InstrumentContentProvider implements ITreeContentProvider {
 							IWorkbenchPage page = findPage(pageId);
 							IIntroPart introPart = PlatformUI.getWorkbench().getIntroManager().getIntro();
 							boolean wasStandby = PlatformUI.getWorkbench().getIntroManager().isIntroStandby(introPart);
-							page.openEditor(new SicsControlEditorInput(null), ID_EDITOR);
+							IEditorReference[] editors = page.findEditors(null, ID_EDITOR, IWorkbenchPage.MATCH_ID);
+							for (IEditorReference reference : editors) {
+								page.closeEditor(reference.getEditor(false), false);
+							}
+							page.openEditor(new ControlModelEditorInput(null), ID_EDITOR);
 							if (introPart != null && !wasStandby) {
 								PlatformUI.getWorkbench().getIntroManager().setIntroStandby(introPart, false);
 							}

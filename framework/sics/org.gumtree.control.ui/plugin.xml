@@ -5,10 +5,10 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="org.gumtree.control.ui.editors.SicsControlEditor"
+            class="org.gumtree.control.ui.editors.ControlModelEditor"
             icon="icons/full/obj16/server.gif"
-            id="org.gumtree.control.ui.editors.SicsControlEditor"
-            name="SICS Control Editor">
+            id="org.gumtree.control.ui.editors.ControlModelEditor"
+            name="Control Model Editor">
       </editor>
    </extension>
    <extension
@@ -70,6 +70,7 @@
          <enablement>
             <or>
                <instanceof value="org.eclipse.core.resources.IWorkspaceRoot"/>
+               <instanceof value="org.gumtree.control.ui.viewer.model.ISicsTreeNode"/>
             </or>
          </enablement>
          <actionProvider
