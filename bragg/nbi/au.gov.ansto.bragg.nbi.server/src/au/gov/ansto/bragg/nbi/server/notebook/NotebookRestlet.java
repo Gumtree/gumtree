@@ -18,6 +18,8 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.io.IOUtils;
 import org.gumtree.core.object.IDisposable;
@@ -166,6 +168,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private String daeLogin;
 	private String daePassword;
 	private GitService gitService;
+	private ExecutorService gitExecutor;
 	private String[] allowedDavIps;
 	private String[] allowedIcsIps;
 	
@@ -203,6 +206,11 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		String gitPath = System.getProperty(PROPERTY_NOTEBOOK_REPOSITORY_PATH);
 		if (gitPath != null) {
 			gitService = new GitService(gitPath);
+			gitExecutor = Executors.newSingleThreadExecutor(r -> {
+				Thread t = new Thread(r, "notebook-git-worker");
+				t.setDaemon(true);
+				return t;
+			});
 		}
 		String ips = System.getProperty(PROPERTY_NOTEBOOK_DAVIP);
 		if (ips != null) {
@@ -228,6 +236,9 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		sessionDb = null;
 		controlDb = null;
 		proposalDb = null;
+		if (gitExecutor != null) {
+			gitExecutor.shutdown();
+		}
 	}
 	
 	private UserSessionObject checkDavSession(Request request) {
@@ -429,24 +440,27 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						try {
 							writer.close();
 						} catch (IOException e) {
-							e.printStackTrace();
+							logger.error("Failed to close file writer: " + e.getMessage());
 						}
 					}
 				}
 				if (gitService != null) {
-					try {
-						gitService.applyChange();
-						gitService.commit(pageName + ":" + System.currentTimeMillis());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+					final String commitMessage = pageName + ":" + System.currentTimeMillis();
+					gitExecutor.submit(() -> {
+						try {
+							gitService.applyChange();
+							gitService.commit(commitMessage);
+						} catch (Exception e) {
+							logger.error("Failed to commit notebook change to git repository: " + e.getMessage());
+						}
+					});
 				}
 				JSONObject jsonObject = new JSONObject();
 				try {
 					jsonObject.put("status", "OK");
 					response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
 				} catch (JSONException e) {
-					e.printStackTrace();
+					logger.error("Failed to create JSON response: " + e.getMessage());
 				}
 			} else if (QUERY_PAGE_ID.equals(seg)) {
 				Form queryForm = request.getResourceRef().getQueryAsForm();
