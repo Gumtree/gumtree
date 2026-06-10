@@ -206,10 +206,13 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		String gitPath = System.getProperty(PROPERTY_NOTEBOOK_REPOSITORY_PATH);
 		if (gitPath != null) {
 			gitService = new GitService(gitPath);
-			gitExecutor = Executors.newSingleThreadExecutor(r -> {
-				Thread t = new Thread(r, "notebook-git-worker");
-				t.setDaemon(true);
-				return t;
+			gitExecutor = Executors.newSingleThreadExecutor(new java.util.concurrent.ThreadFactory() {
+				@Override
+				public Thread newThread(Runnable r) {
+					Thread t = new Thread(r, "notebook-git-worker");
+					t.setDaemon(true);
+					return t;
+				}
 			});
 		}
 		String ips = System.getProperty(PROPERTY_NOTEBOOK_DAVIP);
@@ -446,12 +449,15 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 				}
 				if (gitService != null) {
 					final String commitMessage = pageName + ":" + System.currentTimeMillis();
-					gitExecutor.submit(() -> {
-						try {
-							gitService.applyChange();
-							gitService.commit(commitMessage);
-						} catch (Exception e) {
-							logger.error("Failed to commit notebook change to git repository: " + e.getMessage());
+					gitExecutor.execute(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								gitService.applyChange();
+								gitService.commit(commitMessage);
+							} catch (Exception e) {
+								logger.error("Failed to commit notebook change to git repository: " + e.getMessage());
+							}
 						}
 					});
 				}
