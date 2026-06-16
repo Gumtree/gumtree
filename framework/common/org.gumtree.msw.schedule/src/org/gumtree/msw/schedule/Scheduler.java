@@ -962,8 +962,14 @@ public class Scheduler {
 		
 		// helper
 		private ScheduleStep createScheduleStep(ScheduledAspect aspect, ScheduledNode node, boolean isEnabled) {
-			isEnabled &= node.isEnabled();
-			
+			// [ISSUE-001] A node may be hidden from the acquisition tree (its source
+			// element is disabled, isThisVisible() == false) while still carrying a
+			// stale node-local enabled override (isEnabled() == true). The walk must
+			// not run such nodes. isEnabled is folded down the traversal stack, so
+			// AND-ing isThisVisible() here also disables branches under a hidden
+			// ancestor.
+			isEnabled &= node.isEnabled() && node.isThisVisible();
+
 			stack.push(new StackItem(aspect, node, isEnabled));
 			node.lockProperties();
 
