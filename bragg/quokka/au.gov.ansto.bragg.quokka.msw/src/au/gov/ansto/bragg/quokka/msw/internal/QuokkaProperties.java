@@ -65,7 +65,11 @@ public final class QuokkaProperties {
 				"tc1 loop1:sics.drive(\"/sample/tc1/Loop1/setpoint\", value);" +
 				"tc3:sics.drive(\"/sample/tc3/sensor/setpoint1\", value);" +
 				"watlow_rm:sics.drive(\"/sample/watlow_rm/setpoint\", value);" +
-				"xcs:sics.drive(\"/sample/xcs/humidity\", value)");
+				"xcs:sics.drive(\"/sample/xcs/humidity\", value);" +
+				"Meerstetter all channels:sics.drive_all_ms(value);" +
+				"Meerstetter bundled channels:sics.drive_ms_bundle(name, value);" +
+				"Meerstetter channels:sics.drive_ms(id_as_int_or_list, value);" +
+				"");
 
 		String[] environments = property.split(";");
 		Map<String, String> map = new HashMap<>(environments.length);
