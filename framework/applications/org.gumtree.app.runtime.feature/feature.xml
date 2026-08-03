@@ -77,4 +77,12 @@
          id="org.apache.commons.commons-beanutils"
          version="0.0.0"/>
 
+   <plugin
+         id="org.osgi.service.event"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.felix.scr"
+         version="0.0.0"/>
+
 </feature>
