@@ -49,4 +49,8 @@
          id="org.eclipse.team.core"
          version="0.0.0"/>
 
+   <plugin
+         id="org.osgi.service.http.whiteboard"
+         version="0.0.0"/>
+
 </feature>

@@ -362,4 +362,8 @@
          id="org.apache.xerces"
          version="0.0.0"/>
 
+   <plugin
+         id="org.objectweb.asm"
+         version="0.0.0"/>
+
 </feature>

@@ -110,4 +110,8 @@
          id="org.eclipse.jgit.ssh.apache"
          version="0.0.0"/>
 
+   <plugin
+         id="org.apache.sshd.osgi"
+         version="0.0.0"/>
+
 </feature>
