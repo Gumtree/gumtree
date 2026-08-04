@@ -93,4 +93,8 @@
          id="org.eclipse.jetty.session"
          version="0.0.0"/>
 
+   <plugin
+         id="org.apache.sshd.osgi"
+         version="0.0.0"/>
+
 </feature>
