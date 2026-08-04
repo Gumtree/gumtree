@@ -366,4 +366,12 @@
          id="org.objectweb.asm"
          version="0.0.0"/>
 
+   <plugin
+         id="org.objectweb.asm.commons"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.objectweb.asm.util"
+         version="0.0.0"/>
+
 </feature>
