@@ -17,6 +17,10 @@
       [Enter License Description here.]
    </license>
 
+   <includes
+         id="org.gumtree.app.osgi.feature"
+         version="0.0.0"/>
+
    <plugin
          id="org.eclipse.osgi"
          version="0.0.0"/>
@@ -372,6 +376,14 @@
 
    <plugin
          id="org.objectweb.asm.util"
+         version="0.0.0"/>
+
+   <plugin
+         id="jakarta.inject.jakarta.inject-api"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.http.service.api"
          version="0.0.0"/>
 
 </feature>
