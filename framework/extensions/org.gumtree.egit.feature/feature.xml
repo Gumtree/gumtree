@@ -48,4 +48,8 @@
          id="com.googlecode.javaewah.JavaEWAH"
          version="0.0.0"/>
 
+   <plugin
+         id="bcprov"
+         version="0.0.0"/>
+
 </feature>

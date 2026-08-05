@@ -386,4 +386,8 @@
          id="org.eclipse.equinox.http.service.api"
          version="0.0.0"/>
 
+   <plugin
+         id="jakarta.annotation-api"
+         version="0.0.0"/>
+
 </feature>
