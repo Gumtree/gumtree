@@ -52,4 +52,8 @@
          id="bcprov"
          version="0.0.0"/>
 
+   <plugin
+         id="org.apache.sshd.sftp"
+         version="0.0.0"/>
+
 </feature>
