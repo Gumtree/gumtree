@@ -390,4 +390,8 @@
          id="jakarta.annotation-api"
          version="0.0.0"/>
 
+   <plugin
+         id="org.apache.commons.commons-compress"
+         version="0.0.0"/>
+
 </feature>
