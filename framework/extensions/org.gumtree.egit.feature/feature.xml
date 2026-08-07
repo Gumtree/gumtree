@@ -64,4 +64,16 @@
          id="org.tukaani.xz"
          version="0.0.0"/>
 
+   <plugin
+         id="bcutil"
+         version="0.0.0"/>
+
+   <plugin
+         id="bcpkix"
+         version="0.0.0"/>
+
+   <plugin
+         id="bcpg"
+         version="0.0.0"/>
+
 </feature>
