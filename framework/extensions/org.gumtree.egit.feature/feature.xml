@@ -76,4 +76,16 @@
          id="bcpg"
          version="0.0.0"/>
 
+   <plugin
+         id="org.eclipse.jgit.lfs"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.jgit.ssh.apache"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.jgit.http.apache"
+         version="0.0.0"/>
+
 </feature>
