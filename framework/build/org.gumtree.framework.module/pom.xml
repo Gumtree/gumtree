@@ -28,7 +28,7 @@
 		<!-- module>${common.path}/org.yaml.snakeyaml</module -->
 		
 		<module>${common.path}/com.db4o.osgi</module>
-		<module>${common.path}/com.google.gson</module>
+		<!-- module>${common.path}/com.google.gson</module -->
 		<module>${common.path}/com.google.guava</module>
 		<!-- module>${common.path}/com.thoughtworks.xstream</module -->
 		<!-- module>${common.path}/org.eclemma.runtime.equinox</module -->
