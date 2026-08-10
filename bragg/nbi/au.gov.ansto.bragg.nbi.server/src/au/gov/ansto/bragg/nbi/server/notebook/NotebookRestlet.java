@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.gumtree.core.object.IDisposable;
@@ -172,6 +174,8 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private String[] allowedDavIps;
 	private String[] allowedIcsIps;
 	
+    private static final Pattern IMAGE_ID_PATTERN = Pattern.compile("\\d+\\.png");
+
 	static {
 		instrumentId = System.getProperty(PROP_INSTRUMENT_ID);
 		currentFileFolder = System.getProperty(PROP_NOTEBOOK_SAVEPATH);
@@ -420,8 +424,10 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						return;
 					} 
 				}
+				String text = null;
+				final String filename = pageName + ".xml";
 				try {
-					String text = rep.getText();
+					text = rep.getText();
 					if (text == null || text.trim() == "") {
 						throw new Exception("Text can't be empty. Please add some content and try again.");
 					}
@@ -432,7 +438,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						text = text.substring(start, stop);
 						text = URLDecoder.decode(text, "UTF-8");
 					}
-					writer = new FileWriter(currentFileFolder + "/" + pageName + ".xml");
+					writer = new FileWriter(currentFileFolder + "/" + filename);
 					writer.write(text);
 					writer.flush();
 				} catch (Exception e1) {
@@ -447,17 +453,42 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						}
 					}
 				}
+				final String textCopy = text;
 				if (gitService != null) {
 					final String commitMessage = pageName + ":" + System.currentTimeMillis();
 					gitExecutor.execute(new Runnable() {
+						
 						@Override
 						public void run() {
 							try {
-								gitService.applyChange();
+								long ct = System.currentTimeMillis();
+//								gitService.applyChange();
+								List<String> filenames = getChangedFilenames(filename, textCopy);
+								long nt = System.currentTimeMillis();
+								logger.error(String.format("find change: %d ms", nt - ct));
+								ct = nt;
+								gitService.addFilenames(filenames);
+								nt = System.currentTimeMillis();
+								logger.error(String.format("apply change: %d ms", nt - ct));
+								ct = nt;
 								gitService.commit(commitMessage);
+								logger.error(String.format("commit: %d ms", System.currentTimeMillis() - ct));
 							} catch (Exception e) {
 								logger.error("Failed to commit notebook change to git repository: " + e.getMessage());
 							}
+						}
+
+						private List<String> getChangedFilenames(final String filename, final String text) {
+							List<String> filenames = new ArrayList<String>();
+							filenames.add(filename);
+					        if (text == null) {
+					            return filenames;
+					        }
+					        Matcher matcher = IMAGE_ID_PATTERN.matcher(text);
+					        while (matcher.find()) {
+					            filenames.add("images/" + matcher.group());
+					        }
+							return filenames;
 						}
 					});
 				}
