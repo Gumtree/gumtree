@@ -187,8 +187,9 @@ def multiDrive(entries):
 def multi_drive(entries, timeout = 900):
     cmd = "drive "
     for key in entries.keys():
-        cmd += key + " " + str(entries[key])
+        cmd += key + " " + str(entries[key]) + " "
 #     run_command_timeout(cmd)
+    print(cmd)
     res = run_command_timeout(cmd, True, timeout)
     if not res is None and res.find('Full Stop') >= 0:
         raise Exception, res
