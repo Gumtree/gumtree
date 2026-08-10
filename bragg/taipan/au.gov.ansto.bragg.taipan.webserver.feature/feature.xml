@@ -27,43 +27,22 @@
 
    <plugin
          id="au.gov.ansto.bragg.taipan.webserver"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="au.gov.ansto.bragg.taipan.server"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.gumtree.vis.nexus"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.gumtree.vis.gdm"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.jface"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.swt"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
 </feature>
