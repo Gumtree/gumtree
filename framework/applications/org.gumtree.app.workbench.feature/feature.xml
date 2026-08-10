@@ -61,4 +61,8 @@
          id="org.eclipse.pde.runtime"
          version="0.0.0"/>
 
+   <plugin
+         id="com.sun.el.javax.el"
+         version="0.0.0"/>
+
 </feature>
