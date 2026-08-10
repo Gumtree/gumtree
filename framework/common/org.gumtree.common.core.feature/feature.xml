@@ -398,4 +398,8 @@
          id="org.hamcrest"
          version="0.0.0"/>
 
+   <plugin
+         id="jaxen"
+         version="0.0.0"/>
+
 </feature>
