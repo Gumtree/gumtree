@@ -402,4 +402,12 @@
          id="jaxen"
          version="0.0.0"/>
 
+   <plugin
+         id="org.objectweb.asm.tree"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.objectweb.asm.tree.analysis"
+         version="0.0.0"/>
+
 </feature>
