@@ -65,4 +65,12 @@
          id="com.sun.el.javax.el"
          version="0.0.0"/>
 
+   <plugin
+         id="org.mortbay.jasper.apache-jsp"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.mortbay.jasper.apache-el"
+         version="0.0.0"/>
+
 </feature>
