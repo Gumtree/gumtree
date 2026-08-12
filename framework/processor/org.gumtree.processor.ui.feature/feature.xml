@@ -61,4 +61,8 @@
          id="org.eclipse.orbit.xml-apis-ext"
          version="0.0.0"/>
 
+   <plugin
+         id="org.apache.commons.io"
+         version="0.0.0"/>
+
 </feature>
