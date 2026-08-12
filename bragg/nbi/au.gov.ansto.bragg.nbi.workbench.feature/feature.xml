@@ -61,4 +61,12 @@
          id="ninia.jep"
          version="0.0.0"/>
 
+   <plugin
+         id="org.apache.commons.io"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.jdt.core.compiler.batch"
+         version="0.0.0"/>
+
 </feature>
