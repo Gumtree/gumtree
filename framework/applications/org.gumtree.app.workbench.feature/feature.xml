@@ -86,7 +86,15 @@
          version="0.0.0"/>
 
    <plugin
-         id="org.apache.commons.io"
+         id="org.eclipse.jdt.core.compiler.batch"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.ibm.icu"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.commons-io"
          version="0.0.0"/>
 
 </feature>
