@@ -105,4 +105,16 @@
          id="org.commonmark-gfm-tables"
          version="0.0.0"/>
 
+   <plugin
+         id="biz.aQute.bndlib"
+         version="0.0.0"/>
+
+   <plugin
+         id="biz.aQute.bnd.util"
+         version="0.0.0"/>
+
+   <plugin
+         id="aQute.libg"
+         version="0.0.0"/>
+
 </feature>
