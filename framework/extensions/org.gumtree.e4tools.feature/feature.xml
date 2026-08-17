@@ -105,4 +105,20 @@
          id="aQute.libg"
          version="0.0.0"/>
 
+   <plugin
+         id="org.osgi.service.coordinator"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.osgi.service.repository"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.osgi.util.promise"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.osgi.util.function"
+         version="0.0.0"/>
+
 </feature>
