@@ -23,98 +23,66 @@
 
    <plugin
          id="org.eclipse.pde.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.pde.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.emf.databinding"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.emf.databinding.edit"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.pde.build"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.eclipse.ant.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.jdt.debug.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.jdt.junit"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.pde.launching"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.ui.views.log"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.ant.launching"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.jdt.junit.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.jdt.junit.runtime"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.junit"
-         download-size="0"
-         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.sat4j.core"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.sat4j.pb"
          version="0.0.0"/>
 
 </feature>
