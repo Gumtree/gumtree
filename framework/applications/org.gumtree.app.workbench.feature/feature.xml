@@ -149,4 +149,12 @@
          id="org.bndtools.headless.build.plugin.gradle"
          version="0.0.0"/>
 
+   <plugin
+         id="biz.aQute.repository"
+         version="0.0.0"/>
+
+   <plugin
+         id="biz.aQute.resolve"
+         version="0.0.0"/>
+
 </feature>

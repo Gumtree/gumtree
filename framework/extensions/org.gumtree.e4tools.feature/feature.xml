@@ -157,4 +157,8 @@
          id="org.osgi.namespace.service"
          version="0.0.0"/>
 
+   <plugin
+         id="biz.aQute.resolve"
+         version="0.0.0"/>
+
 </feature>
