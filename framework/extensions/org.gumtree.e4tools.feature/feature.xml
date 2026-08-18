@@ -217,4 +217,12 @@
          id="junit-vintage-engine"
          version="0.0.0"/>
 
+   <plugin
+         id="junit-jupiter-migrationsupport"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.hamcrest"
+         version="0.0.0"/>
+
 </feature>
