@@ -165,4 +165,32 @@
          id="biz.aQute.resolve"
          version="0.0.0"/>
 
+   <plugin
+         id="junit-jupiter-api"
+         version="0.0.0"/>
+
+   <plugin
+         id="junit-platform-commons"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apiguardian.api"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.opentest4j"
+         version="0.0.0"/>
+
+   <plugin
+         id="junit-jupiter-engine"
+         version="0.0.0"/>
+
+   <plugin
+         id="junit-jupiter-params"
+         version="0.0.0"/>
+
+   <plugin
+         id="junit-platform-engine"
+         version="0.0.0"/>
+
 </feature>
