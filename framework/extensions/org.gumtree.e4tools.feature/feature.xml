@@ -145,4 +145,16 @@
          id="org.bndtools.versioncontrol.ignores.manager"
          version="0.0.0"/>
 
+   <plugin
+         id="org.osgi.namespace.contract"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.osgi.namespace.extender"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.osgi.namespace.service"
+         version="0.0.0"/>
+
 </feature>
