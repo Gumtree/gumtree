@@ -137,4 +137,12 @@
          id="org.bndtools.headless.build.manager"
          version="0.0.0"/>
 
+   <plugin
+         id="org.bndtools.templating"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.bndtools.versioncontrol.ignores.manager"
+         version="0.0.0"/>
+
 </feature>
