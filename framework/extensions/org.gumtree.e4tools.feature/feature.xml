@@ -193,4 +193,28 @@
          id="junit-platform-engine"
          version="0.0.0"/>
 
+   <plugin
+         id="junit-platform-launcher"
+         version="0.0.0"/>
+
+   <plugin
+         id="junit-platform-runner"
+         version="0.0.0"/>
+
+   <plugin
+         id="junit-platform-suite-api"
+         version="0.0.0"/>
+
+   <plugin
+         id="junit-platform-suite-commons"
+         version="0.0.0"/>
+
+   <plugin
+         id="junit-platform-suite-engine"
+         version="0.0.0"/>
+
+   <plugin
+         id="junit-vintage-engine"
+         version="0.0.0"/>
+
 </feature>
