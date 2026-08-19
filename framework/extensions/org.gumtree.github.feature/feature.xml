@@ -169,4 +169,60 @@
          id="javax.activation"
          version="0.0.0"/>
 
+   <plugin
+         id="org.apache.xmlrpc.common"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.httpclient"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.xmlrpc.client"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.commons-codec"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.commons-logging"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.jetty.servlet-api"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.log4j"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.logging.log4j.api"
+         version="0.0.0"/>
+
+   <plugin
+         id="slf4j.api"
+         version="0.0.0"/>
+
+   <plugin
+         id="javax.mail-api"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.xtext.logging"
+         version="0.0.0"/>
+
+   <plugin
+         id="javax.mail"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.ws.commons.util"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.glassfish.hk2.osgi-resource-locator"
+         version="0.0.0"/>
+
 </feature>
