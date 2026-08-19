@@ -49,6 +49,22 @@
          id="org.eclipse.jgit.ssh.apache"
          version="0.0.0"/>
 
+   <includes
+         id="org.eclipse.mylyn.commons.identity.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.mylyn.commons.notifications.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.mylyn.commons.repositories.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.mylyn.monitor.feature"
+         version="0.0.0"/>
+
    <plugin
          id="org.eclipse.mylyn.commons.net"
          version="0.0.0"/>
