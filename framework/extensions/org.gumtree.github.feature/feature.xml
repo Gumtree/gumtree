@@ -129,4 +129,12 @@
          id="org.eclipse.mylyn.commons.ui"
          version="0.0.0"/>
 
+   <plugin
+         id="org.eclipse.mylyn.monitor.ui"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.mylyn.commons.screenshots"
+         version="0.0.0"/>
+
 </feature>
