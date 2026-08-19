@@ -105,4 +105,28 @@
          id="org.apache.commons.lang3"
          version="0.0.0"/>
 
+   <plugin
+         id="org.eclipse.mylyn.commons.core"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.mylyn.monitor.core"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.commons.commons-io"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.ibm.icu"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.mylyn.commons.workbench"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.mylyn.commons.ui"
+         version="0.0.0"/>
+
 </feature>
