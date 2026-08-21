@@ -206,10 +206,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="javax.mail-api"
-         version="0.0.0"/>
-
-   <plugin
          id="org.eclipse.xtext.logging"
          version="0.0.0"/>
 
