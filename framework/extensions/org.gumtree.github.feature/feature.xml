@@ -321,4 +321,20 @@
          id="org.eclipse.equinox.p2.discovery.compatibility"
          version="0.0.0"/>
 
+   <plugin
+         id="net.bytebuddy.byte-buddy-agent"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.sun.jna"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.sun.jna.platform"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.tika.core"
+         version="0.0.0"/>
+
 </feature>
