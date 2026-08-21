@@ -157,4 +157,32 @@
          id="biz.aQute.resolve"
          version="0.0.0"/>
 
+   <plugin
+         id="org.apache.xmlrpc.common"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.xmlrpc.client"
+         version="0.0.0"/>
+
+   <plugin
+         id="jakarta.xml.bind"
+         version="0.0.0"/>
+
+   <plugin
+         id="javax.activation"
+         version="0.0.0"/>
+
+   <plugin
+         id="javax.xml.jre"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.glassfish.hk2.osgi-resource-locator"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.ws.commons.util"
+         version="0.0.0"/>
+
 </feature>
