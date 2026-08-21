@@ -196,7 +196,7 @@
 		<attribute name="ws" />
 		<attribute name="arch" />
 		<sequential>
-			<java fork="true" jar="${equinoxJarLocation}">
+			<java fork="true" jar="${equinoxJarLocation}" failonerror="false">
 				<arg line="-application org.eclipse.equinox.p2.director" />
 				<arg line="-metadataRepository &quot;file:/${exportDirectory}/repository&quot;" />
 				<arg line="-artifactRepository &quot;file:/${exportDirectory}/repository&quot;" />
