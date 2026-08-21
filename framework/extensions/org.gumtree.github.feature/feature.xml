@@ -221,4 +221,44 @@
          id="org.glassfish.hk2.osgi-resource-locator"
          version="0.0.0"/>
 
+   <plugin
+         id="org.apache.lucene.queryparser"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.lucene.core"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.lucene.queries"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.lucene.sandbox"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.lucene.facet"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.lucene.analysis-common"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.mylyn.tasks.core"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.xerces"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.xml.resolver"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.mylyn.commons.repositories.core"
+         version="0.0.0"/>
+
 </feature>
