@@ -200,4 +200,8 @@
          arch="x86_64"
          version="0.0.0"/>
 
+   <plugin
+         id="org.eclipse.xwt"
+         version="0.0.0"/>
+
 </feature>
