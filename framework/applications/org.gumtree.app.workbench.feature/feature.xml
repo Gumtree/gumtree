@@ -69,6 +69,14 @@
          id="org.eclipse.ecf.filetransfer.httpclient5.feature"
          version="0.0.0"/>
 
+   <includes
+         id="org.eclipse.wst.common_ui.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.wst.xml_userdoc.feature"
+         version="0.0.0"/>
+
    <plugin
          id="org.gumtree.app.workbench"
          version="0.0.0"/>
