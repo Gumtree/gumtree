@@ -217,4 +217,8 @@
          id="org.apache.ws.commons.util"
          version="0.0.0"/>
 
+   <plugin
+         id="org.eclipse.wst.server.discovery"
+         version="0.0.0"/>
+
 </feature>
