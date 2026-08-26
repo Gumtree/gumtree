@@ -78,13 +78,15 @@ public class OsgiPackageLoader {
 										props));
 					}
 					if (javaFile.getName().endsWith(".jar")) {
-						logger.info("Loading {} from bundle {}",
+						// Debug: this fires once per classpath entry of every bundle
+						logger.debug("Loading {} from bundle {}",
 								javaFile.getName(), bundle.getSymbolicName());
 						// PySystemState is not initialised!!!
 						PySystemState.packageManager.addJar(
 								javaFile.getAbsolutePath(), true);
 					} else {
-						logger.info("Loading directory {} from bundle {}",
+						// Debug: this fires once per .class file in the source tree
+						logger.debug("Loading directory {} from bundle {}",
 								javaFile, bundle.getSymbolicName());
 						PySystemState.packageManager.addDirectory(javaFile);
 						// IDE mode
