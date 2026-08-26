@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.Platform;
 import org.gumtree.core.internal.Activator;
 import org.gumtree.core.service.ServiceUtils;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Constants;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 @SuppressWarnings({ "restriction", "deprecation" })
@@ -74,46 +75,65 @@ public final class OsgiUtils {
 		return new File(uri).getAbsolutePath();
 	}
 
+	/**
+	 * Returns the class path roots of a bundle: the bundle jar itself for a
+	 * jarred bundle, or the folders named by Bundle-ClassPath for a bundle
+	 * installed as a directory.
+	 * <p>
+	 * This must stay at the granularity of roots. Enumerating individual
+	 * *.class entries here (as this method used to do) forces
+	 * {@link FileLocator#toFileURL(URL)} to extract every class of every
+	 * installed bundle to the configuration area - close to 100,000 files for
+	 * a workbench product - which costs minutes on startup and defeats the
+	 * Jython package cache, since a jar is only cached when it is indexed as
+	 * a whole.
+	 */
 	public static File[] getBundleClasspaths(Bundle bundle) {
-		// Special case: system bundle
-//		if (bundle instanceof InternalSystemBundle) {
-//			return getBundleClasspaths((BaseData) ((InternalSystemBundle) bundle)
-//					.getBundleData());
-//		}
-//		if (bundle instanceof AbstractBundle) {
-//			return getBundleClasspaths((BaseData) ((AbstractBundle) bundle)
-//					.getBundleData());
-//		}
-		Enumeration<URL> entries = bundle.findEntries("/", "*.class", true);
-		if (entries != null) {
-			List<File> files = new ArrayList<File>();
-			while (entries.hasMoreElements()) {
-				try {
-					URL url = FileLocator.toFileURL(entries.nextElement());
-					files.add(new File(url.toURI()));
-				} catch (Exception e) {
+		File root = FileLocator.getBundleFileLocation(bundle).orElse(null);
+		if (root == null || !root.exists()) {
+			return EMPTY_FILE_ARRAY;
+		}
+		// A jarred bundle is one single root. Nested class path jars are not
+		// readable from outside the bundle jar and were never visible here.
+		if (root.isFile()) {
+			return new File[] { root };
+		}
+		List<File> files = new ArrayList<File>();
+		for (String entry : getBundleClasspathEntries(bundle)) {
+			if (".".equals(entry)) {
+				files.add(root);
+			} else {
+				File file = new File(root, entry);
+				if (file.exists()) {
+					files.add(file);
 				}
 			}
-			return files.toArray(new File[files.size()]);
 		}
-		return EMPTY_FILE_ARRAY;
+		if (files.isEmpty()) {
+			files.add(root);
+		}
+		return files.toArray(new File[files.size()]);
 	}
 
-//	private static File[] getBundleClasspaths(BaseData bundleData) {
-//		List<File> files = new ArrayList<File>();
-//		BundleFile bundleFile = bundleData.getBundleFile();
-//		if (bundleFile instanceof ZipBundleFile) {
-//			files.add(bundleFile.getBaseFile());
-//		} else if (bundleFile instanceof DirBundleFile) {
-//			try {
-//				for (String classpath : bundleData.getClassPath()) {
-//					files.add(new File(bundleFile.getBaseFile(), classpath));
-//				}
-//			} catch (BundleException e) {
-//			}
-//		}
-//		return files.toArray(new File[files.size()]);
-//	}
+	private static List<String> getBundleClasspathEntries(Bundle bundle) {
+		List<String> entries = new ArrayList<String>();
+		String header = bundle.getHeaders().get(Constants.BUNDLE_CLASSPATH);
+		if (header == null) {
+			entries.add(".");
+			return entries;
+		}
+		for (String entry : header.split(",")) {
+			// Drop any parameter, eg "lib/foo.jar;attribute=value"
+			entry = entry.split(";")[0].trim();
+			if (entry.length() > 0) {
+				entries.add(entry);
+			}
+		}
+		if (entries.isEmpty()) {
+			entries.add(".");
+		}
+		return entries;
+	}
 
 	public static URI[] findBundleResources(String manifestHeader) {
 		// Find and select the newest bundles that declare GumTree-Properties

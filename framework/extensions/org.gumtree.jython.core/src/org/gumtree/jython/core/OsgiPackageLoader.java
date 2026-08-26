@@ -81,11 +81,13 @@ public class OsgiPackageLoader {
 						// Debug: this fires once per classpath entry of every bundle
 						logger.debug("Loading {} from bundle {}",
 								javaFile.getName(), bundle.getSymbolicName());
-						// PySystemState is not initialised!!!
+						// Indexing the jar as a whole lets Jython cache the
+						// result under python.cachedir, so later launches skip
+						// the scan entirely.
 						PySystemState.packageManager.addJar(
 								javaFile.getAbsolutePath(), true);
 					} else {
-						// Debug: this fires once per .class file in the source tree
+						// Debug: this fires once per classpath entry of every bundle
 						logger.debug("Loading directory {} from bundle {}",
 								javaFile, bundle.getSymbolicName());
 						PySystemState.packageManager.addDirectory(javaFile);

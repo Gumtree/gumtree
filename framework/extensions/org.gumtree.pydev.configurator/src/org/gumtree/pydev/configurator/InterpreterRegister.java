@@ -1,10 +1,5 @@
 package org.gumtree.pydev.configurator;
 
-import static ch.lambdaj.Lambda.having;
-import static ch.lambdaj.Lambda.on;
-import static ch.lambdaj.Lambda.select;
-import static org.hamcrest.Matchers.endsWith;
-
 import java.io.File;
 import java.util.List;
 import java.util.Set;
@@ -93,19 +88,13 @@ public class InterpreterRegister implements IStartup {
 						addPath(libraries, bundle.getSymbolicName(),
 								javaFile.getAbsolutePath());
 					} else {
-						File binDir = new File(javaFile, "target");
-						if (binDir.exists()) {
-							// PyDev does not read from directory
-							// So the next best thing to do is to read from
-							// Maven produced jar
-							File file = (File) select(
-									binDir.listFiles(),
-									having(on(File.class).getName(),
-											endsWith("SNAPSHOT.jar"))).get(0);
+						// PyDev does not read from directory
+						// So the next best thing to do is to read from
+						// Maven produced jar
+						File jar = findSnapshotJar(new File(javaFile, "target"));
+						if (jar != null) {
 							addPath(libraries, bundle.getSymbolicName(),
-									file.getAbsolutePath());
-							// } else {
-							// addPath(libraries, javaFile.getAbsolutePath());
+									jar.getAbsolutePath());
 						}
 					}
 				}
@@ -117,6 +106,26 @@ public class InterpreterRegister implements IStartup {
 		} catch (Exception e) {
 			logger.error("Failed to register interpreter", e);
 		}
+	}
+
+	/**
+	 * Returns the Maven built jar in the given folder, or null when there is
+	 * none. Deliberately plain Java: the lambdaj equivalent this replaces went
+	 * through cglib, which cannot call ClassLoader.defineClass reflectively on
+	 * a module based JRE and died with InaccessibleObjectException - an Error
+	 * that escaped earlyStartup() and left PyDev unconfigured.
+	 */
+	private static File findSnapshotJar(File targetDir) {
+		File[] files = targetDir.listFiles();
+		if (files == null) {
+			return null;
+		}
+		for (File file : files) {
+			if (file.getName().endsWith("SNAPSHOT.jar")) {
+				return file;
+			}
+		}
+		return null;
 	}
 
 	private void addPath(List<String> libraries, String key, String path) {
