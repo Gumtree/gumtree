@@ -13,6 +13,7 @@ import javax.script.ScriptEngine;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.gumtree.scripting.IScriptBlock;
+import org.gumtree.scripting.IScriptExecutor;
 import org.gumtree.scripting.ObservableScriptContext;
 import org.gumtree.scripting.ScriptExecutor;
 import org.gumtree.scripting.ScriptExecutorEvent;
@@ -70,10 +71,13 @@ public class JythonExecutor {
 		synchronized (JythonRestlet.class) {
 			if (executor == null) {
 				executor = new ScriptExecutor("jython");
-				while (!executor.isInitialised()) {
-					try {
-						Thread.sleep(10);
-					} catch (InterruptedException e) { }
+				// Bounded: a failed engine creation used to leave this waiting forever,
+				// which deadlocks every thread touching this class
+				if (!executor.awaitInitialisation(IScriptExecutor.DEFAULT_INITIALISATION_TIMEOUT)) {
+					Throwable error = executor.getInitialisationError();
+					executor = null;
+					throw new IllegalStateException(
+							"Jython engine failed to initialise.", error);
 				}
 	    		final ScriptEngine engine = executor.getEngine();
 	    		
