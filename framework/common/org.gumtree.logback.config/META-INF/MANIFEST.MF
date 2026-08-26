@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gumtree Logback Configuration
+Bundle-SymbolicName: org.gumtree.logback.config
+Bundle-Version: 2.0.0.qualifier
+Fragment-Host: ch.qos.logback.classic;bundle-version="[1.5,2)"
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Bundle-Vendor: ANSTO
+Eclipse-BundleShape: jar

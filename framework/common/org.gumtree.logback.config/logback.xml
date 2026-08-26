@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Default Gumtree logging configuration.
+
+	This lives in a fragment of ch.qos.logback.classic so that logback finds it
+	on its own bundle classpath.  A rootfile copy only reaches the working
+	directory of an exported product, which left IDE/PDE launches falling back
+	to logback's BasicConfigurator (root=DEBUG, console only).
+
+	To override at a site, point -Dlogback.configurationFile at an absolute
+	path; an existing file wins over this one.
+-->
+<configuration>
+
+	<!-- Set by the product as -Dlogback.logFileLocation; the default keeps file
+	     logging working when the property is absent. -->
+	<property name="logDir" value="${logback.logFileLocation:-logs}" />
+
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${logDir}/gumtree.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${logDir}/gumtree.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<maxFileSize>50MB</maxFileSize>
+			<maxHistory>30</maxHistory>
+			<totalSizeCap>2GB</totalSizeCap>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- Indexes every bundle classpath entry into Jython during startup: at DEBUG
+	     it emits one line per .class file, tens of thousands of them.  Pinned so
+	     that raising the root level for debugging does not swamp the log. -->
+	<logger name="org.gumtree.jython.core.OsgiPackageLoader" level="INFO" />
+
+	<root level="INFO">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="FILE" />
+	</root>
+
+</configuration>

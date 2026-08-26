@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gumtree SLF4J Logback Provider Fragment
+Bundle-SymbolicName: org.gumtree.slf4j.logback
+Bundle-Version: 2.0.0.qualifier
+Fragment-Host: slf4j.api;bundle-version="[2.0.0,3.0.0)"
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Bundle-Vendor: ANSTO
+Import-Package: ch.qos.logback.classic.spi;version="[1.5,2)"
+Eclipse-BundleShape: jar
