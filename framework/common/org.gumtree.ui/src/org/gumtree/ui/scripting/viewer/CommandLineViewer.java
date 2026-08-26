@@ -194,11 +194,25 @@ public class CommandLineViewer extends AbstractPartControlProvider implements IC
 
 	public void setScriptExecutor(final IScriptExecutor executor) {
 		this.executor = executor;
-		// Wait for engine to be ready
-		while (!executor.isInitialised()) {
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) { }
+		// Wait for engine to be ready.  This runs on the UI thread, so it must be
+		// bounded: an engine that fails to initialise used to freeze the whole
+		// workbench here rather than reporting the failure.
+		if (!executor.awaitInitialisation(IScriptExecutor.DEFAULT_INITIALISATION_TIMEOUT)) {
+			final Throwable error = executor.getInitialisationError();
+			logger.error("Command line is unavailable because the scripting "
+					+ "engine failed to initialise.", error);
+			SafeUIRunner.asyncExec(new SafeRunnable() {
+				@Override
+				public void run() throws Exception {
+					println("Scripting engine failed to initialise, this command line is unavailable.",
+							Display.getDefault().getSystemColor(SWT.COLOR_RED), SWT.BOLD);
+					if (error != null) {
+						println(String.valueOf(error), Display.getDefault()
+								.getSystemColor(SWT.COLOR_RED), SWT.NORMAL);
+					}
+				}
+			});
+			return;
 		}
 		final ScriptEngine engine = executor.getEngine();
 		if (engine instanceof IObservableComponent) {

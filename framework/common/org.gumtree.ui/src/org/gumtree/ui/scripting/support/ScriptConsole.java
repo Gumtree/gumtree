@@ -693,12 +693,20 @@ public class ScriptConsole extends ExtendedComposite implements IScriptConsole {
 			return;
 		}
 
-		// Wait for engine to be ready
-		while (!executor.isInitialised()) {
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
+		// Wait for engine to be ready.  This runs on the UI thread, so it must be
+		// bounded: an engine that fails to initialise used to freeze the whole
+		// workbench here rather than reporting the failure.
+		if (!executor.awaitInitialisation(IScriptExecutor.DEFAULT_INITIALISATION_TIMEOUT)) {
+			Throwable error = executor.getInitialisationError();
+			logger.error("Script console is unavailable because the scripting "
+					+ "engine failed to initialise.", error);
+			println("Scripting engine failed to initialise, this console is unavailable.",
+					Display.getDefault().getSystemColor(SWT.COLOR_RED), SWT.BOLD);
+			if (error != null) {
+				println(String.valueOf(error), Display.getDefault()
+						.getSystemColor(SWT.COLOR_RED), SWT.NORMAL);
 			}
+			return;
 		}
 
 		// Bind engine output
