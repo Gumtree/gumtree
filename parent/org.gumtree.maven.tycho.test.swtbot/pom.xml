@@ -40,7 +40,7 @@
 							<autoStart>true</autoStart>
 						</bundle>
 						<bundle>
-							<id>org.eclipse.equinox.ds</id>
+							<id>org.apache.felix.scr</id>
 							<level>2</level>
 							<autoStart>true</autoStart>
 						</bundle>

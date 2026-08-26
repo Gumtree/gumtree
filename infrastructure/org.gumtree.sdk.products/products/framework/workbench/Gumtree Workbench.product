@@ -26,7 +26,7 @@ Eclipse Foundation http://www.eclipse.org/
 -Dorg.eclipse.update.reconcile=false
 -Dlogback.configurationFile=logback.xml
 -Dlogback.logFileLocation=logs
--Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime
+-Dgumtree.osgi.activateBundles=org.apache.felix.scr,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime
 -Dgumtree.runtime.configBundle=org.gumtree.app.workbench
 -Dsun.java2d.d3d=false
 -Xmx512m
@@ -70,6 +70,7 @@ Eclipse Foundation http://www.eclipse.org/
    <configurations>
       <plugin id="org.apache.aries.spifly.dynamic.bundle" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="org.apache.felix.scr" autoStart="true" startLevel="2" />
       <plugin id="org.gumtree.app.osgi" autoStart="true" startLevel="2" />
    </configurations>
 

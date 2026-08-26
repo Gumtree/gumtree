@@ -27,7 +27,7 @@ Eclipse Foundation http://www.eclipse.org/
 -Dlogback.configurationFile=logback.xml
 -Dlogback.logFileLocation=logs
 -Declipse.e4.inject.javax.disabled=true 
--Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime
+-Dgumtree.osgi.activateBundles=org.apache.felix.scr,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime
 -Dgumtree.runtime.configBundle=au.gov.ansto.bragg.nbi.workbench
 -Dgumtree.runtime.configEnv.instr=echidna
 -Dgumtree.runtime.configEnv.env=dev
@@ -77,6 +77,7 @@ Eclipse Foundation http://www.eclipse.org/
    <configurations>
       <plugin id="org.apache.aries.spifly.dynamic.bundle" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="org.apache.felix.scr" autoStart="true" startLevel="2" />
       <plugin id="org.gumtree.app.osgi" autoStart="true" startLevel="2" />
    </configurations>
 
