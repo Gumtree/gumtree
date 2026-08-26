@@ -11,6 +11,8 @@
 
 package org.gumtree.scripting.support;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -126,21 +128,52 @@ public class ScriptingManager implements IScriptingManager {
 	}
 
 	private ScriptEngine createDefaultEngine() {
-		// [GT-44] Use BeanShell if when the user defined engine is unavailable
-		ScriptEngineFactory defaultFactory = getScriptEngineManager().getEngineFactories().get(0);
-		if (defaultFactory != null) {
-			return defaultFactory.getScriptEngine();
-		} else {
-			throw new RuntimeException("Runtime does not contain many scripting engine.");
-		}
+		return findDefaultFactory().getScriptEngine();
 	}
-	
+
+	/**
+	 * Picks the factory to fall back on when no engine name has been configured.
+	 * <p>
+	 * ScriptEngineManager.getEngineFactories() only reports factories discovered
+	 * by the JDK ServiceLoader.  Factories contributed through the OSGi service
+	 * registry are bound with registerEngineName(), which does not add them to
+	 * that list, so it is empty here unless a bundle such as org.beanshell
+	 * [GT-44] is installed.  Since JDK 15 removed Nashorn the JDK itself no
+	 * longer supplies one either, so the factory cache has to be consulted
+	 * before giving up.
+	 */
+	private ScriptEngineFactory findDefaultFactory() {
+		// Also populates the factory cache
+		List<ScriptEngineFactory> discovered = getScriptEngineManager()
+				.getEngineFactories();
+		if (!discovered.isEmpty()) {
+			return discovered.get(0);
+		}
+		ScriptEngineFactory[] cached = getAllEngineFactories();
+		if (cached.length == 0) {
+			throw new IllegalStateException(
+					"Runtime does not contain any scripting engine.  Set "
+							+ CoreProperties.DEFAULT_ENGINE_NAME.getKey()
+							+ " to the engine to use, or install a scripting engine bundle.");
+		}
+		// Sorted so that the fallback is at least reproducible across restarts
+		Arrays.sort(cached, new Comparator<ScriptEngineFactory>() {
+			public int compare(ScriptEngineFactory f1, ScriptEngineFactory f2) {
+				return String.valueOf(f1.getEngineName()).compareTo(
+						String.valueOf(f2.getEngineName()));
+			}
+		});
+		return cached[0];
+	}
+
 	public String getDefaultEngineName() {
 		if (defaultEngineName == null) {
 			// The default value may not be correct, but this is the best guess
 			defaultEngineName = CoreProperties.DEFAULT_ENGINE_NAME.getValue();
 			if (defaultEngineName == null || defaultEngineName.isEmpty()) {
-				defaultEngineName = createDefaultEngine().getFactory().getEngineName();
+				// Read the name off the factory rather than createDefaultEngine(),
+				// which would build and discard a whole engine just to name it
+				defaultEngineName = findDefaultFactory().getEngineName();
 			}
 		}
 		return defaultEngineName;

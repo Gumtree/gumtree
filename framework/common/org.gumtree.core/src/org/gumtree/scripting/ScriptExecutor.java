@@ -51,8 +51,12 @@ public class ScriptExecutor implements IScriptExecutor {
 	
 	private String id;
 	
-	private boolean initialised = false;
-	
+	private volatile boolean initialised = false;
+
+	// Set when the initialisation task below fails.  Without it a failed engine
+	// creation would leave every waiter blocked on initialised forever.
+	private volatile Throwable initialisationError;
+
 	// Hopefully we can keep track of the engine state in this
 	// single thread environment
 	private volatile boolean isBusy = false;
@@ -72,12 +76,20 @@ public class ScriptExecutor implements IScriptExecutor {
 		executorService = Executors.newSingleThreadExecutor();
 		runTask(new Runnable() {
 			public void run() {
-				engine = getScriptingManager().createEngine(engineName);
-				if (engine.getContext() == null) {
-					engine.setContext(new ObservableScriptContext());
+				try {
+					engine = getScriptingManager().createEngine(engineName);
+					if (engine.getContext() == null) {
+						engine.setContext(new ObservableScriptContext());
+					}
+					engine.put(VAR_EXECUTOR, ScriptExecutor.this);
+					initialised = true;
+				} catch (Throwable e) {
+					// The exception would otherwise be swallowed by the future
+					initialisationError = e;
+					logger.error("Failed to create scripting engine "
+							+ (engineName == null || engineName.isEmpty() ? "(default)"
+									: engineName) + ".", e);
 				}
-				engine.put(VAR_EXECUTOR, ScriptExecutor.this);
-				initialised = true;
 			}
 		});
 	}
@@ -90,11 +102,18 @@ public class ScriptExecutor implements IScriptExecutor {
 		this.engine = engine;
 		runTask(new Runnable() {
 			public void run() {
-				if (engine.getContext() == null) {
-					engine.setContext(new ObservableScriptContext());
+				try {
+					if (engine.getContext() == null) {
+						engine.setContext(new ObservableScriptContext());
+					}
+					engine.put(VAR_EXECUTOR, ScriptExecutor.this);
+					initialised = true;
+				} catch (Throwable e) {
+					// The exception would otherwise be swallowed by the future
+					initialisationError = e;
+					logger.error("Failed to initialise scripting engine "
+							+ engine.getClass().getName() + ".", e);
 				}
-				engine.put(VAR_EXECUTOR, ScriptExecutor.this);
-				initialised = true;
 			}
 		});
 	}
@@ -106,7 +125,33 @@ public class ScriptExecutor implements IScriptExecutor {
 	public boolean isInitialised() {
 		return initialised;
 	}
-	
+
+	public Throwable getInitialisationError() {
+		return initialisationError;
+	}
+
+	public boolean awaitInitialisation(long timeoutMillis) {
+		long deadline = System.currentTimeMillis() + timeoutMillis;
+		while (!initialised) {
+			if (initialisationError != null) {
+				// The engine will never come up
+				return false;
+			}
+			if (System.currentTimeMillis() >= deadline) {
+				logger.error("Timed out after {}ms waiting for scripting engine "
+						+ "to initialise.", timeoutMillis);
+				return false;
+			}
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public void runScript(final String script) {
 		runScript(script, false);
 	}

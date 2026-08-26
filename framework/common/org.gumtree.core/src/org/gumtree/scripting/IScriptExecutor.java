@@ -39,7 +39,14 @@ public interface IScriptExecutor {
 	public static final String VAR_EXECUTOR = "__executor__";
 	
 	public static final String VAR_SILENCE_MODE = "slienceMode";
-	
+
+	// Upper bound for waiting on engine initialisation.  This is only a backstop
+	// against waiting forever: a failed initialisation is reported immediately
+	// through getInitialisationError() and does not wait this out.  Generous
+	// because OsgiPackageLoader indexes every bundle's classpath into Jython,
+	// which measured ~3.5 minutes of CPU on a warm cache and more on a cold one.
+	public static final long DEFAULT_INITIALISATION_TIMEOUT = 600000;
+
 	public String getId();
 	
 	public void runScript(String script);
@@ -56,7 +63,16 @@ public interface IScriptExecutor {
 	public ScriptEngine getEngine();
 	
 	public boolean isInitialised();
-	
+
+	// Returns the failure that stopped the engine from initialising, or null when
+	// initialisation has not failed.  A non-null value means this executor will
+	// never become initialised.
+	public Throwable getInitialisationError();
+
+	// Waits until the engine is ready, initialisation has failed, or the timeout
+	// expires.  Returns true only when the engine is ready.
+	public boolean awaitInitialisation(long timeoutMillis);
+
 	// Internal
 	// Allow caller to interact with the engine with the thread pool 
 	public void runTask(Runnable task);
