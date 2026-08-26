@@ -1,6 +1,6 @@
 package au.gov.ansto.bragg.nbi.workbench;
 
-//import jakarta.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
@@ -24,7 +24,7 @@ public class NBICruisePanel extends CruisePanel {
 
 	private static final String GUMTREE_USE_LARGE_STOP_BUTTON = "gumtree.sics.useLargeStopButton";
 
-//	@Inject
+	@Inject
 	public NBICruisePanel(Composite parent, @Optional int style) {
 		super(parent, style);
 	}
