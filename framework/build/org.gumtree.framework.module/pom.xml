@@ -33,6 +33,8 @@
 		<!-- module>${common.path}/com.thoughtworks.xstream</module -->
 		<!-- module>${common.path}/org.eclemma.runtime.equinox</module -->
 		<module>${common.path}/org.gumtree.core</module>
+		<module>${common.path}/org.gumtree.slf4j.logback</module>
+		<module>${common.path}/org.gumtree.logback.config</module>
 
 		<!--module>${common.path}/org.freehep.jas.jas3</module -->
 		<module>${common.path}/org.freehep.jas.jas3.win32.x86</module>

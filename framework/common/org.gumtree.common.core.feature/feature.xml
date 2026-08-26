@@ -66,6 +66,16 @@
          version="0.0.0"/>
 
    <plugin
+         id="org.gumtree.slf4j.logback"
+         version="0.0.0"
+         fragment="true"/>
+
+   <plugin
+         id="org.gumtree.logback.config"
+         version="0.0.0"
+         fragment="true"/>
+
+   <plugin
          id="javax.inject"
          version="0.0.0"/>
 
