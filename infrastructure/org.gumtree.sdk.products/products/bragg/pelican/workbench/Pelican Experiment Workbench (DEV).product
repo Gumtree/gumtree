@@ -23,6 +23,7 @@ Eclipse Foundation http://www.eclipse.org/
       <programArgs>-consoleLog</programArgs>
       <vmArgs>-Dosgi.locking=none
 -Dorg.eclipse.update.reconcile=false
+-Dslf4j.provider=ch.qos.logback.classic.spi.LogbackServiceProvider
 -Dlogback.configurationFile=logback.xml
 -Dlogback.logFileLocation=logs
 -Dgumtree.osgi.activateBundles=org.eclipse.equinox.ds,org.eclipse.equinox.event,org.eclipse.core.runtime,org.gumtree.app.runtime
@@ -34,8 +35,7 @@ Eclipse Foundation http://www.eclipse.org/
 -Dgumtree.sics.password=ansto
 -Dgumtree.sics.loginMode=auto
 -Dsun.java2d.d3d=false
--XX:MaxPermSize=256m
--Xmx800m</vmArgs>
+-Xmx1000m</vmArgs>
       <vmArgsMac>-Xdock:icon=../Resources/Eclipse.icns
 -XstartOnFirstThread
 -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
@@ -75,6 +75,19 @@ Eclipse Foundation http://www.eclipse.org/
 
    <configurations>
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <!-- ServiceLoader mediator.  slf4j.api and ch.qos.logback.classic both
+           require the osgi.serviceloader extender to find each other; without
+           this started early, SLF4J falls back to a NOP logger and every
+           logger.error() in the product is silently discarded. -->
+      <plugin id="org.apache.aries.spifly.dynamic.bundle" autoStart="true" startLevel="1" />
+      <!-- The SLF4J provider must be ACTIVE for SPI-Fly to register it.  Kept at
+           level 2 deliberately: starting logback at level 1 risks defining
+           org.slf4j.LoggerFactory before SPI-Fly's weaving hook is registered,
+           which would permanently pin SLF4J to the NOP logger.  Alphabetical
+           ordering puts ch.qos.* ahead of org.gumtree.app.osgi within level 2,
+           so the provider is up before the first getLogger() call. -->
+      <plugin id="ch.qos.logback.core" autoStart="true" startLevel="2" />
+      <plugin id="ch.qos.logback.classic" autoStart="true" startLevel="2" />
       <plugin id="org.gumtree.app.osgi" autoStart="true" startLevel="2" />
    </configurations>
 
