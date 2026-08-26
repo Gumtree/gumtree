@@ -31,7 +31,7 @@ public class HttpUIConverter implements IDataConverter<GetMethod> {
 		try {
 			if (representation.equals(ImageData.class)) {
 				return (T) createImageData(getMethod);
-			} else if (representation.equals(ImageData.class)) {
+			} else if (representation.equals(Image.class)) {
 				return (T) new Image(Display.getDefault(), createImageData(getMethod));
 			}
 		} catch (Exception e) {
