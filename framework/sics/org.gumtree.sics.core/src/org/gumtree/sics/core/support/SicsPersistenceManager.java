@@ -11,7 +11,7 @@
 
 package org.gumtree.sics.core.support;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.gumtree.core.service.ServiceUtils;
 import org.gumtree.service.persistence.IObjectContainerManager;

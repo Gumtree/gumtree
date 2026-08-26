@@ -34,6 +34,7 @@ Eclipse Foundation http://www.eclipse.org/
 -Dgumtree.sics.role=spy
 -Dgumtree.sics.password=007
 -Dgumtree.sics.loginMode=auto
+-Declipse.e4.inject.javax.disabled=true
 -Dsun.java2d.d3d=false
 -XX:MaxPermSize=256m
 -Xmx800m

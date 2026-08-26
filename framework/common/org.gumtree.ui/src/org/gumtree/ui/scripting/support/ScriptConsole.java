@@ -9,8 +9,8 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.UUID;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 

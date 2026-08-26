@@ -19,8 +19,8 @@ import java.io.StringReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;

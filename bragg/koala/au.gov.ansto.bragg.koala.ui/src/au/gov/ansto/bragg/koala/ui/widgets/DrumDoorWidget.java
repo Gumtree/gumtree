@@ -3,7 +3,7 @@ package au.gov.ansto.bragg.koala.ui.widgets;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.jface.layout.GridDataFactory;

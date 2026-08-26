@@ -2,8 +2,8 @@ package org.gumtree.app.workbench.apps;
 
 import java.text.DecimalFormat;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;

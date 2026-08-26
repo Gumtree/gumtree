@@ -1,8 +1,8 @@
 package net.jeeeyul.eclipse.themes.e4;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
 
 import net.jeeeyul.eclipse.themes.preference.ApplyChromeThemePreferenceJob;
 import net.jeeeyul.eclipse.themes.preference.ChromeConstants;

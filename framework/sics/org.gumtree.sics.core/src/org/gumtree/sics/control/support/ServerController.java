@@ -1,7 +1,7 @@
 package org.gumtree.sics.control.support;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
 
 import org.gumtree.sics.control.ControllerCallbackAdapter;
 import org.gumtree.sics.control.IDynamicController;

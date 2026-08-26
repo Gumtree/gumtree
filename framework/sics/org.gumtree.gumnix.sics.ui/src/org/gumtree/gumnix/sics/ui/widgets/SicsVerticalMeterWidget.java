@@ -6,8 +6,8 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.net.URI;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;

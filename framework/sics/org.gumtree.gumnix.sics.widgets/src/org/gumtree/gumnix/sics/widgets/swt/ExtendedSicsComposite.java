@@ -1,7 +1,7 @@
 package org.gumtree.gumnix.sics.widgets.swt;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
 
 import org.eclipse.swt.widgets.Composite;
 import org.gumtree.gumnix.sics.control.controllers.IComponentController;

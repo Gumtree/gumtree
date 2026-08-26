@@ -1,7 +1,7 @@
 package org.gumtree.sics.core.support;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
 
 import org.gumtree.sics.core.ISicsMonitor;
 import org.gumtree.sics.core.SicsMonitorState;

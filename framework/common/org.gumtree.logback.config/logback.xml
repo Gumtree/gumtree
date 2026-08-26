@@ -7,8 +7,11 @@
 	directory of an exported product, which left IDE/PDE launches falling back
 	to logback's BasicConfigurator (root=DEBUG, console only).
 
-	To override at a site, point -Dlogback.configurationFile at an absolute
-	path; an existing file wins over this one.
+	Note that -Dlogback.configurationFile=logback.xml resolves classpath-first
+	(URL, then classpath resource, then file), so this fragment wins over any
+	logback.xml sitting in the product directory.  To override at a site, point
+	-Dlogback.configurationFile at an absolute path or a file: URL; either is
+	checked ahead of, or instead of, this one.
 -->
 <configuration>
 
@@ -16,6 +19,11 @@
 	     logging working when the property is absent. -->
 	<property name="logDir" value="${logback.logFileLocation:-logs}" />
 
+	<!-- Deliberately NOT attached to the root logger.  The launcher is a GUI
+	     binary, so its stdout is whatever console the shell happened to hand
+	     it, and a Windows console left in QuickEdit selection mode blocks every
+	     write to it - which hangs the SWT UI thread on the first log statement.
+	     Attach this appender by hand when running under an IDE console. -->
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
@@ -40,8 +48,10 @@
 	     that raising the root level for debugging does not swamp the log. -->
 	<logger name="org.gumtree.jython.core.OsgiPackageLoader" level="INFO" />
 
-	<root level="DEBUG">
-		<appender-ref ref="CONSOLE" />
+	<!-- INFO rather than DEBUG: a full RCP workbench at DEBUG rolls the log over
+	     faster than it can be read, and every line is a synchronous write on
+	     whichever thread logged it. -->
+	<root level="INFO">
 		<appender-ref ref="FILE" />
 	</root>
 

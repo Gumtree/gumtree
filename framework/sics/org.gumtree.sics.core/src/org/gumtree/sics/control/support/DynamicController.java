@@ -3,8 +3,8 @@ package org.gumtree.sics.control.support;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
 
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.gumtree.sics.control.ControllerCallbackAdapter;

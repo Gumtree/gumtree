@@ -2,8 +2,8 @@ package org.gumtree.sics.core.support;
 
 import java.util.List;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
 
 import org.gumtree.sics.control.IServerController;
 import org.gumtree.sics.control.ISicsController;

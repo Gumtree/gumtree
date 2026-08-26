@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.gumtree.sics.control.ControllerStatus;
 import org.gumtree.sics.control.ISicsController;

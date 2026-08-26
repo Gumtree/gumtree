@@ -1,6 +1,6 @@
 package org.gumtree.control.ui.widgets;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.eclipse.swt.widgets.Composite;
 import org.gumtree.control.core.ISicsController;

@@ -11,7 +11,7 @@
 
 package au.gov.ansto.bragg.nbi.ui.widgets;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;

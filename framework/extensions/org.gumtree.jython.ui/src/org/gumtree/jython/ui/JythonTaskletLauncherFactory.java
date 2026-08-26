@@ -1,6 +1,6 @@
 package org.gumtree.jython.ui;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.gumtree.scripting.IScriptingManager;
 import org.gumtree.service.dataaccess.IDataAccessManager;

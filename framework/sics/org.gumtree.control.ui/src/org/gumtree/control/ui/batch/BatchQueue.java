@@ -16,8 +16,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
 
 import org.gumtree.control.batch.IBatchScript;
 import org.gumtree.service.persistence.ILocalPersistenceManager;

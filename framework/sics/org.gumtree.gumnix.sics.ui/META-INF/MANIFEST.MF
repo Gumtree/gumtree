@@ -18,8 +18,8 @@ Export-Package: org.gumtree.gumnix.sics.internal.ui.actions,
 Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: jar
-Require-Bundle: javax.inject;bundle-version="1.0.0";visibility:=reexport,
- javax.annotation;bundle-version="1.0.0";visibility:=reexport,
+Require-Bundle: jakarta.inject.jakarta.inject-api;bundle-version="2.0.1";visibility:=reexport,
+ jakarta.annotation-api;bundle-version="2.1.1";visibility:=reexport,
  org.gumtree.gumnix.sics.core;bundle-version="1.7.0";visibility:=reexport,
  org.gumtree.ui;bundle-version="1.7.0";visibility:=reexport,
  org.gumtree.workflow.ui;bundle-version="1.7.0";visibility:=reexport,

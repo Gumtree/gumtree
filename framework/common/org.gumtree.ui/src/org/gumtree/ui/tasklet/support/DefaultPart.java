@@ -1,6 +1,6 @@
 package org.gumtree.ui.tasklet.support;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.swt.layout.FillLayout;

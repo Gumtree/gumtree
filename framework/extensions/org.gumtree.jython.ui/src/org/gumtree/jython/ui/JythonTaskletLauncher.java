@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.script.ScriptEngine;
 
 import org.gumtree.scripting.IScriptExecutor;
