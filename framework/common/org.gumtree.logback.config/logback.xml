@@ -40,7 +40,7 @@
 	     that raising the root level for debugging does not swamp the log. -->
 	<logger name="org.gumtree.jython.core.OsgiPackageLoader" level="INFO" />
 
-	<root level="INFO">
+	<root level="DEBUG">
 		<appender-ref ref="CONSOLE" />
 		<appender-ref ref="FILE" />
 	</root>

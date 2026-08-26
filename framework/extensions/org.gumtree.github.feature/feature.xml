@@ -190,10 +190,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="org.apache.commons.commons-logging"
-         version="0.0.0"/>
-
-   <plugin
          id="org.eclipse.jetty.servlet-api"
          version="0.0.0"/>
 
