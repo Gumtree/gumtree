@@ -62,8 +62,8 @@ import org.gumtree.control.batch.IBatchScript;
 import org.gumtree.control.batch.ResourceBasedBatchScript;
 import org.gumtree.control.batch.SicsMessageAdapter;
 import org.gumtree.control.core.ServerStatus;
-import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.core.SicsCommunicationConstants.Flag;
+import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsProxyListener;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.imp.SicsOutputData;
@@ -145,12 +145,21 @@ public class BatchRunnerPage extends ExtendedFormComposite {
 		messageListener = new SicsMessageAdapter() {
 			
 			@Override
-			public void messageReceived(JSONObject message) {
-				if (isEnabled()) {
+			public void messageReceived(final JSONObject message) {
+				if (isEnabled() && message != null) {
 					try {
 						String type = message.getString(PropertyConstants.PROP_UPDATE_TYPE);
 						if (MessageType.BATCH.getId().equalsIgnoreCase(type)) {
 //							updateLogText(message.getString(PropertyConstants.PROP_UPDATE_VALUE));
+						} else if (type.equalsIgnoreCase(MessageType.STATUS.getId())) {
+							updateLogText(message.getString(PropertyConstants.PROP_UPDATE_VALUE), null);
+//						} else if (type.equalsIgnoreCase(MessageType.VALUE.getId())) {
+//							String name = json.getString(PropertyConstants.PROP_UPDATE_NAME);
+//							String value = json.getString(PropertyConstants.PROP_UPDATE_VALUE);
+						} else if (type.equalsIgnoreCase(MessageType.STATE.getId())) {
+							String name = message.getString(PropertyConstants.PROP_UPDATE_VALUE);
+							String state = message.getString(PropertyConstants.PROP_UPDATE_NAME);
+							updateLogText("UPDATE state of " + name + " to " + state, null);
 						}
 					} catch (Exception e) {
 					}

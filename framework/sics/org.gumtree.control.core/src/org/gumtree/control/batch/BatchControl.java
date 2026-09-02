@@ -207,6 +207,7 @@ public class BatchControl implements IBatchControl {
 		public void disconnect() {
 			setBatchStatus(BatchStatus.DISCONNECTED);
 		}
+		
 	}
 
 	@Override
