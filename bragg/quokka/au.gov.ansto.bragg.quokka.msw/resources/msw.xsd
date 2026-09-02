@@ -84,6 +84,10 @@
       <xsd:enumeration value="10 Position Holder"        />
       <xsd:enumeration value="12 Position Holder"        />
       <xsd:enumeration value="20 Position Holder"        />
+      <xsd:enumeration value="Meerstetter 1-Layer 16 Positions" />
+      <xsd:enumeration value="Meerstetter 2-Layer 24 Positions" />
+      <xsd:enumeration value="Meerstetter 2-Layer 32 Positions" />
+      <xsd:enumeration value="Meerstetter 3-Layer 40 Positions" />
     </xsd:restriction>
   </xsd:simpleType>
   

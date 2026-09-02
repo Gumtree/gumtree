@@ -16,6 +16,10 @@ public class ExperimentDescription extends Element {
 	public static final String LINEAR_10_POSITIONS = "10 Position Holder";
 	public static final String LINEAR_12_POSITIONS = "12 Position Holder";
 	public static final String LINEAR_20_POSITIONS = "20 Position Holder";
+	public static final String MEER_16_POSITIONS = "Meerstetter 1-Layer 16 Positions";
+	public static final String MEER_24_POSITIONS = "Meerstetter 2-Layer 24 Positions";
+	public static final String MEER_32_POSITIONS = "Meerstetter 2-Layer 32 Positions";
+	public static final String MEER_40_POSITIONS = "Meerstetter 3-Layer 40 Positions";
 	public static final String DEFAULT_SAMPLE_STAGE = LINEAR_20_POSITIONS;
 	
 	// property names
@@ -65,6 +69,14 @@ public class ExperimentDescription extends Element {
 			return LINEAR_12_POSITIONS;
 		case 20:
 			return LINEAR_20_POSITIONS;
+		case 16:
+			return MEER_16_POSITIONS;
+		case 24:
+			return MEER_24_POSITIONS;
+		case 32:
+			return MEER_32_POSITIONS;
+		case 40:
+			return MEER_40_POSITIONS;
 		default:
 			return null;
 		}
