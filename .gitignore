@@ -38,3 +38,5 @@ tmp/
 
 # VS Code
 .vscode/
+
+.tycho-consumer-pom.xml
