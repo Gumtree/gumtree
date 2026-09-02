@@ -13,9 +13,10 @@ package org.gumtree.control.ui.batch.taskeditor;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -70,17 +71,18 @@ public class HeaderInformationBlockTask extends CommandBlockTask {
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(titleText);
 			
 			// Data binding
-			Realm.runWithDefault(SWTObservables.getRealm(Display.getDefault()), new Runnable() {
+			Realm.runWithDefault(DisplayRealm.getRealm(Display.getDefault()), new Runnable() {
 				public void run() {
 					DataBindingContext bindingContext = new DataBindingContext();
-					bindingContext.bindValue(SWTObservables.observeText(userText, SWT.Modify),
-						BeansObservables.observeValue(userCommand, "value"),
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(userText),
+						BeanProperties.value("value").observe(userCommand),
 						new UpdateValueStrategy(), new UpdateValueStrategy());
-					bindingContext.bindValue(SWTObservables.observeText(titleText, SWT.Modify),
-							BeansObservables.observeValue(titleCommand, "value"),
-							new UpdateValueStrategy(), new UpdateValueStrategy());
+					bindingContext.bindValue(WidgetProperties.text(SWT.Modify).observe(titleText),
+						BeanProperties.value("value").observe(titleCommand),
+						new UpdateValueStrategy(), new UpdateValueStrategy());
 				}
 			});
+			
 		}
 		
 	}
