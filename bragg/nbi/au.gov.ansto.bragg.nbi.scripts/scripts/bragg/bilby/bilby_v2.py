@@ -286,12 +286,17 @@ def det(val = None):
             log('detector is already at ' + str(val) + ', skipped')
     return control.get_raw_value('det')
 
-def _is_within_precision_(dev, target, precision = None):
+def _is_within_precision_(dev, target, default_precision = 0.0):
+    precision = None
+    d = control.get_controller(dev)
+    p = d.getChild('precision')
+    if p:
+        precision = p.getValue()
     if precision is None:
         try:
             precision = control.get_raw_value(dev + ' precision')
         except:
-            precision = 0
+            precision = default_precision
     cv = control.get_raw_value(dev)
     if abs(cv - target) <= precision:
         return True
