@@ -19,12 +19,21 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 //	private EventHandler sicsProxyEventHandler;
 	private ISicsProxyListener proxyListener;
 
+	private boolean isRendered;
+
 	public ExtendedWidgetComposite(Composite parent, int style) {
 		super(parent, style);
 	}
 
 	@PostConstruct
 	public void render() {
+		// Guard against a second rendering: ContextInjectionFactory.inject()
+		// already invokes this @PostConstruct method, and most callers also
+		// call render() explicitly afterwards.
+		if (isRendered) {
+			return;
+		}
+		isRendered = true;
 		// Render
 		handleRender();
 		bindSicsProxy();

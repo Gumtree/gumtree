@@ -77,7 +77,6 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 					shutterGroup, SWT.NONE);
 			configureWidget(shutterStatuswidget);
 			shutterGroup.setExpanded(true);
-			shutterStatuswidget.render();
 
 			// Server Status
 			PGroup sicsStatusGroup = createGroup("SERVER STATUS", 
@@ -87,7 +86,6 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 			.grab(true, false).applyTo(statusWidget);
 			configureWidget(statusWidget);
-			statusWidget.render();
 
 			// Pause Counter
 			PGroup pauseGroup = createGroup("PAUSE COUNTING",
@@ -95,7 +93,6 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 			PauseStatusWidget pauseStatuswidget = new PauseStatusWidget(
 					pauseGroup, SWT.NONE);
 			configureWidget(pauseStatuswidget);
-			pauseStatuswidget.render();
 
 			ControllerStatusWidget deviceStatusWidget;
 
@@ -108,7 +105,6 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 			.addDevice("/monitor/bm2_event_rate", "BM2 counts rate", null, "cts/s")
 					;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Choppers
 			PGroup chopperGroup = createGroup("CHOPPERS",
@@ -125,7 +121,6 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 			.addDevice("/instrument/chopper/c03/phas", "C03 phase offset", null, "\u00b0")
 			;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Slits Info
 			PGroup slits1Group = createGroup("SLITS",
@@ -140,7 +135,6 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 			.addDevice("/instrument/slits/fourth/vertical/gap", "s4 vertical gap", null, "mm")
 			;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Monochromator
 			PGroup sampleStageGroup = createGroup("SAMPLE STAGE",
@@ -156,7 +150,6 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 			.addDevice("/instrument/detector/detrot", "detrot", null, "deg", new PrecisionConverter(3))
 			;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			PGroup pumpStageGroup = createGroup("PUMP STATUS",
 					SharedImage.CRADLE.getImage());
@@ -166,14 +159,12 @@ public class SpatzCruisePageWidget extends AbstractCruisePageWidget {
 			.addDevice("/sample/hplc1/pump/status", "hplc status", null, "")
 			;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Environment Group
 			PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
 					SharedImage.FURNACE.getImage());
 			EnvironmentStatusWidget controlWidget = new EnvironmentStatusWidget(environmentGroup, SWT.NONE);
 			configureWidget(controlWidget);
-			controlWidget.render();
 			
 		} else {
 			// Reactor Source

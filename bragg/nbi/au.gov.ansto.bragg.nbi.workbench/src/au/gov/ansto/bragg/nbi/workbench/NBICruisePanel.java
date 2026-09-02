@@ -60,7 +60,6 @@ public class NBICruisePanel extends CruisePanel {
 			}
 			ContextInjectionFactory.inject(interruptWidget, Activator.getDefault()
 					.getEclipseContext());
-			interruptWidget.render();
 			interruptWidget.setBackgroundImage(SharedImage.CRUISE_BG.getImage());
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 			.grab(true, false).applyTo(interruptWidget);

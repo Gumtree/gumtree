@@ -76,7 +76,6 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 					shutterGroup, SWT.NONE);
 			configureWidget(shutterStatuswidget);
 			shutterGroup.setExpanded(true);
-			shutterStatuswidget.render();
 
 			// Server Status
 			PGroup sicsStatusGroup = createGroup("SERVER STATUS", 
@@ -86,7 +85,6 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 			.grab(true, false).applyTo(statusWidget);
 			configureWidget(statusWidget);
-			statusWidget.render();
 
 			// Pause Counter
 			PGroup pauseGroup = createGroup("PAUSE COUNTING",
@@ -94,7 +92,6 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 			PauseStatusWidget pauseStatuswidget = new PauseStatusWidget(
 					pauseGroup, SWT.NONE);
 			configureWidget(pauseStatuswidget);
-			pauseStatuswidget.render();
 
 			ControllerStatusWidget deviceStatusWidget;
 
@@ -115,7 +112,6 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 					.addDevice("/instrument/nvs067/lambda", "wavelength", null, "\u212B")
 					;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Choppers
 			PGroup chopperGroup = createGroup("CHOPPERS",
@@ -129,7 +125,6 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 					.addDevice("/instrument/master_chopper_freq", "master chopper frequency", null, "Hz")
 					;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Detector
 			PGroup detectorGroup = createGroup("DETECTOR",
@@ -141,7 +136,6 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 					.addDevice("/instrument/detector/det", "det", null, "")
 					;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Monitor Event Rate
 			PGroup monitorGroup = createGroup("NEUTRON COUNTS",
@@ -151,7 +145,6 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 					.addDevice("/monitor/data", "monitor counts", null, "")
 					.addDevice("/instrument/detector/total_counts", "detector counts", null, "");
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Sample Info
 			PGroup sampleGroup = createGroup("SAMPLE",
@@ -161,7 +154,6 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 					.addDevice("/sample/name", "name", null, "")
 					;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Sample Info
 			PGroup bsGroup = createGroup("BEAM STOPS",
@@ -173,14 +165,12 @@ public class BilbyCruisePageWidget extends AbstractCruisePageWidget {
 					.addDevice("/instrument/detector/bs5", "bs5", null, "")
 					;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Environment Group
 			PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
 					SharedImage.FURNACE.getImage());
 			EnvironmentStatusWidget controlWidget = new EnvironmentStatusWidget(environmentGroup, SWT.NONE);
 			configureWidget(controlWidget);
-			controlWidget.render();
 
 		} else {
 			// Reactor Source

@@ -77,7 +77,6 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 					shutterGroup, SWT.NONE);
 			configureWidget(shutterStatuswidget);
 			shutterGroup.setExpanded(true);
-			shutterStatuswidget.render();
 
 			// Server Status
 			PGroup sicsStatusGroup = createGroup("SERVER STATUS", 
@@ -87,7 +86,6 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 			.grab(true, false).applyTo(statusWidget);
 			configureWidget(statusWidget);
-			statusWidget.render();
 
 			// Pause Counter
 			PGroup pauseGroup = createGroup("PAUSE COUNTING",
@@ -95,7 +93,6 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 			PauseStatusWidget pauseStatuswidget = new PauseStatusWidget(
 					pauseGroup, SWT.NONE);
 			configureWidget(pauseStatuswidget);
-			pauseStatuswidget.render();
 
 			ControllerStatusWidget deviceStatusWidget;
 
@@ -133,7 +130,6 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 			.addDevice("/instrument/crystal/mom", "Premono Omega", null, "\u00b0")
 					;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Monitor Event Rate
 			PGroup monitorGroup = createGroup("NEUTRON COUNTS",
@@ -146,7 +142,6 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/instrument/detector/time", "Time of counting", null, "s")
 				;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Slits Info
 			PGroup slitsGroup = createGroup("SLITS STATUS",
@@ -158,7 +153,6 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 					.addDevice("/instrument/aperture/sv2", "slit 2 vertical", null, null)
 					.addDevice("/instrument/aperture/sh2", "slit 2 horizontal", null, null);
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// fermi chopper
 			PGroup fermi1Group = createGroup("CHOPPERS",
@@ -173,7 +167,6 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 			.addDevice("/instrument/chpr/background/actgear", "Background chopper ratio", null, "")
 			;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Other device
 			PGroup dopplerGroup = createGroup("DOPPLER",
@@ -184,14 +177,12 @@ public class EmuCruisePageWidget extends AbstractCruisePageWidget {
 			.addDevice("/instrument/doppler/ctrl/velocity", "Velocity", null, "m/s")
 			;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Environment Group
 			PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
 					SharedImage.FURNACE.getImage());
 			EnvironmentStatusWidget controlWidget = new EnvironmentStatusWidget(environmentGroup, SWT.NONE);
 			configureWidget(controlWidget);
-			controlWidget.render();
 		} else {
 			// Reactor Source
 			PGroup sourceGroup = createGroup("REACTOR SOURCE",

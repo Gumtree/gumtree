@@ -79,7 +79,6 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 				drumDoorGroup, SWT.NONE);
 		configureWidget(drumDoorWidget);
 		drumDoorGroup.setExpanded(true);
-		drumDoorWidget.render();
 
 		// Server Status
 		PGroup sicsStatusGroup = createGroup("SERVER STATUS", 
@@ -89,7 +88,6 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(statusWidget);
 		configureWidget(statusWidget);
-		statusWidget.render();
 
 		// Pause Counter
 //		PGroup pauseGroup = createGroup("PAUSE COUNTING",
@@ -113,7 +111,6 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/monitor/bm1_time", "BM1 Time", null, "s", new ControllerStatusWidget.PrecisionConverter(0))
 				;
 		configureWidget(deviceStatusWidget);
-		deviceStatusWidget.render();
 
 		// Sample
 		PGroup sampleStageGroup = createGroup("SAMPLE",
@@ -128,7 +125,6 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/sample/sz", "sz", null, "mm", new ControllerStatusWidget.PrecisionConverter(2))
 				;
 		configureWidget(deviceStatusWidget);
-		deviceStatusWidget.render();
 
 		// Choppers
 		PGroup chopperGroup = createGroup("INSTRUMENT",
@@ -141,7 +137,6 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice("/instrument/dcz", "Drum Position", null, "mm")
 				;
 		configureWidget(deviceStatusWidget);
-		deviceStatusWidget.render();
 
 		// Choppers
 		PGroup experimentGroup = createGroup("EXPERIMENT",
@@ -309,7 +304,6 @@ public class KoalaCruisePageWidget extends AbstractCruisePageWidget {
 				.addDevice(System.getProperty(PROP_CF2_PATH), "CF-2 Lakeshore", null, "K")
 				;
 		configureWidget(deviceStatusWidget);
-		deviceStatusWidget.render();
 
 
 	}

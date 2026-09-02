@@ -78,7 +78,6 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 					shutterGroup, SWT.NONE);
 			configureWidget(shutterStatuswidget);
 			shutterGroup.setExpanded(true);
-			shutterStatuswidget.render();
 
 			// Server Status
 			PGroup sicsStatusGroup = createGroup("SERVER STATUS", 
@@ -88,7 +87,6 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 			.grab(true, false).applyTo(statusWidget);
 			configureWidget(statusWidget);
-			statusWidget.render();
 
 			// Pause Counter
 			PGroup pauseGroup = createGroup("PAUSE COUNTING",
@@ -96,7 +94,6 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 			PauseStatusWidget pauseStatuswidget = new PauseStatusWidget(
 					pauseGroup, SWT.NONE);
 			configureWidget(pauseStatuswidget);
-			pauseStatuswidget.render();
 
 			ControllerStatusWidget deviceStatusWidget;
 
@@ -126,7 +123,6 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 					.addDevice("/instrument/crystal/mrc", "mrc", null, null)
 					;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Monitor Event Rate
 			PGroup monitorGroup = createGroup("NEUTRON COUNTS",
@@ -139,7 +135,6 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 					.addDevice("/instrument/detector/time", "Time of counting", null, "s")
 					;
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Slits Info
 			PGroup slitsGroup = createGroup("SLITS STATUS",
@@ -151,7 +146,6 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 					.addDevice("/instrument/aperture/sv2", "slit 2 vertical", null, null)
 					.addDevice("/instrument/aperture/sh2", "slit 2 horizontal", null, null);
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// fermi chopper
 			PGroup fermi1Group = createGroup("FERMI CHOPPER",
@@ -161,7 +155,6 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 					.addDevice("/instrument/fermi_chopper/mchs", "master chopper", null, "rpm")
 					.addDevice("/instrument/fermi_chopper/schs", "slave chopper", null, "rpm");
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Other device
 			PGroup otherGroup = createGroup("OTHER DEVICES",
@@ -211,7 +204,6 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 			};
 			deviceStatusWidget.addDevice("/instrument/crystal/PolarizerZ", "polariser", null, "", converter);
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Slits Info
 			PGroup collimatorGroup = createGroup("RADIAL COLLIMATOR",
@@ -241,7 +233,6 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 			deviceStatusWidget.setExpandingEnabled(false);
 			collimatorGroup.setExpanded(false);
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 
 			// Sample
 			PGroup sampleGroup = createGroup("SAMPLE TANK",
@@ -254,14 +245,12 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 			sampleGroup.setExpanded(false);
 			deviceStatusWidget.setExpandingEnabled(false);
 			configureWidget(deviceStatusWidget);
-			deviceStatusWidget.render();
 			
 			// Environment Group
 			PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
 					SharedImage.FURNACE.getImage());
 			EnvironmentStatusWidget controlWidget = new EnvironmentStatusWidget(environmentGroup, SWT.NONE);
 			configureWidget(controlWidget);
-			controlWidget.render();
 		} else {
 		// Reactor Source
 		PGroup sourceGroup = createGroup("REACTOR SOURCE",

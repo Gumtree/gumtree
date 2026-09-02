@@ -68,7 +68,6 @@ public class QuokkaControlDashboard extends AbstractCruisePageWidget {
 		ShutterGroupWidget shutterStatuswidget = new ShutterGroupWidget(
 				shutterGroup, SWT.NONE);
 		configureWidget(shutterStatuswidget);
-		shutterStatuswidget.render();
 
 		// Server Status
 		PGroup sicsStatusGroup = createGroup("SERVER STATUS", 
@@ -78,7 +77,6 @@ public class QuokkaControlDashboard extends AbstractCruisePageWidget {
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
 				.grab(true, false).applyTo(statusWidget);
 		configureWidget(statusWidget);
-		statusWidget.render();
 
 		// Pause Counter
 //		PGroup pauseGroup = createGroup("PAUSE COUNTING",
@@ -98,7 +96,6 @@ public class QuokkaControlDashboard extends AbstractCruisePageWidget {
 				.addDevice("/instrument/velocity_selector/wavelength_nominal", "wavelength", null, null)
 				;
 		configureWidget(deviceStatusWidget);
-		deviceStatusWidget.render();
 
 		// Detector
 		PGroup detectorGroup = createGroup("DETECTOR",
@@ -113,7 +110,6 @@ public class QuokkaControlDashboard extends AbstractCruisePageWidget {
 				.addDevice("/instrument/detector/bsz", "bsz", null, null)
 				;
 		configureWidget(deviceStatusWidget);
-		deviceStatusWidget.render();
 
 		// Monitor Event Rate
 		PGroup monitorGroup = createGroup("NEUTRON COUNTS",
@@ -123,7 +119,6 @@ public class QuokkaControlDashboard extends AbstractCruisePageWidget {
 				.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
 				.addDevice("/monitor/bm2_counts", "BM2 counts", null, "cts");
 		configureWidget(deviceStatusWidget);
-		deviceStatusWidget.render();
 
 		// Sample Info
 		PGroup sampleGroup = createGroup("SAMPLE",
@@ -134,7 +129,6 @@ public class QuokkaControlDashboard extends AbstractCruisePageWidget {
 				.addDevice("/sample/name", "Name", null, "")
 				;
 		configureWidget(deviceStatusWidget);
-		deviceStatusWidget.render();
 
 		// guide
 		PGroup fermi1Group = createGroup("GUIDE",
@@ -144,13 +138,11 @@ public class QuokkaControlDashboard extends AbstractCruisePageWidget {
 				.addDevice("/commands/optics/guide/configuration", "configuration", null, "")
 				;
 		configureWidget(deviceStatusWidget);
-		deviceStatusWidget.render();
 
 		PGroup tempControlGroup = createGroup("ENVIRONMENT CONTROLLERS",
 				SharedImage.FURNACE.getImage());
 		EnvironmentStatusWidget controlWidget = new EnvironmentStatusWidget(tempControlGroup, SWT.NONE);
 		configureWidget(controlWidget);
-		controlWidget.render();
 		
 		// Experiment info
 //		PGroup infoGroup = createGroup("EXPERIMENT INFO",
