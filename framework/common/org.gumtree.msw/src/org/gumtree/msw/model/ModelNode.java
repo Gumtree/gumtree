@@ -10,10 +10,14 @@ import java.util.Objects;
 
 import org.gumtree.msw.IModel;
 import org.gumtree.msw.RefId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // contains properties and sub elements
 class ModelNode implements IModelNode {
 	// fields
+	private final static Logger logger = LoggerFactory.getLogger(ModelNode.class);
+	
 	private final IModelNodeInfo nodeInfo;
 	// hierarchy
 	private final ModelNode owner;
@@ -174,28 +178,42 @@ class ModelNode implements IModelNode {
 	}
 	@Override
 	public boolean changeProperty(String property, Object newValue) {
-		if (ID.equals(property))
+		logger.warn(String.format("changing %s property of %s/%s to %s", property, name, owner.getName(), newValue));
+		if (ID.equals(property)) {
+			logger.warn("failed, setting ID not allowed");
 			return false;
-		
+		}
 		if ((owner != null) && IModel.INDEX.equals(property))
-			if (newValue instanceof Integer)
-				return owner.move(this, (int)newValue);
-			else
+			if (newValue instanceof Integer) {
+				boolean res = owner.move(this, (int)newValue);
+				logger.warn(res ? "succeeded" : "failed");
+				return res;
+			} else {
+				logger.warn(String.format("failed due to index not an integer: %s", String.valueOf(newValue)));
 				return false;
+			}
 
 		// return true if property is valid
 		IModelNodePropertyInfo propertyInfo = pathToProperty.get(property);
-		if (propertyInfo == null)
+		if (propertyInfo == null) {
+			logger.warn("failed due to property not found: " + property);
 			return false;
+		}
 		
 		// update value if it is different
 		Object oldValue = propertyInfo.get();
 		if (!Objects.equals(oldValue, newValue)) {
-			if (!propertyInfo.set(newValue))
+			if (!propertyInfo.set(newValue)) {
+				logger.warn("failed to set");
 				return false;
+			} else {
+				logger.warn("succeeded to set");
+			}
 
 			for (IModelNodeListener listener : listeners)
 				listener.onChangedProperty(this, property, oldValue, newValue);
+		} else {
+			logger.warn("skipped, property was already: " + String.valueOf(oldValue));
 		}
 		return true;
 	}

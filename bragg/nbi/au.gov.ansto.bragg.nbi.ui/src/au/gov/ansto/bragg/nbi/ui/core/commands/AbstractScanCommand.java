@@ -13,7 +13,8 @@ package au.gov.ansto.bragg.nbi.ui.core.commands;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.gumtree.gumnix.sics.batch.ui.commands.AbstractSicsCommand;
+import org.gumtree.control.ui.batch.command.AbstractSicsCommand;
+
 
 public abstract class AbstractScanCommand extends AbstractSicsCommand{
 

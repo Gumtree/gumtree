@@ -22,6 +22,17 @@ import au.gov.ansto.bragg.nbi.ui.core.commands.AbstractScanParameter;
 public class AngleCommand extends AbstractScanCommand {
 
 	private static final float ANGLE_SELECTION_TIME = 30; 
+	private static final String COUNT_SCRIPT = "# define acquire procedure:\n" +
+			"proc acquire {preset mode samplename} {\n" + 
+			"	samplename $samplename\n" + 
+			"	newfile HISTOGRAM_XYT\n" + 
+			"	histmem mode $mode\n" + 
+			"	histmem preset $preset\n" + 
+			"	clientput \"collect $mode: $preset for $samplename\"\n" + 
+			"	histmem start block\n" + 
+			"	save\n" + 
+			"	clientput \"finished collecting $mode: $preset for $samplename\"\n" + 
+			"}\n\n";
 
 	/**
 	 * 
@@ -36,7 +47,7 @@ public class AngleCommand extends AbstractScanCommand {
 
 	public String toScript() {
 		// Return empty line if variable is not properly set
-		String script = "# define angle table\n";
+		String script = COUNT_SCRIPT + "# define angle table\n";
 		int size = parameters.size();
 		if (size > 0) {
 			script += "proc angler {idx} {\n";

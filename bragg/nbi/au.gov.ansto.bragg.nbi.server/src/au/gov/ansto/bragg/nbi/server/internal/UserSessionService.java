@@ -134,6 +134,14 @@ public class UserSessionService {
 						//	    response.getCookieSettings().add(cookieSetting);
 						//	    response.setEntity(json.toString(), MediaType.APPLICATION_JSON);
 						session.setValid(true);
+//						try {
+//							String serviceString = serviceDb.get(session.getSessionId());
+//							session.setLevel(level);
+//				    		if (serviceString != null) {
+//				    			JSONObject serviceList = new JSONObject(serviceString);
+//				    		}
+//						} catch (Exception e) {
+//						}
 					}
 				}
 			}

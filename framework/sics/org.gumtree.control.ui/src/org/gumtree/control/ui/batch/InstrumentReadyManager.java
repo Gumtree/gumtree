@@ -18,8 +18,12 @@ import org.gumtree.control.exception.SicsModelException;
 
 public class InstrumentReadyManager {
 
+	private static final String PROP_PATH_SISREADY = "gumtree.sics.path.sis_ready";
+	
+	private static String pathSisReady = System.getProperty(PROP_PATH_SISREADY, "plc_ready");
+	
 	public static InstrumentReadyStatus isInstrumentReady() {
-		ISicsController controller = SicsManager.getSicsModel().findControllerById("plc_ready");
+		ISicsController controller = SicsManager.getSicsModel().findControllerById(pathSisReady);
 		if (controller != null) {
 			if (controller instanceof IDynamicController) {
 				try {
@@ -34,7 +38,7 @@ public class InstrumentReadyManager {
 			}
 			return new InstrumentReadyStatus(true, null);
 		} else {
-			return new InstrumentReadyStatus(false, "PLC not available");
+			return new InstrumentReadyStatus(false, "PLC/SIS not available");
 		}
 	}
 

@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
@@ -73,8 +74,8 @@ public class SimpleControlSuite {
 		ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 			
 			@Override
-			public void modelUpdated() {
-				initialise();
+			public void modelUpdated(final ISicsModel sicsModel) {
+				initialise(sicsModel);
 			}
 			
 			@Override
@@ -164,8 +165,8 @@ public class SimpleControlSuite {
 		}
 	}
 	
-	private void initialise() {
-		final ISicsController currentController = SicsManager.getSicsModel().findController(currentPath);
+	private void initialise(final ISicsModel sicsModel) {
+		final ISicsController currentController = sicsModel.findController(currentPath);
 		if (currentController != null) {
 			if (currentController instanceof DynamicController) {
 				try {
@@ -185,7 +186,7 @@ public class SimpleControlSuite {
 			currentController.addControllerListener(new CurrentControllerListener());
 		}
 		
-		final ISicsController setpointController = SicsManager.getSicsModel().findController(setpointPath);
+		final ISicsController setpointController = sicsModel.findController(setpointPath);
 		if (setpointController != null) {
 			if (setpointController instanceof DynamicController) {
 				try {

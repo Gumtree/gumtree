@@ -14,10 +14,13 @@ import org.gumtree.msw.IModelListener;
 import org.gumtree.msw.IRefIdProvider;
 import org.gumtree.msw.RefId;
 import org.gumtree.msw.commands.GainControlCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // should only by called from single thread (use SynchronizedModel if necessary)
 public class Model implements IModel {
 	// fields
+	private static Logger logger = LoggerFactory.getLogger(Model.class);
 	private final IRefIdProvider idProvider;
 	private final DataSource xsdSource;
 	private final DataSource xmlSource;
@@ -222,6 +225,7 @@ public class Model implements IModel {
 
 	// command
 	public boolean command(ICommand command) {
+		logger.debug(command.toString());
 		if ((command.getId().getSourceId() == clientId) || (command instanceof GainControlCommand)) {
 			ICommand undoCommand = command.execute(this);
 			if (undoCommand != null) {

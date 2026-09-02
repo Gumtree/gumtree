@@ -19,6 +19,10 @@ public abstract class DynamicCommand extends AbstractSicsCommand {
 	
 	private ISicsCommand[] commands;
 	
+	public DynamicCommand(String name) {
+		super(name);
+	}
+	
 	public ISicsCommand getSelectedCommand() {
 		return selectedCommand;
 	}

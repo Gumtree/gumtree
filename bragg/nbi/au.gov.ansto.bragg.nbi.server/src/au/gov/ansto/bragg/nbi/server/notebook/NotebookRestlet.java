@@ -19,6 +19,10 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.gumtree.core.object.IDisposable;
@@ -97,6 +101,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private final static String PROP_NOTEBOOK_TABLEEXTENSION = "gumtree.notebook.headerTableExtension";
 	private final static String PROP_DATABASE_SAVEPATH = "gumtree.loggingDB.savePath";
 	private final static String PROP_PDF_FOLDER = "gumtree.notebook.pdfPath";
+	private final static String PROP_CSS_FOLDER = "gumtree.notebook.cssPath";
 	private final static String PROP_IMAGE_FOLDER = "gumtree.notebook.imagePath";
 	private final static String NOTEBOOK_TEMPLATEFILENAME = "template.xml";
 	private final static String NOTEBOOK_HELPFILENAME = "guide.xml";
@@ -151,6 +156,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private static String instrumentId;
 	private static NotebookPDFService pdfService;
 	private static String pdfFolder;
+	private static String cssFolder;
 	private static String imageFolder;
 	
 	private String currentDBFolder;
@@ -165,13 +171,19 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 	private String daeLogin;
 	private String daePassword;
 	private GitService gitService;
+	private ExecutorService gitExecutor;
 	private String[] allowedDavIps;
 	private String[] allowedIcsIps;
 	
+    private static final Pattern IMAGE_ID_PATTERN = Pattern.compile("\\d+\\.png");
+
 	static {
 		instrumentId = System.getProperty(PROP_INSTRUMENT_ID);
 		currentFileFolder = System.getProperty(PROP_NOTEBOOK_SAVEPATH);
-		pdfService = new NotebookPDFService(pdfFolder);
+		pdfFolder = System.getProperty(PROP_PDF_FOLDER);
+		imageFolder = System.getProperty(PROP_IMAGE_FOLDER);
+		cssFolder = System.getProperty(PROP_CSS_FOLDER, pdfFolder);
+		pdfService = new NotebookPDFService(cssFolder);
 	}
 	/**
 	 * @param context
@@ -184,8 +196,6 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		sessionDb = SessionDB.getInstance();
 		controlDb = ControlDB.getInstance();
 		proposalDb = ProposalDB.getInstance();
-		pdfFolder = System.getProperty(PROP_PDF_FOLDER);
-		imageFolder = System.getProperty(PROP_IMAGE_FOLDER);
 		IHttpClientFactory clienntFactory = new HttpClientFactory();
 		externalHttpClient = clienntFactory.createHttpClient(1);
 		internalHttpClient = clienntFactory.createHttpClient(1);
@@ -201,6 +211,14 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		String gitPath = System.getProperty(PROPERTY_NOTEBOOK_REPOSITORY_PATH);
 		if (gitPath != null) {
 			gitService = new GitService(gitPath);
+			gitExecutor = Executors.newSingleThreadExecutor(new java.util.concurrent.ThreadFactory() {
+				@Override
+				public Thread newThread(Runnable r) {
+					Thread t = new Thread(r, "notebook-git-worker");
+					t.setDaemon(true);
+					return t;
+				}
+			});
 		}
 		String ips = System.getProperty(PROPERTY_NOTEBOOK_DAVIP);
 		if (ips != null) {
@@ -226,6 +244,9 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 		sessionDb = null;
 		controlDb = null;
 		proposalDb = null;
+		if (gitExecutor != null) {
+			gitExecutor.shutdown();
+		}
 	}
 	
 	private UserSessionObject checkDavSession(Request request) {
@@ -404,8 +425,10 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						return;
 					} 
 				}
+				String text = null;
+				final String filename = pageName + ".xml";
 				try {
-					String text = rep.getText();
+					text = rep.getText();
 					if (text == null || text.trim() == "") {
 						throw new Exception("Text can't be empty. Please add some content and try again.");
 					}
@@ -416,7 +439,7 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						text = text.substring(start, stop);
 						text = URLDecoder.decode(text, "UTF-8");
 					}
-					writer = new FileWriter(currentFileFolder + "/" + pageName + ".xml");
+					writer = new FileWriter(currentFileFolder + "/" + filename);
 					writer.write(text);
 					writer.flush();
 				} catch (Exception e1) {
@@ -427,24 +450,55 @@ public class NotebookRestlet extends Restlet implements IDisposable {
 						try {
 							writer.close();
 						} catch (IOException e) {
-							e.printStackTrace();
+							logger.error("Failed to close file writer: " + e.getMessage());
 						}
 					}
 				}
+				final String textCopy = text;
 				if (gitService != null) {
-					try {
-						gitService.applyChange();
-						gitService.commit(pageName + ":" + System.currentTimeMillis());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+					final String commitMessage = pageName + ":" + System.currentTimeMillis();
+					gitExecutor.execute(new Runnable() {
+						
+						@Override
+						public void run() {
+							try {
+								long ct = System.currentTimeMillis();
+//								gitService.applyChange();
+								List<String> filenames = getChangedFilenames(filename, textCopy);
+								long nt = System.currentTimeMillis();
+								logger.error(String.format("find change: %d ms", nt - ct));
+								ct = nt;
+								gitService.addFilenames(filenames);
+								nt = System.currentTimeMillis();
+								logger.error(String.format("apply change: %d ms", nt - ct));
+								ct = nt;
+								gitService.commit(commitMessage);
+								logger.error(String.format("commit: %d ms", System.currentTimeMillis() - ct));
+							} catch (Exception e) {
+								logger.error("Failed to commit notebook change to git repository: " + e.getMessage());
+							}
+						}
+
+						private List<String> getChangedFilenames(final String filename, final String text) {
+							List<String> filenames = new ArrayList<String>();
+							filenames.add(filename);
+					        if (text == null) {
+					            return filenames;
+					        }
+					        Matcher matcher = IMAGE_ID_PATTERN.matcher(text);
+					        while (matcher.find()) {
+					            filenames.add("images/" + matcher.group());
+					        }
+							return filenames;
+						}
+					});
 				}
 				JSONObject jsonObject = new JSONObject();
 				try {
 					jsonObject.put("status", "OK");
 					response.setEntity(jsonObject.toString(), MediaType.APPLICATION_JSON);
 				} catch (JSONException e) {
-					e.printStackTrace();
+					logger.error("Failed to create JSON response: " + e.getMessage());
 				}
 			} else if (QUERY_PAGE_ID.equals(seg)) {
 				Form queryForm = request.getResourceRef().getQueryAsForm();

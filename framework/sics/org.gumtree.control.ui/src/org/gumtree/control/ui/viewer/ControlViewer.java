@@ -38,6 +38,7 @@ import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.gumtree.control.core.ICommandController;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.exception.SicsException;
+import org.gumtree.control.ui.internal.InternalImage;
 import org.gumtree.control.ui.viewer.ControlViewerConstants.Column;
 import org.gumtree.control.ui.viewer.model.CommandControllerNode;
 import org.gumtree.control.ui.viewer.model.DefaultControllerNode;

@@ -20,9 +20,9 @@ import org.gumtree.control.batch.IBatchControl;
 import org.gumtree.control.batch.IBatchListener;
 import org.gumtree.control.batch.IBatchScript;
 import org.gumtree.control.batch.SicsMessageAdapter;
+import org.gumtree.control.core.ISicsOutputData;
 import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.ISicsReplyData;
-import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsCommunicationConstants.JSONTag;
 import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.events.ISicsProxyListener;
@@ -35,6 +35,7 @@ import org.gumtree.control.ui.batch.BatchQueue.IQueueEventListener;
 import org.gumtree.util.ILoopExitCondition;
 import org.gumtree.util.LoopRunner;
 import org.gumtree.util.bean.AbstractModelObject;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class BatchManager extends AbstractModelObject implements IBatchManager {
@@ -142,7 +143,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 			
 			@Override
 			public void statusChanged(BatchStatus newStatus) {
-				fireBatchStatusEvent(newStatus);
+				fireBatchStatusEvent(newStatus, null);
 			}
 			
 			@Override
@@ -181,7 +182,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		};
 		
 		batchControl.addListener(batchListener);
-		fireBatchStatusEvent(batchControl.getStatus());
+		fireBatchStatusEvent(batchControl.getStatus(), null);
 		
 //		if (sicsProxy.isConnected()) {
 //			BatchStatus batchStatus = sicsProxy.getBatchControl().getStatus();
@@ -362,7 +363,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		synchronized (executionLock) {
 			// Go to preparing mode
 //			setBatchStatus(BatchManagerStatus.PREPARING);
-			fireBatchStatusEvent(BatchStatus.PREPARING);
+			fireBatchStatusEvent(BatchStatus.PREPARING, "preparing buffer script");
 			
 //	Modified by nxi. Change the uploading strategy. Save the script in the mounted folder instead.			
 //			// Ready to upload
@@ -433,7 +434,23 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 //							setBatchStatus(BatchStatus.EXECUTING);
 //						}
 //						fireBatchStatusEvent(BatchStatus.PREPARING);
-						
+						String reply = data.getString();
+						if (reply != null) {
+							fireBatchStatusEvent(getStatus(), reply);
+						}
+					}
+					
+					@Override
+					public void receiveOutput(ISicsOutputData data) {
+						String output;
+						try {
+							output = data.getString();
+						} catch (JSONException e) {
+							output = "Falied to interpret output: " + data.toString();
+						}
+						if (output != null) {
+							fireBatchOutputEvent(output);
+						}
 					}
 					
 					@Override
@@ -448,7 +465,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 					public void receiveError(ISicsReplyData data) {
 						setCallbackCompleted(true);
 //						setBatchStatus(BatchStatus.ERROR);
-						fireBatchStatusEvent(BatchStatus.ERROR);
+						fireBatchStatusEvent(BatchStatus.ERROR, data.getString());
 					}
 					
 					@Override
@@ -461,7 +478,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 						}
 					}
 
-				});
+				}, true);
 			} catch (SicsBatchException e1) {
 				handleException(e1.getMessage());
 			}
@@ -592,12 +609,18 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 		batchManagerListeners.remove(listener);
 	}
 
-	private void fireBatchStatusEvent(BatchStatus status) {
+	private void fireBatchStatusEvent(BatchStatus status, String message) {
 		for (IBatchManagerListener listener : batchManagerListeners) {
-			listener.statusChanged(status);
+			listener.statusChanged(status, message);
 		}
 	}
-	
+
+	private void fireBatchOutputEvent(String output) {
+		for (IBatchManagerListener listener : batchManagerListeners) {
+			listener.outputReceived(output);
+		}
+	}
+
 	private void fireBatchChangeEvent(final String bufferName) {
 		for (IBatchManagerListener listener : batchManagerListeners) {
 			listener.scriptChanged(bufferName);
@@ -619,7 +642,7 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 	private void handleException(String err) {
 		synchronized (batchControl.getStatus()) {
 //			this.status = BatchManagerStatus.ERROR;
-			fireBatchStatusEvent(BatchStatus.ERROR);
+			fireBatchStatusEvent(BatchStatus.ERROR, "ERROR: " + err);
 //			BatchScriptManagerStatusEvent event = new BatchScriptManagerStatusEvent(this, status);
 //			event.setMessage(err);
 //			PlatformUtils.getPlatformEventBus().postEvent(event);
@@ -673,8 +696,12 @@ public class BatchManager extends AbstractModelObject implements IBatchManager {
 	}
 	
 	public void asyncSend(String command, ISicsCallback callback) throws SicsBatchException {
+		asyncSend(command, callback, false);
+	}
+	
+	public void asyncSend(String command, ISicsCallback callback, boolean progressOn) throws SicsBatchException {
 		try {
-			sicsProxy.asyncRun(command, callback);
+			sicsProxy.asyncRun(command, callback, progressOn);
 		} catch (SicsException e) {
 			throw new SicsBatchException("failed to send command", e);
 		}

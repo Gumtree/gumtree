@@ -14,8 +14,10 @@ import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.gumtree.gumnix.sics.batch.ui.CommandBlockTask;
-import org.gumtree.gumnix.sics.batch.ui.model.ISicsCommandElement;
+import org.gumtree.control.batch.tasks.ISicsCommand;
+import org.gumtree.control.ui.batch.taskeditor.CommandBlockTask;
+//import org.gumtree.gumnix.sics.batch.ui.CommandBlockTask;
+//import org.gumtree.gumnix.sics.batch.ui.model.ISicsCommand;
 import org.gumtree.workflow.ui.ITask;
 import org.gumtree.workflow.ui.TaskState;
 
@@ -43,7 +45,7 @@ public abstract class AbstractScanTask extends CommandBlockTask {
 
 	public float getEstimatedTime(){
 		float estimatedTime = 0;
-		for (ISicsCommandElement command : getDataModel().getCommands()){
+		for (ISicsCommand command : getDataModel().getCommands()){
 			if (command instanceof AbstractScanCommand){
 				AbstractScanCommand scanCommand = (AbstractScanCommand) command;
 				estimatedTime += scanCommand.getEstimatedTime();
@@ -53,7 +55,7 @@ public abstract class AbstractScanTask extends CommandBlockTask {
 	}
 
 	public String getTimeUnits(){
-		ISicsCommandElement[] commands = getDataModel().getCommands();
+		ISicsCommand[] commands = getDataModel().getCommands();
 		if (commands != null && commands.length > 0){
 			try{
 				return ((AbstractScanCommand) commands[0]).getEstimationUnits();
@@ -64,7 +66,7 @@ public abstract class AbstractScanTask extends CommandBlockTask {
 	}
 	
 	public interface ITaskPropertyChangeListener{
-		public void propertyChanged(ISicsCommandElement command, PropertyChangeEvent event);
+		public void propertyChanged(ISicsCommand command, PropertyChangeEvent event);
 	}
 	
 	public void addPropertyChangeListener(ITaskPropertyChangeListener listener){
@@ -75,7 +77,7 @@ public abstract class AbstractScanTask extends CommandBlockTask {
 		taskPropertyChangeListeners.remove(listener);
 	}
 	
-	public void notifyPropertyChanged(ISicsCommandElement command, PropertyChangeEvent event){
+	public void notifyPropertyChanged(ISicsCommand command, PropertyChangeEvent event){
 		for (ITaskPropertyChangeListener listener : taskPropertyChangeListeners){
 			listener.propertyChanged(command, event);
 		}
@@ -100,7 +102,7 @@ public abstract class AbstractScanTask extends CommandBlockTask {
 	@Override
 	public void setLabel(String label) {
 		super.setLabel(label);
-		for (ISicsCommandElement command : getDataModel().getCommands()){
+		for (ISicsCommand command : getDataModel().getCommands()){
 			if (command instanceof AbstractScanCommand){
 				AbstractScanCommand scanCommand = (AbstractScanCommand) command;
 				scanCommand.setTitle(label);

@@ -14,7 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
-import org.gumtree.control.ui.viewer.InternalImage;
+import org.gumtree.control.ui.internal.InternalImage;
 import org.gumtree.widgets.swt.util.SafeUIRunner;
 import org.gumtree.widgets.swt.util.UIResources;
 import org.slf4j.Logger;

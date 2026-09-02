@@ -80,6 +80,8 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 	private static final String DBTYPE_PHYSICAL = "PD";
 	private static final String DBTYPE_COMPOSITE = "CD";
 	private static final String KEY_SAMPLESTAGE = "SAMPLE_STAGE";
+	private static final String KEY_ADDITIONAL_MODEL = "additional_model";
+	private static final String KEY_INSTRUMENT_MODEL = "instrument_model";
 
 	private static String dbPath;
 	private static String pdName;
@@ -308,7 +310,7 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 						throw new Exception("user not allowed to change motor configuration.");
 					}
 					String saveMessage = form.getValues(QUERY_ENTRY_MESSAGE);
-					String selectedMotor = form.getValues(QUERY_ENTRY_SELECTEDMOTOR);
+//					String selectedMotor = form.getValues(QUERY_ENTRY_SELECTEDMOTOR);
 //					String versionId = form.getValues(QUERY_ENTRY_VERSION_ID);
 					String text = rep.getText();
 					try {
@@ -319,8 +321,10 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 //					if (versionId != null && versionId.length() > 0) {
 //						saveTempConfigModel(versionId, text, saveMessage, session);
 //					} else {
-					saveSelectedMotor(instrumentId, selectedMotor);
-					saveSEConfigModel(instrumentId, text, saveMessage, session);
+					JSONObject rootModel = new LinkedJSONObject(text);
+					saveMotorConfiguration(instrumentId, (JSONObject) rootModel.get(KEY_ADDITIONAL_MODEL));
+					saveSEConfigModel(instrumentId, (JSONObject) rootModel.get(KEY_INSTRUMENT_MODEL), saveMessage, session);
+//					saveSEConfigModel(instrumentId, text, saveMessage, session);
 //					}
 //					copyToRemote();
 					response.setEntity(JSON_OK, MediaType.APPLICATION_JSON);
@@ -447,7 +451,7 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 
 	}
 	
-	private static void saveSelectedMotor(String instrumentId, String selectedMotor) throws IOException, JSONException {
+	private static void saveMotorConfiguration(String instrumentId, JSONObject model) throws IOException, JSONException {
 		String filePath = getAdditionalFilename(instrumentId);
 		
 		DumperOptions options = new DumperOptions();
@@ -455,26 +459,11 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         Yaml yaml = new Yaml(options);
 		
-		Map<String, Object> model = null;
-		File addFile = new File(filePath);
-		if (!addFile.exists()) {
-			if (addFile.createNewFile()) {
-				model = new LinkedHashMap<String, Object>();
-			} else {
-				throw new IOException("failed to create " + additionalName + " file");
-			}
-		} else {
-			InputStream input = new FileInputStream(addFile);
-			try {
-				model = yaml.loadAs(input, Map.class);
-			} finally {
-				input.close();
-			}
-		}
-		model.put(KEY_SAMPLESTAGE, selectedMotor);
+        File addFile = new File(filePath);
 		FileWriter writer = new FileWriter(addFile);
 		try {
-			yaml.dump(model, writer);
+			Map<String, Object> map = YamlRestlet.toMap(model);
+			yaml.dump(map, writer);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}finally {
@@ -491,7 +480,7 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 		saveModel(filePath, text, message, userName, git);
 	}
 	
-	public static void saveSEConfigModel(String instrumentId, String text, String message, UserSessionObject session) 
+	public static void saveSEConfigModel(String instrumentId, JSONObject model, String message, UserSessionObject session) 
 			throws IOException, JSONException, GitException {
 		String userName = session.getUserName().toUpperCase();
 		String filePath = getSEConfigFilename(instrumentId);
@@ -511,7 +500,8 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         Yaml yaml = new Yaml(options);
 		FileWriter writer = new FileWriter(file);
-		if (text == null || text.trim().length() == 0) {
+//		if (text == null || text.trim().length() == 0) {
+		if (model == null || model.length() == 0) {
 			try {
 				writer.write("");
 				writer.flush();
@@ -521,8 +511,8 @@ public class InstYamlRestlet extends AbstractUserControlRestlet implements IDisp
 				writer.close();
 			}
 		} else {
-			JSONObject json = new LinkedJSONObject(text);
-			Map<String, Object> map = YamlRestlet.toMap(json);
+//			JSONObject json = new LinkedJSONObject(text);
+			Map<String, Object> map = YamlRestlet.toMap(model);
 			try {
 				yaml.dump(map, writer);
 			} catch (Exception e) {

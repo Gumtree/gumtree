@@ -4,6 +4,7 @@ import time
 from gumpy.lib import enum
 # from org.gumtree.gumnix.sics.control import ServerStatus
 from gumpy.commons.logger import log
+from org.gumtree.control.exception import *
 
 # parameter values for nguide
 OUT = 'OUT'
@@ -181,7 +182,7 @@ __sampleMap__ = {
 __meer_devices__ = ['meer16']
 
 # __sampleNum__ = 12
-__sampleStage__ = '12'
+__sampleStage__ = 'meer16'
 
 def att_pos(val = None):
     if not val is None :
@@ -256,7 +257,8 @@ def sample(val = None):
                 log('using fixed sample stage, skipped')
             else:
                 control.drive('samx', __cal_samx__(val))
-    raw = control.get_raw_value('samx')
+#     raw = control.get_raw_value('samx')
+    raw = control.get_value('samx')
     samNum = -1;
     if _table[0] > _table[len(_table) - 1] :
         for i in xrange(len(_table)) :
@@ -284,12 +286,17 @@ def det(val = None):
             log('detector is already at ' + str(val) + ', skipped')
     return control.get_raw_value('det')
 
-def _is_within_precision_(dev, target, precision = None):
+def _is_within_precision_(dev, target, default_precision = 0.0):
+    precision = None
+    d = control.get_controller(dev)
+    p = d.getChild('precision')
+    if p:
+        precision = p.getValue()
     if precision is None:
         try:
             precision = control.get_raw_value(dev + ' precision')
         except:
-            precision = 0
+            precision = default_precision
     cv = control.get_raw_value(dev)
     if abs(cv - target) <= precision:
         return True
@@ -614,17 +621,31 @@ def scan(deviceName, start, stop, numpoints, scanMode, dataType, preset, force='
         try:       
             scanController.run()
             df = True
-        except Exception as e:
-            ct += 1
-            if control.is_interrupted():
+        except SicsException as e:
+            if isinstance(e, SicsInterruptException) :
+                log('interruption caught')
                 raise
             else:
+                log(str(e))
+                ct += 1
                 if control.get_status().equals(control.ServerStatus.COUNTING):
                     control.wait_until_idle()
                     df = True
                 else:
                     if ct >= 5:
                         raise
+                    else:
+                        time.sleep(1)
+        except :
+            ct += 1
+            if control.get_status().equals(control.ServerStatus.COUNTING):
+                control.wait_until_idle()
+                df = True
+            else:
+                if ct >= 5:
+                    raise
+                else:
+                    time.sleep(1)
 
     # Get output filename
 #     control.wait_until_idle()

@@ -52,10 +52,13 @@
 	 */
 	CKEDITOR.plugins.print = {
 		exec: function( editor ) {
+			console.log("prepare preview window");
 			var previewWindow = CKEDITOR.plugins.preview.createPreview( editor ),
 				nativePreviewWindow;
 
+			console.log("finished preparing");
 			if ( !previewWindow ) {
+				console.log("null window");
 				return;
 			}
 
@@ -65,20 +68,26 @@
 			// seems to be blocking loading of the preview page. Because of that
 			// print must be performed after the document is complete.
 			if ( nativePreviewWindow.document.readyState === 'complete' ) {
+				console.log("ready");
 				return print();
 			}
 
 			previewWindow.once( 'load', print );
 
 			function print() {
+				console.log("try to print");
 				if ( CKEDITOR.env.gecko ) {
 					nativePreviewWindow.print();
+					console.log("finished printing");
 				} else {
+					console.log("execute command of print");
 					nativePreviewWindow.document.execCommand( 'Print' );
+					console.log("finished executing command");
 				}
 
 				nativePreviewWindow.close();
 			}
+			console.log("finished print action");
 		},
 		canUndo: false,
 		readOnly: 1,

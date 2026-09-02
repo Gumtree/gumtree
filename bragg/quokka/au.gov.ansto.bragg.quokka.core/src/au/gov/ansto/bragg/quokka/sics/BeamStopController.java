@@ -1,9 +1,10 @@
 package au.gov.ansto.bragg.quokka.sics;
 
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ISicsReplyData;
 import org.gumtree.control.core.SicsManager;
-import org.gumtree.control.events.ISicsCallback;
 import org.gumtree.control.events.ISicsControllerListener;
+import org.gumtree.control.events.SicsCallbackAdapter;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.exception.SicsExecutionException;
@@ -44,13 +45,13 @@ public class BeamStopController {
 			SicsManager.getSicsProxy().addProxyListener(new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void modelUpdated() {
-					setupStateMonListener();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					setupStateMonListener(sicsModel);
 				}
 				
 			});
 		} else {
-			setupStateMonListener();
+			setupStateMonListener(SicsManager.getSicsModel());
 		}
 	}
 
@@ -131,25 +132,7 @@ public class BeamStopController {
 		}
 		synchronized (position) {
 			position = BeamStopPosition.unknown;
-			SicsManager.getSicsProxy().asyncRun(deviceId + " status", new ISicsCallback() {
-				
-				@Override
-				public void setError(boolean error) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void setCallbackCompleted(boolean completed) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void receiveWarning(ISicsReplyData data) {
-					// TODO Auto-generated method stub
-					
-				}
+			SicsManager.getSicsProxy().asyncRun(deviceId + " status", new SicsCallbackAdapter() {
 				
 				@Override
 				public void receiveReply(ISicsReplyData data) {
@@ -160,35 +143,6 @@ public class BeamStopController {
 					setCallbackCompleted(true);
 				}
 				
-				@Override
-				public void receiveRawData(Object data) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void receiveFinish(ISicsReplyData data) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void receiveError(ISicsReplyData data) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public boolean isCallbackCompleted() {
-					// TODO Auto-generated method stub
-					return false;
-				}
-				
-				@Override
-				public boolean hasError() {
-					// TODO Auto-generated method stub
-					return false;
-				}
 			});
 			// 5 sec time out
 			LoopRunner.run(new ILoopExitCondition() {
@@ -200,8 +154,8 @@ public class BeamStopController {
 		return position;
 	}
 	
-	private void setupStateMonListener() {
-		SicsManager.getSicsModel().findControllerById(deviceId).addControllerListener(new ISicsControllerListener() {
+	private void setupStateMonListener(final ISicsModel sicsModel) {
+		sicsModel.findControllerById(deviceId).addControllerListener(new ISicsControllerListener() {
 			
 			@Override
 			public void updateValue(Object oldValue, Object newValue) {

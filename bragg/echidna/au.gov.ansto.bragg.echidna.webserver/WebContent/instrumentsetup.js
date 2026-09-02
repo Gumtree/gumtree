@@ -1,10 +1,20 @@
 var title = "Echidna";
 var useNewProxy = true;
 var batchEnabled = true;
+
+function adaptShutter(val) {
+	if (val == 1 || val == "1") {
+		return "OPEN";
+	} else {
+		return "CLOSED";
+	}
+}
+
 var devices = [
                {"group":"BEAM STATUS", 
-            	   "items":[{"classId":"plc_tertiary", "deviceId":"plc_tertiary", "title":"Sample Shutter", "units":""},
-            	            {"classId":"bm1_event_rate", "deviceId":"bm1_event_rate", "title":"Monitor 1 Rate", "units":"c/s"},
+            	   "items":[{"classId":"sis_tertiary", "deviceId":"/instrument/sis/instrument/b00_tertiary_open", "title":"Sample Shutter", "units":"", "adapt":adaptShutter},
+       	            		{"classId":"sis_secondary", "deviceId":"/instrument/sis/guide/b03_secondary_open", "title":"Secondary Shutter", "units":"", "adapt":adaptShutter},
+            		   		{"classId":"bm1_event_rate", "deviceId":"bm1_event_rate", "title":"Monitor 1 Rate", "units":"c/s"},
             	            {"classId":"bm2_event_rate", "deviceId":"bm2_event_rate", "title":"Monitor 2 Rate", "units":"c/s"},
             	            {"classId":"bm3_event_rate", "deviceId":"bm3_event_rate", "title":"Monitor 3 Rate", "units":"c/s"}
             	            ]

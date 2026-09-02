@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ServerStatus;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
@@ -96,14 +97,14 @@ public class CollectionHelper {
 //		controlHelper = ControlHelper.getInstance();
 		listeners = new ArrayList<ICollectionListener>();
 		if (ControlHelper.getProxy().isConnected()) {
-			initControllers();
+			initControllers(SicsManager.getSicsModel());
 		}
 		
 		ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 			
 			@Override
-			public void modelUpdated() {
-				initControllers();
+			public void modelUpdated(final ISicsModel sicsModel) {
+				initControllers(sicsModel);
 			}
 			
 			@Override
@@ -119,17 +120,17 @@ public class CollectionHelper {
 		tempThread.start();
 	}
 	
-	public void initControllers() {
+	public void initControllers(final ISicsModel sicsModel) {
 //		gumtreeStatusController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
 //				System.getProperty(ControlHelper.GUMTREE_STATUS_PATH));
 //		gumtreeTimeController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
 //				System.getProperty(ControlHelper.GUMTREE_TIME_PATH));
 		
-		stateController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+		stateController = (IDynamicController) sicsModel.findControllerByPath(
 				System.getProperty(ControlHelper.IMAGE_STATE_PATH));
-		errorController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+		errorController = (IDynamicController) sicsModel.findControllerByPath(
 				System.getProperty(ControlHelper.IMAGE_ERROR_PATH));
-		galilStatusController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+		galilStatusController = (IDynamicController) sicsModel.findControllerByPath(
 				System.getProperty(ControlHelper.GALIL_STATUS));
 		
 		if (stateController != null) {
@@ -142,9 +143,9 @@ public class CollectionHelper {
 			setState(ImageState.UNKNOWN.name());
 			ControlHelper.experimentModel.publishErrorMessage("failed to load image collection model");
 		}
-		tiffStatusController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+		tiffStatusController = (IDynamicController) sicsModel.findControllerByPath(
 				System.getProperty(ControlHelper.TIFF_STATE_PATH));
-		tiffErrorController = (IDynamicController) SicsManager.getSicsModel().findControllerByPath(
+		tiffErrorController = (IDynamicController) sicsModel.findControllerByPath(
 				System.getProperty(ControlHelper.TIFF_ERROR_PATH));
 		tiffSaveCommand = System.getProperty(ControlHelper.TIFF_SAVE_COMMAND);
 		
@@ -580,7 +581,7 @@ public class CollectionHelper {
 		IDynamicController maxController;
 		IDynamicController minController;
 		
-		private void initController() {
+		private void initController(final ISicsModel sicsModel) {
 			ISicsController controller = ControlHelper.getProxy().getSicsModel().findController(
 					System.getProperty(ControlHelper.ENV_VALUE));
 			if (controller != null) {
@@ -610,13 +611,13 @@ public class CollectionHelper {
 		
 		public TempReporter() {
 			if (ControlHelper.getProxy().isConnected()) {
-				initController();
+				initController(SicsManager.getSicsModel());
 			} else {
 				ControlHelper.getProxy().addProxyListener(new SicsProxyListenerAdapter() {
 					
 					@Override
-					public void modelUpdated() {
-						initController();
+					public void modelUpdated(final ISicsModel sicsModel) {
+						initController(sicsModel);
 					}
 					
 					@Override

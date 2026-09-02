@@ -1,10 +1,21 @@
 var title = "Taipan";
 var useNewProxy = true;
 var batchEnabled = true;
+
+function adaptShutter(val) {
+	if (val == 1 || val == "1") {
+		return "OPEN";
+	} else {
+		return "CLOSED";
+	}
+}
+
 var devices = [
                {"group":"BEAM STATUS", 
             	   "items":[{"classId":"reactorPower", "deviceId":"/instrument/source/power", "title":"Reactor Power", "units":"MW"},
-            		   		{"classId":"monitor_time", "deviceId":"monitor_time", "title":"Time of Counting", "units":"s"}, 
+            		   		{"classId":"sis_tertiary", "deviceId":"/instrument/sis/instrument/b00_tertiary_open", "title":"Sample Shutter", "units":"", "adapt":adaptShutter},
+  	            			{"classId":"sis_secondary", "deviceId":"/instrument/sis/guide/b03_secondary_open", "title":"Secondary Shutter", "units":"", "adapt":adaptShutter},
+       		   				{"classId":"monitor_time", "deviceId":"monitor_time", "title":"Time of Counting", "units":"s"}, 
             	            {"classId":"bm1_counts", "deviceId":"bm1_counts", "title":"Monitor", "units":"ct"},
             	            {"classId":"bm2_counts", "deviceId":"bm2_counts", "title":"Detector", "units":"ct"}
             	            ]

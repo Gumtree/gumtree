@@ -8,7 +8,7 @@
             colour="DARK_GRAY"
             icon="icons/tcl16x16.png"
             icon32="icons/tcl32x32.png"
-            label="SICS Command"
+            label="SICS Control Command"
             provider="Bragg Institute"
             tags="tcl">
             <description>

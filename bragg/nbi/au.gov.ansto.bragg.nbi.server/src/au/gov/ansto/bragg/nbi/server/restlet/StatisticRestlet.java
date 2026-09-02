@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.gumtree.control.server.log.ControlLogManager;
 import org.gumtree.core.object.IDisposable;
-import org.gumtree.sics.io.SicsLogManager;
 import org.json.JSONObject;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -70,7 +70,7 @@ public class StatisticRestlet extends Restlet implements IDisposable {
 	    String fromValue = queryForm.getValues(QUERY_FROM);
 	    String toValue = queryForm.getValues(QUERY_TO);
 
-	    SicsLogManager logManager = SicsLogManager.getInstance();
+	    ControlLogManager logManager = ControlLogManager.getInstance();
 	    
 	    try {
 		    Date start = logManager.fileDateFormat.parse(fromValue);
@@ -111,7 +111,7 @@ public class StatisticRestlet extends Restlet implements IDisposable {
 	
 	private void handleGetStartRequests(Request request, Response response, Form queryForm) {
 		
-	    SicsLogManager logManager = SicsLogManager.getInstance();
+		ControlLogManager logManager = ControlLogManager.getInstance();
 	    
 	    try {
 			JSONObject result = new JSONObject();

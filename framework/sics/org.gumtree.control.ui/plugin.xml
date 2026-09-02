@@ -3,6 +3,15 @@
 <plugin>
 
    <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.gumtree.control.ui.editors.ControlModelEditor"
+            icon="icons/full/obj16/server.gif"
+            id="org.gumtree.control.ui.editors.ControlModelEditor"
+            name="Control Model Editor">
+      </editor>
+   </extension>
+   <extension
          point="org.eclipse.ui.views">
       <view
             category="org.gumtree.gumnix.sics.ui"
@@ -43,7 +52,67 @@
             label="ZMQ Adapter"/>
    </extension>
    <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerContentBinding viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+         <includes>
+            <contentExtension pattern="org.gumtree.control.ui.instrumentContent"/>
+         </includes>
+      </viewerContentBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <navigatorContent
+            contentProvider="org.gumtree.control.ui.navigator.InstrumentContentProvider"
+            icon="icons/full/obj16/server.gif"
+            id="org.gumtree.control.ui.instrumentContent"
+            labelProvider="org.gumtree.ui.util.jface.TreeLabelProvider"
+            name="SICS Instrument">
+         <enablement>
+            <or>
+               <instanceof value="org.eclipse.core.resources.IWorkspaceRoot"/>
+               <instanceof value="org.gumtree.control.ui.viewer.model.ISicsTreeNode"/>
+            </or>
+         </enablement>
+         <actionProvider
+               class="org.gumtree.control.ui.navigator.ControlNavigatorActionProvider"
+               id="org.gumtree.control.ui.navigator.ControlNavigatorActionProvider"/>
+      </navigatorContent>
+   </extension>
+   <extension
          point="org.eclipse.ui.startup">
       <startup class="org.gumtree.control.ui.statusline.StatusLineStartup"/>
    </extension>      
+   <extension
+         point="org.gumtree.workflow.ui.tasks">
+      <task
+            class="org.gumtree.control.ui.batch.task.BatchExecutorTask"
+            icon="icons/tasks/executable-script16x16.png"
+            icon32="icons/tasks/executable-script32x32.png"
+            label="SICS Batch Executor"
+            provider="ACNS"
+            tags="sics">
+         <description>
+            This tasks runs a batch script in the SICS server.  It excepts inputs from batch command task, or from a text file.
+         </description>
+      </task>
+      <!-- task
+            class="org.gumtree.control.ui.batch.task.CommandBlockTask"
+            icon="icons/tasks/tcl16x16.png"
+            icon32="icons/tasks/tcl32x32.png"
+            label="SICS Batch Commands"
+            provider="ACNS"
+            tags="tcl">
+         <description>
+            This task helps to construct a SICS tcl script for batch execution.
+         </description>
+      </task>
+      <task
+            class="org.gumtree.control.ui.batch.task.HeaderInformationBlockTask"
+			icon="icons/tasks/H_16x16.png"
+			icon32="icons/tasks/H_32x32.png"	
+            label="User Header Information"
+            provider="ACNS"
+            tags="tcl">
+      </task -->
+   </extension>
 </plugin>

@@ -9,7 +9,6 @@ import org.gumtree.control.core.ISicsController;
 import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.events.ISicsModelListener;
-import org.gumtree.control.imp.SicsProxy;
 
 import ch.psi.sics.hipadaba.Component;
 import ch.psi.sics.hipadaba.SICS;

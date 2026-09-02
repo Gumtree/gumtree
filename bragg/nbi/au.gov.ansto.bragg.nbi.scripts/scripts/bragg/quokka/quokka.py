@@ -639,6 +639,10 @@ def setSampleStage(sample_stage):
     sample_stages["10 Position Holder"]           = SAMPLE_STAGE.lookup
     sample_stages["12 Position Holder"]           = SAMPLE_STAGE.lookup
     sample_stages["20 Position Holder"]           = SAMPLE_STAGE.lookup
+    sample_stages["Meerstetter 1-Layer 16 Positions"] = SAMPLE_STAGE.lookup
+    sample_stages["Meerstetter 2-Layer 24 Positions"] = SAMPLE_STAGE.lookup
+    sample_stages["Meerstetter 2-Layer 32 Positions"] = SAMPLE_STAGE.lookup
+    sample_stages["Meerstetter 3-Layer 40 Positions"] = SAMPLE_STAGE.lookup
 
     if sample_stage not in sample_stages:
         raise Exception('unknown sample stage configuration: ' + sample_stage)

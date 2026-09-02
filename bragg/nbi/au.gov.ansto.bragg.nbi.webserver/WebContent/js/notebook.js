@@ -1445,7 +1445,7 @@ $(function(){
 	};
 	
     $('#id_sidebar_inner').bind('scroll', function() {
-        if(!isAppending && bottomDbIndex > 0 && $(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight && bottomDbIndex > 0) {
+        if(!isAppending && bottomDbIndex > 0 && this.scrollHeight - ($(this).scrollTop() + $(this).innerHeight()) <= 2 && bottomDbIndex > 0) {
         	dbScrollBottom();
         } else if(!isAppending && $(this).scrollTop() == 0) {
         	dbScrollTop();

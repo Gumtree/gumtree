@@ -53,6 +53,10 @@ public class SampleList extends ElementList<Sample> {
 		DEFAULT_SAMPLE_POSITIONS.put(ExperimentDescription.LINEAR_10_POSITIONS, 10);
 		DEFAULT_SAMPLE_POSITIONS.put(ExperimentDescription.LINEAR_12_POSITIONS, 12);
 		DEFAULT_SAMPLE_POSITIONS.put(ExperimentDescription.LINEAR_20_POSITIONS, 20);
+		DEFAULT_SAMPLE_POSITIONS.put(ExperimentDescription.MEER_16_POSITIONS, 16);
+		DEFAULT_SAMPLE_POSITIONS.put(ExperimentDescription.MEER_24_POSITIONS, 24);
+		DEFAULT_SAMPLE_POSITIONS.put(ExperimentDescription.MEER_32_POSITIONS, 32);
+		DEFAULT_SAMPLE_POSITIONS.put(ExperimentDescription.MEER_40_POSITIONS, 40);
 	}
 	SampleList(LoopHierarchy parent) {
 		super(parent, SampleList.class.getSimpleName());

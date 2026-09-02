@@ -18,7 +18,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -34,7 +33,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
-import org.gumtree.gumnix.sics.batch.ui.model.ISicsCommandElement;
+import org.gumtree.control.batch.tasks.ISicsCommand;
 import org.gumtree.workflow.ui.AbstractTaskView;
 import org.gumtree.workflow.ui.ITask;
 import org.gumtree.workflow.ui.ITaskView;
@@ -73,9 +72,9 @@ public class SimpleTableScanTask extends AbstractScanTask {
 	@Override
 	public String getLabel() {
 		int size = 0;
-		ISicsCommandElement[] commands = getDataModel().getCommands();
+		ISicsCommand[] commands = getDataModel().getCommands();
 		if (commands.length > 0) {
-			ISicsCommandElement command = commands[0];
+			ISicsCommand command = commands[0];
 			size = ((SimpleTableScanCommand) command).getSelectedParameterCount();
 		}
 		return getTitle() + " " + (size > 0 ? "in " + size + " step" + (size > 1 ? "s" : "") : "") + 
@@ -111,7 +110,7 @@ public class SimpleTableScanTask extends AbstractScanTask {
 		}
 		fileDialogPath = pickedFile.getParent();
 		
-		for (ISicsCommandElement command : getDataModel().getCommands()){
+		for (ISicsCommand command : getDataModel().getCommands()){
 			if (command instanceof SimpleTableScanCommand){
 				SimpleTableScanCommand tableCommand = (SimpleTableScanCommand) command;
 				FileWriter outputfile = new FileWriter(pickedFile);
@@ -395,7 +394,7 @@ public class SimpleTableScanTask extends AbstractScanTask {
 //			createLabelArea(parent);
 //			Composite commandComposite = getToolkit().createComposite(parent);
 //			GridDataFactory.fillDefaults().grab(true, false).applyTo(commandComposite);
-			for (ISicsCommandElement command : getDataModel().getCommands()){
+			for (ISicsCommand command : getDataModel().getCommands()){
 				if (command instanceof SimpleTableScanCommand){
 					commandArea = getToolkit().createComposite(parent);
 					createCommandUI(commandArea, (SimpleTableScanCommand) command);
@@ -440,7 +439,7 @@ public class SimpleTableScanTask extends AbstractScanTask {
 					if (command == null) {
 						return;
 					}
-					ISicsCommandElement[] commands = getDataModel().getCommands();
+					ISicsCommand[] commands = getDataModel().getCommands();
 					if (commands.length > 0) {
 						getDataModel().removeCommand(commands[0]);
 					}
@@ -476,7 +475,7 @@ public class SimpleTableScanTask extends AbstractScanTask {
 		}
 
 		
-		private void addCommandListener(final ISicsCommandElement command) {
+		private void addCommandListener(final ISicsCommand command) {
 			if (command instanceof AbstractModelObject)
 				((AbstractModelObject) command).addPropertyChangeListener(new PropertyChangeListener() {
 					
@@ -501,7 +500,7 @@ public class SimpleTableScanTask extends AbstractScanTask {
 		}
 		
 		private boolean isSingleFile(){
-			ISicsCommandElement[] commands = getDataModel().getCommands();
+			ISicsCommand[] commands = getDataModel().getCommands();
 			if (commands.length > 0){
 				return ((ScanNDCommand) commands[0]).isSingleFile();
 			}

@@ -16,6 +16,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.gumtree.control.ui.widgets.ControllerStatusWidget;
+import org.gumtree.control.ui.widgets.EnvironmentStatusWidget;
+import org.gumtree.control.ui.widgets.PauseStatusWidget;
+import org.gumtree.control.ui.widgets.ServerStatusWidget;
+import org.gumtree.control.ui.widgets.ShutterGroupWidget;
 import org.gumtree.gumnix.sics.ui.widgets.HMVetoGadget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget;
 import org.gumtree.gumnix.sics.widgets.swt.DeviceStatusWidget.LabelConverter;
@@ -27,6 +32,7 @@ import org.gumtree.ui.cruise.support.AbstractCruisePageWidget;
 import org.gumtree.util.messaging.IDelayEventExecutor;
 import org.gumtree.util.messaging.ReducedDelayEventExecutor;
 
+import au.gov.ansto.bragg.nbi.core.NBISystemProperties;
 import au.gov.ansto.bragg.nbi.ui.core.SharedImage;
 import au.gov.ansto.bragg.nbi.workbench.ReactorStatusWidget;
 
@@ -52,6 +58,211 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 		getEclipseContext().set(IDelayEventExecutor.class,
 				getDelayEventExecutor());
 		
+		if (NBISystemProperties.USE_NEW_PROXY) {
+			// Reactor Source
+			PGroup sourceGroup = createGroup("REACTOR SOURCE",
+					SharedImage.REACTOR.getImage());
+			ReactorStatusWidget reactorWidget = new ReactorStatusWidget(sourceGroup, SWT.NONE);
+			reactorWidget.addDevice("reactorPower", "Power", "MW")
+					.addDevice("cnsInTemp", "CNS Inlet Temp", "K")
+					.addDevice("cnsOutTemp", "CNS Outlet Temp", "K");
+			reactorWidget.createWidgetArea();
+			configureWidget(reactorWidget);
+			sourceGroup.setExpanded(false);
+			reactorWidget.setExpandingEnabled(true);
+
+			// Shutter Status
+			PGroup shutterGroup = createGroup("SHUTTER STATUS",
+					SharedImage.SHUTTER.getImage());
+			ShutterGroupWidget shutterStatuswidget = new ShutterGroupWidget(
+					shutterGroup, SWT.NONE);
+			configureWidget(shutterStatuswidget);
+			shutterGroup.setExpanded(true);
+			shutterStatuswidget.render();
+
+			// Server Status
+			PGroup sicsStatusGroup = createGroup("SERVER STATUS", 
+					SharedImage.SERVER.getImage());
+			ServerStatusWidget statusWidget = new ServerStatusWidget(sicsStatusGroup,
+					SWT.NONE);
+			GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
+			.grab(true, false).applyTo(statusWidget);
+			configureWidget(statusWidget);
+			statusWidget.render();
+
+			// Pause Counter
+			PGroup pauseGroup = createGroup("PAUSE COUNTING",
+					SharedImage.SHUTTER.getImage());
+			PauseStatusWidget pauseStatuswidget = new PauseStatusWidget(
+					pauseGroup, SWT.NONE);
+			configureWidget(pauseStatuswidget);
+			pauseStatuswidget.render();
+
+			ControllerStatusWidget deviceStatusWidget;
+
+			// Hist Counter
+//			PGroup histGroup = createGroup("HISTOGRAM",
+//					SharedImage.SHUTTER.getImage());
+//			HMImageDisplayWidget hmWidget = new HMImageDisplayWidget(
+//					histGroup, SWT.NONE);
+//			String path = "http://localhost:60030/admin/openimageinformat.egi&#63;type=HISTOPERIOD_XYT&#38;open_format=DISLIN_PNG&#38;open_colour_table=RAIN&#38;open_plot_zero_pixels=AUTO&#38;open_annotations=ENABLE";
+////			String path = "http://localhost:60030/admin/openimageinformat.egi?type=HISTOPERIOD_XYT&open_format=DISLIN_PNG&open_colour_table=RAIN&open_plot_zero_pixels=AUTO&open_annotations=ENABLE";
+//			hmWidget.setDataURI(path);
+//			configureWidget(hmWidget);
+
+			// Monochromator
+			PGroup monochromatorGroup = createGroup("MONOCHROMATOR",
+					SharedImage.MONOCHROMATOR.getImage());
+			deviceStatusWidget = new ControllerStatusWidget(monochromatorGroup, SWT.NONE);
+			deviceStatusWidget
+					.addDevice("/instrument/crystal/wavelength", "wavelength", null, "\u212B")
+					.addDevice("/instrument/crystal/mom", "mom", null, null)
+					.addDevice("/instrument/crystal/mtth", "mtth", null, null)
+					.addDevice("/instrument/crystal/moma", "moma", null, null)
+					.addDevice("/instrument/crystal/momb", "momb", null, null)
+					.addDevice("/instrument/crystal/momc", "momc", null, null)
+					.addDevice("/instrument/crystal/mra", "mra", null, null)
+					.addDevice("/instrument/crystal/mrb", "mrb", null, null)
+					.addDevice("/instrument/crystal/mrc", "mrc", null, null)
+					;
+			configureWidget(deviceStatusWidget);
+			deviceStatusWidget.render();
+
+			// Monitor Event Rate
+			PGroup monitorGroup = createGroup("NEUTRON COUNTS",
+					SharedImage.MONITOR.getImage());
+			deviceStatusWidget = new ControllerStatusWidget(monitorGroup, SWT.NONE);
+			deviceStatusWidget
+					.addDevice("/monitor/bm1_counts", "BM1 counts", null, "cts")
+					.addDevice("/monitor/bm2_counts", "BM2 counts", null, "cts")
+					.addDevice("/instrument/detector/total_counts", "Detector counts", null, "cts")
+					.addDevice("/instrument/detector/time", "Time of counting", null, "s")
+					;
+			configureWidget(deviceStatusWidget);
+			deviceStatusWidget.render();
+
+			// Slits Info
+			PGroup slitsGroup = createGroup("SLITS STATUS",
+					SharedImage.SLITS.getImage());
+			deviceStatusWidget = new ControllerStatusWidget(slitsGroup, SWT.NONE);
+			deviceStatusWidget
+					.addDevice("/instrument/aperture/sv1", "slit 1 vertical", null, null)
+					.addDevice("/instrument/aperture/sh1", "slit 1 horizontal", null, null)
+					.addDevice("/instrument/aperture/sv2", "slit 2 vertical", null, null)
+					.addDevice("/instrument/aperture/sh2", "slit 2 horizontal", null, null);
+			configureWidget(deviceStatusWidget);
+			deviceStatusWidget.render();
+
+			// fermi chopper
+			PGroup fermi1Group = createGroup("FERMI CHOPPER",
+					SharedImage.SPIN.getImage());
+			deviceStatusWidget = new ControllerStatusWidget(fermi1Group, SWT.NONE);
+			deviceStatusWidget
+					.addDevice("/instrument/fermi_chopper/mchs", "master chopper", null, "rpm")
+					.addDevice("/instrument/fermi_chopper/schs", "slave chopper", null, "rpm");
+			configureWidget(deviceStatusWidget);
+			deviceStatusWidget.render();
+
+			// Other device
+			PGroup otherGroup = createGroup("OTHER DEVICES",
+					SharedImage.GEAR.getImage());
+			deviceStatusWidget = new ControllerStatusWidget(otherGroup, SWT.NONE);
+			
+			ControllerStatusWidget.LabelConverter converter = new ControllerStatusWidget.LabelConverter() {
+				
+				@Override
+				public String convertValue(Object obj) {
+					try {
+						String data = String.valueOf(obj);
+						double value = Math.round(Double.valueOf(data));
+						if (value == 1) {
+							return "graphite";
+						} else if (value == 2) {
+							return "none";
+						} else {
+							return "Be";
+						}
+					} catch (Exception e) {
+						return "none";
+					}
+				}
+			};
+			deviceStatusWidget.addDevice("/instrument/crystal/FilterZ", "filter", null, "", converter);
+			converter = new ControllerStatusWidget.LabelConverter() {
+				
+				@Override
+				public String convertValue(Object obj) {
+					try {
+						String data = String.valueOf(obj);
+						double value = Math.round(Double.valueOf(data));
+						if (value == 1) {
+							return "collimator";
+						} else if (value == 2) {
+							return "none";
+						} else if (value == 3){
+							return "polariser";
+						} else {
+							return "none";
+						}
+					} catch (Exception e) {
+						return "none";
+					}
+				}
+			};
+			deviceStatusWidget.addDevice("/instrument/crystal/PolarizerZ", "polariser", null, "", converter);
+			configureWidget(deviceStatusWidget);
+			deviceStatusWidget.render();
+
+			// Slits Info
+			PGroup collimatorGroup = createGroup("RADIAL COLLIMATOR",
+					SharedImage.CRADLE.getImage());
+			deviceStatusWidget = new ControllerStatusWidget(collimatorGroup, SWT.NONE);
+			converter = new ControllerStatusWidget.LabelConverter() {
+				
+				@Override
+				public String convertValue(Object obj) {
+					try {
+						String data = String.valueOf(obj);
+						double value = Double.valueOf(data);
+						if (Math.round(value) == 1) {
+							return "OUT";
+						} else {
+							return "IN";
+						}
+					} catch (Exception e) {
+						return "OUT";
+					}
+				}
+			};
+			
+			deviceStatusWidget
+					.addDevice("/instrument/collimator/RCollZ", "in/out", null, "", converter);
+//					.addDevice("/instrument/collimator/rcz", "frequency", null, "");
+			deviceStatusWidget.setExpandingEnabled(false);
+			collimatorGroup.setExpanded(false);
+			configureWidget(deviceStatusWidget);
+			deviceStatusWidget.render();
+
+			// Sample
+			PGroup sampleGroup = createGroup("SAMPLE TANK",
+					SharedImage.BEAKER.getImage());
+			deviceStatusWidget = new ControllerStatusWidget(sampleGroup, SWT.NONE);
+			deviceStatusWidget
+					.addDevice("/instrument/detector/stth", "angle", null, null)
+					.addDevice("/sample/mscor", "mscor", null, null)
+					;
+			sampleGroup.setExpanded(false);
+			deviceStatusWidget.setExpandingEnabled(false);
+			configureWidget(deviceStatusWidget);
+			deviceStatusWidget.render();
+			
+			// Environment Group
+			PGroup environmentGroup = createGroup("ENVIRONMENT CONTROLLERS",
+					SharedImage.FURNACE.getImage());
+			EnvironmentStatusWidget controlWidget = new EnvironmentStatusWidget(environmentGroup, SWT.NONE);
+			configureWidget(controlWidget);
+			controlWidget.render();
+		} else {
 		// Reactor Source
 		PGroup sourceGroup = createGroup("REACTOR SOURCE",
 				SharedImage.REACTOR.getImage());
@@ -276,7 +487,8 @@ public class PelicanCruisePageWidget extends AbstractCruisePageWidget {
 				SharedImage.FURNACE.getImage());
 		EnvironmentControlWidget controlWidget = new EnvironmentControlWidget(environmentGroup, SWT.NONE);
 		configureWidget(controlWidget);
-
+		}
+		
 	}
 
 	@Override

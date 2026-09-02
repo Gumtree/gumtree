@@ -23,7 +23,8 @@ Require-Bundle: json;bundle-version="20250517.0.0";visibility:=reexport,
  org.yaml.snakeyaml;bundle-version="1.21.0";resolution:=optional,
  org.apache.sshd.osgi;bundle-version="2.15.0",
  javax.xml.soap;bundle-version="1.2.0",
- javax.mail;bundle-version="1.4.7"
+ javax.mail;bundle-version="1.4.7",
+ org.gumtree.control.server
 Export-Package: au.gov.ansto.bragg.nbi.server,
  au.gov.ansto.bragg.nbi.server.catalog,
  au.gov.ansto.bragg.nbi.server.db,

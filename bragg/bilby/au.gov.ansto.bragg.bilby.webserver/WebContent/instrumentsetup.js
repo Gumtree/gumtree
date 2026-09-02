@@ -62,7 +62,7 @@ function adaptAtt(val) {
 
 function adaptBs(val) {
 	var pos = Number(val);
-	if (val < 66 && val > 62) {
+	if (val <= 67 && val >= 61.9) {
 		return "in";
 	} else {
 		return "out";

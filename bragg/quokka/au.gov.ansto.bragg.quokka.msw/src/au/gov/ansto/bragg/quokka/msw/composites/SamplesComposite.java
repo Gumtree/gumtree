@@ -195,6 +195,26 @@ public class SamplesComposite extends Composite {
 	    menuItem.addSelectionListener(sampleHolderMenuListener);
 	    
 	    menuItem = new MenuItem(menu, SWT.NONE);
+	    menuItem.setText(ExperimentDescription.MEER_16_POSITIONS);
+	    menuItem.setData(SAMPLE_STAGE, ExperimentDescription.MEER_16_POSITIONS);
+	    menuItem.addSelectionListener(sampleHolderMenuListener);
+
+	    menuItem = new MenuItem(menu, SWT.NONE);
+	    menuItem.setText(ExperimentDescription.MEER_24_POSITIONS);
+	    menuItem.setData(SAMPLE_STAGE, ExperimentDescription.MEER_24_POSITIONS);
+	    menuItem.addSelectionListener(sampleHolderMenuListener);
+
+	    menuItem = new MenuItem(menu, SWT.NONE);
+	    menuItem.setText(ExperimentDescription.MEER_32_POSITIONS);
+	    menuItem.setData(SAMPLE_STAGE, ExperimentDescription.MEER_32_POSITIONS);
+	    menuItem.addSelectionListener(sampleHolderMenuListener);
+
+	    menuItem = new MenuItem(menu, SWT.NONE);
+	    menuItem.setText(ExperimentDescription.MEER_40_POSITIONS);
+	    menuItem.setData(SAMPLE_STAGE, ExperimentDescription.MEER_40_POSITIONS);
+	    menuItem.addSelectionListener(sampleHolderMenuListener);
+
+	    menuItem = new MenuItem(menu, SWT.NONE);
 	    menuItem.setText(ExperimentDescription.ROTATING_5_POSITIONS);
 	    menuItem.setData(SAMPLE_STAGE, ExperimentDescription.ROTATING_5_POSITIONS);
 	    menuItem.addSelectionListener(sampleHolderMenuListener);

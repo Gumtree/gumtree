@@ -59,11 +59,13 @@ import org.gumtree.control.batch.IBatchScript;
 import org.gumtree.control.batch.tasks.ISicsBatchTask;
 import org.gumtree.control.batch.tasks.ISicsCommand;
 import org.gumtree.control.batch.tasks.ISicsCommandBlock;
+import org.gumtree.control.core.SicsManager;
+import org.gumtree.control.ui.batch.BatchManager;
 import org.gumtree.control.ui.batch.IBatchManager;
 import org.gumtree.control.ui.batch.VisualBatchScript;
 import org.gumtree.control.ui.batch.command.AbstractSicsCommand;
 import org.gumtree.control.ui.batch.command.SicsCommand;
-import org.gumtree.control.ui.viewer.InternalImage;
+import org.gumtree.control.ui.internal.InternalImage;
 import org.gumtree.core.service.ServiceUtils;
 import org.gumtree.service.eventbus.IEventHandler;
 import org.gumtree.ui.util.SafeUIRunner;
@@ -199,7 +201,8 @@ public class BatchEditorControlComposite extends AbstractWorkflowViewerComponent
 					return;
 				}
 				// Add to the queue
-				IBatchManager manager = ServiceUtils.getService(IBatchManager.class);
+//				IBatchManager manager = ServiceUtils.getService(IBatchManager.class);
+				IBatchManager manager = BatchManager.getBatchScriptManager(SicsManager.getSicsProxy());
 				IBatchScript buffer = new VisualBatchScript(dialog.getValue(), getWorkflow());
 				float time = 0;
 				float counts = 0;

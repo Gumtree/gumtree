@@ -1,10 +1,9 @@
-package org.gumtree.control.ui.viewer;
+package org.gumtree.control.ui.internal;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
-import org.gumtree.control.ui.internal.Activator;
 
 public enum InternalImage {
 	ADD("icons/add_obj.gif"),
@@ -41,6 +40,7 @@ public enum InternalImage {
 	LOAD("icons/fldr_obj.gif"),
 	LOCK("icons/lock.png"),
 	UNLOCK("icons/lock_open.png"),
+	MENU("icons/view_menu.gif"),
 	TEXT_EDIT("icons/wordassist_co.gif"),
 	STOP_128("icons/stop_128x128.png"),
 	STOP_64("icons/stop_64x64.png");

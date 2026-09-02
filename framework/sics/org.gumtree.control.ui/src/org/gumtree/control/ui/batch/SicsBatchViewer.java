@@ -60,7 +60,7 @@ import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.exception.SicsException;
 import org.gumtree.control.model.PropertyConstants.ControllerState;
-import org.gumtree.control.ui.viewer.InternalImage;
+import org.gumtree.control.ui.internal.InternalImage;
 import org.gumtree.ui.util.SafeUIRunner;
 import org.gumtree.ui.util.workbench.AbstractPartControlProvider;
 import org.gumtree.ui.widgets.TimerWidget;

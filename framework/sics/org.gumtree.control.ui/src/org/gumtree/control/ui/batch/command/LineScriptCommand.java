@@ -16,7 +16,7 @@ public class LineScriptCommand extends AbstractSicsCommand {
 	private String text = "";
 	
 	public LineScriptCommand() {
-		super();
+		super("line");
 	}
 
 	public String getText() {

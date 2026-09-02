@@ -17,6 +17,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.SicsCoreProperties;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.SicsProxyListenerAdapter;
@@ -191,7 +192,7 @@ public class AdminPanel extends AbstractPanel {
 		mainPart.getControl().addProxyListener(new SicsProxyListenerAdapter() {
 			
 			@Override
-			public void modelUpdated() {
+			public void modelUpdated(final ISicsModel sicsModel) {
 				super.connect();
 				Display.getDefault().asyncExec(new Runnable() {
 					

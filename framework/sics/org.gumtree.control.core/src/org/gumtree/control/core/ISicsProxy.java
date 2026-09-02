@@ -18,7 +18,9 @@ public interface ISicsProxy {
 	boolean isConnected();
 	String syncRun(String command) throws SicsException;
 	String syncRun(String command, ISicsCallback callback) throws SicsException;
+	String syncRun(String command, ISicsCallback callback, boolean progressOn) throws SicsException;
 	void asyncRun(String command, ISicsCallback callback) throws SicsException;
+	void asyncRun(String command, ISicsCallback callback, boolean progressOn) throws SicsException;
 	ISicsChannel getSicsChannel();
 	ServerStatus getServerStatus();
 	void setServerStatus(ServerStatus status);

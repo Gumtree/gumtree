@@ -44,10 +44,24 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 
 	private static final String ID_PERSPECTIVE_STATUS = "au.gov.ansto.bragg.pelican.ui.PelicanStatusPerspective";
 	
+	public static final String USE_NEW_PROXY = "gumtree.sics.useNewProxy";
+
+	private static final String ID_PERSPECTIVE_CONTROL = "au.gov.ansto.bragg.nbi.ui.ControlExperimentPerspective";
+
 	private static Logger logger = LoggerFactory.getLogger(PelicanWorkbenchLauncher.class);
 	
+	private boolean newProxy;
+	
+	private String sicsPID;
 	
 	public PelicanWorkbenchLauncher() {
+		newProxy = Boolean.valueOf(System.getProperty(USE_NEW_PROXY, "false"));
+		if (newProxy) {
+			sicsPID = ID_PERSPECTIVE_CONTROL;
+		} else {
+			sicsPID = ID_PERSPECTIVE_SICS;
+		}
+
 	}
 
 	private void hideMenus(WorkbenchWindow window){
@@ -194,7 +208,7 @@ public class PelicanWorkbenchLauncher extends AbstractLauncher {
 			
 			IMultiMonitorManager mmManager = new MultiMonitorManager();
 			// Attempt to close intro
-			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SICS, 0, 0, mmManager.isMultiMonitorSystem());
+			mmManager.showPerspectiveOnOpenedWindow(sicsPID, 0, 0, mmManager.isMultiMonitorSystem());
 //			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_EXPERIMENT, 0, 0, mmManager.isMultiMonitorSystem());
 //			try {
 //				activeWorkbenchWindow.getActivePage().showView("org.gumtree.app.workbench.cruisePanel", null, IWorkbenchPage.VIEW_ACTIVATE);

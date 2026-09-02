@@ -4,7 +4,7 @@ import org.gumtree.control.batch.BatchStatus;
 
 public interface IBatchManagerListener {
 
-	void statusChanged(BatchStatus newStatus);
+	void statusChanged(BatchStatus newStatus, String message);
 	
 	void scriptChanged(String scriptName);
 	
@@ -19,6 +19,8 @@ public interface IBatchManagerListener {
 	void queueStarted();
 
 	void queueStopped();
+	
+	void outputReceived(String outputText);
 	
 	void scriptFinished(String replyText);
 }

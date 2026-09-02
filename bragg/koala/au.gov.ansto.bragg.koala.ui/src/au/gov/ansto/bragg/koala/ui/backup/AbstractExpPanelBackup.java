@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
@@ -850,14 +851,14 @@ public abstract class AbstractExpPanelBackup extends AbstractControlPanel {
 		public StatusControl() {
 			
 			if (controlHelper.isConnected()) {
-				initControllers();
+				initControllers(SicsManager.getSicsModel());
 			}
 			
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void modelUpdated() {
-					initControllers();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					initControllers(sicsModel);
 				}
 				
 				@Override
@@ -886,15 +887,15 @@ public abstract class AbstractExpPanelBackup extends AbstractControlPanel {
 			controlHelper.addProxyListener(proxyListener);
 		}
 		
-		public void initControllers() {
+		public void initControllers(final ISicsModel sicsModel) {
 
-			phiController = SicsManager.getSicsModel().findController(
+			phiController = sicsModel.findController(
 					System.getProperty(ControlHelper.SAMPLE_PHI));
-			tempController = SicsManager.getSicsModel().findController(
+			tempController = sicsModel.findController(
 					System.getProperty(ControlHelper.ENV_VALUE));
-			stepController = SicsManager.getSicsModel().findController(
+			stepController = sicsModel.findController(
 					System.getProperty(ControlHelper.STEP_TEXT_PATH));
-//			fnController = SicsManager.getSicsModel().findController(
+//			fnController = sicsModel.findController(
 //					System.getProperty(ControlHelper.FILENAME_PATH));
 			
 			if (phiController != null) {

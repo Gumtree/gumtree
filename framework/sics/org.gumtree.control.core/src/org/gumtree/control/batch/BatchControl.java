@@ -74,13 +74,17 @@ public class BatchControl implements IBatchControl {
 						if (info.startsWith(BatchStatus.EXECUTING_PREFIX)) {
 							if (info.length() > BatchStatus.EXECUTING_PREFIX.length()) {
 								setBatchName(info.substring(BatchStatus.EXECUTING_PREFIX.length()));
-								status = BatchStatus.EXECUTING;
+//								status = BatchStatus.EXECUTING;
+								setBatchStatus(BatchStatus.EXECUTING);
 							} else {
-								status = BatchStatus.ERROR;
+//								status = BatchStatus.ERROR;
+								setBatchStatus(BatchStatus.ERROR);
 							}
 						} else {
-							status = BatchStatus.parseStatus(info);
+//							status = BatchStatus.parseStatus(info);
+							setBatchStatus(BatchStatus.parseStatus(info));
 						}
+//						fireBatchEvent(type, value);
 					} catch (Exception e) {
 						e.printStackTrace();
 						BatchControl.logger.error("failed to set batch status: " + e.getMessage(), e);
@@ -203,6 +207,7 @@ public class BatchControl implements IBatchControl {
 		public void disconnect() {
 			setBatchStatus(BatchStatus.DISCONNECTED);
 		}
+		
 	}
 
 	@Override
@@ -261,15 +266,23 @@ public class BatchControl implements IBatchControl {
 		this.batchName = batchName;
 		try {
 			sicsProxy.asyncRun("exe print " + batchName, new SicsCallbackAdapter() {
+				
 				@Override
-				public void receiveFinish(final ISicsReplyData data) {
+				public void receiveReply(final ISicsReplyData data) {
 					try {
 						BatchControl.logger.warn("set batch text for " + batchName);
-						setBatchText(data.getString());
+						if (data.getString() != null) {
+							setBatchText(data.getString());
+						}
 //						batchText = data.getString();
 					} catch (Exception e) {
 						BatchControl.logger.error("failed to get batch text of file: " + batchName, e);
 					}
+				}
+				
+				@Override
+				public void receiveFinish(ISicsReplyData data) {
+					this.receiveReply(data);
 				}
 			});
 		} catch (SicsException e) {

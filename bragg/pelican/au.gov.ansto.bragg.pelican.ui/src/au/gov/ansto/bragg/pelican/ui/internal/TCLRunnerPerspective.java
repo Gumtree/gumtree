@@ -27,18 +27,30 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 	public static final String WORKFLOW_VIEW_ID = "au.gov.ansto.bragg.pelican.ui.views.TclEditorView";
 	public static final String COMMAND_LINE_VIEW_ID="org.gumtree.scripting.ui.commandLineView";
 	public static final String SICS_TERMINAL_VIEW_ID = "au.gov.ansto.bragg.nbi.ui.SicsTerminalView";
+	public static final String CONTROL_TERMINAL_VIEW_ID = "org.gumtree.control.ui.ControlTerminalView";
 	public static final String PROJECT_EXPLORER_VIEW_ID = "org.eclipse.ui.navigator.ProjectExplorer";
 	public static final String EXPERIMENT_CONFIG_VIEW_ID = "au.gov.ansto.bragg.pelican.ui.views.ExperimentConfigView";
 //	public static final String CONTROL_VIEW_ID = "au.gov.ansto.bragg.pelican.ui.views.KowariControlView";
 	public static final String SICS_BUFFER_RUNNER_VIEW_ID = "org.gumtree.gumnix.sics.batch.ui.batchBufferRunnerView";
+	public static final String CONTROL_BUFFER_RUNNER_VIEW_ID = "org.gumtree.control.ui.batchScriptManagerView";
 	public static final String SICS_BUFFER_VALIDATOR_VIEW_ID = "org.gumtree.gumnix.sics.batch.ui.batchBufferValidatorView";
 //	public static final String PELICAN_HM_VIEW_ID = "au.gov.ansto.bragg.pelican.ui.views.PelicanHMView";
 
 //	public static final String ID_VIEW_ACTIVITY_MONITOR = "au.gov.ansto.bragg.nbi.ui.SicsRealtimeDataView";
 
+	private String sicsTerminalID;
+	private String bufferRunnerID;
 	
 	public void createInitialLayout(IPageLayout factory) {
 		
+		boolean newProxy = Boolean.valueOf(System.getProperty(PelicanWorkbenchLauncher.USE_NEW_PROXY, "false"));
+		if (newProxy) {
+			sicsTerminalID = CONTROL_TERMINAL_VIEW_ID;
+			bufferRunnerID = CONTROL_BUFFER_RUNNER_VIEW_ID;
+		} else {
+			sicsTerminalID = SICS_TERMINAL_VIEW_ID;
+			bufferRunnerID = SICS_BUFFER_RUNNER_VIEW_ID;
+		}
 		
 		factory.addPerspectiveShortcut(EXPERIMENT_PERSPECTIVE_ID);
 
@@ -49,12 +61,12 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 				factory.getEditorArea());
 		top2.addView(EXPERIMENT_CONFIG_VIEW_ID);
 		top2.addView(WORKFLOW_VIEW_ID);
-		top2.addView(SICS_BUFFER_VALIDATOR_VIEW_ID);
+//		top2.addView(SICS_BUFFER_VALIDATOR_VIEW_ID);
 
-		factory.addStandaloneView(SICS_BUFFER_RUNNER_VIEW_ID, false, 
+		factory.addStandaloneView(bufferRunnerID, false, 
 				IPageLayout.TOP, 0.75f, factory.getEditorArea());
 		
-		factory.addStandaloneView(SICS_TERMINAL_VIEW_ID, false, 
+		factory.addStandaloneView(sicsTerminalID, false, 
 				IPageLayout.BOTTOM, 0.75f, "top_folder");
 
 		factory.addStandaloneView(PROJECT_EXPLORER_VIEW_ID, true, 
@@ -70,8 +82,8 @@ public class TCLRunnerPerspective implements IPerspectiveFactory {
 		factory.getViewLayout(WORKFLOW_VIEW_ID).setMoveable(false);
 		factory.getViewLayout(EXPERIMENT_CONFIG_VIEW_ID).setCloseable(false);
 		factory.getViewLayout(EXPERIMENT_CONFIG_VIEW_ID).setMoveable(false);
-		factory.getViewLayout(SICS_BUFFER_VALIDATOR_VIEW_ID).setCloseable(false);
-		factory.getViewLayout(SICS_BUFFER_VALIDATOR_VIEW_ID).setMoveable(false);
+//		factory.getViewLayout(SICS_BUFFER_VALIDATOR_VIEW_ID).setCloseable(false);
+//		factory.getViewLayout(SICS_BUFFER_VALIDATOR_VIEW_ID).setMoveable(false);
 //		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setMoveable(false);
 //		factory.getViewLayout(PROJECT_EXPLORER_VIEW_ID).setCloseable(false);
 		factory.setEditorAreaVisible(false);

@@ -6,9 +6,11 @@ import org.gumtree.control.exception.SicsException;
 
 public interface ISicsChannel {
 
-	String syncSend(String command, ISicsCallback callback, int timeout) throws SicsException;
 	String syncSend(String command, ISicsCallback callback) throws SicsException;
+	String syncSend(String command, ISicsCallback callback, int timeout) throws SicsException;
+	String syncSend(String command, ISicsCallback callback, int timeout, boolean progressOn) throws SicsException;
 	void asyncSend(String command, ISicsCallback callback) throws SicsException;
+	void asyncSend(String command, ISicsCallback callback, boolean progressOn) throws SicsException;
 	boolean isConnected();
 	void connect(String serverAddress, String publisherAddress) throws SicsCommunicationException;
 	void disconnect();

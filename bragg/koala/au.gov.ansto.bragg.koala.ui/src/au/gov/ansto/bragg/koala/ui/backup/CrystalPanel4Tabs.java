@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 import org.gumtree.control.core.ISicsController;
+import org.gumtree.control.core.ISicsModel;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.events.ISicsControllerListener;
 import org.gumtree.control.events.ISicsProxyListener;
@@ -357,13 +358,13 @@ public class CrystalPanel4Tabs extends AbstractControlPanel {
 		
 		public ChiControlSuite() {
 			if (controlHelper.isConnected()) {
-				initialise();
+				initialise(SicsManager.getSicsModel());
 			}
 			ISicsProxyListener proxyListener = new SicsProxyListenerAdapter() {
 				
 				@Override
-				public void modelUpdated() {
-					initialise();
+				public void modelUpdated(final ISicsModel sicsModel) {
+					initialise(sicsModel);
 				}
 				
 				@Override
@@ -375,8 +376,8 @@ public class CrystalPanel4Tabs extends AbstractControlPanel {
 			controlHelper.addProxyListener(proxyListener);
 		}
 		
-		private void initialise() {
-			final ISicsController chiController = ControlHelper.getProxy().getSicsModel().findController(
+		private void initialise(final ISicsModel sicsModel) {
+			final ISicsController chiController = sicsModel.findController(
 					System.getProperty(ControlHelper.SAMPLE_CHI));
 			if (chiController != null) {
 				if (chiController instanceof DriveableController) {

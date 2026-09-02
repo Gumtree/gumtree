@@ -202,6 +202,23 @@ public class GitService {
 //		push.setCredentialsProvider(credentialsProvider)
 	}
 	
+	public void addFilenames(List<String> filenames) throws GitException {
+		if (git != null ) {
+			AddCommand addCommand = git.add();
+			for (String fn : filenames) {
+				addCommand.addFilepattern(fn);
+			}
+			try {
+				addCommand.call();
+				logger.info(String.format("add change to repository: %s with %s", repoPath, filenames));
+			} catch (GitAPIException e) {
+				throw new GitException("Git error: failed to add.", e);
+			}
+		} else {
+			throw new GitException("Git error: git repository not ready");
+		}
+	}
+	
 	public void applyChange() throws GitException {
 		if (git != null) {
 

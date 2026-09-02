@@ -15,6 +15,10 @@ import org.gumtree.control.batch.tasks.ISicsCommand;
 
 public class ServerCommand extends DynamicCommand {
 
+	public ServerCommand() {
+		super("server");
+	}
+	
 	public ISicsCommand[] generateAvailableCommands() {
 		return SicsCommandFactory.createServerCommands();
 	}
