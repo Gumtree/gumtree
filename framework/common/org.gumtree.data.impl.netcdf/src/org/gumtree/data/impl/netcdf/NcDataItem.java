@@ -32,6 +32,7 @@ import ucar.ma2.Range;
 import ucar.nc2.Attribute;
 import ucar.nc2.AttributeContainerMutable;
 import ucar.nc2.Dimension;
+import ucar.nc2.Group;
 import ucar.nc2.Variable;
 import ucar.nc2.dataset.NetcdfDataset;
 import ucar.nc2.dataset.VariableDS;
@@ -150,14 +151,22 @@ public class NcDataItem extends VariableDS implements IDataItem {
 		List<Dimension> dimensionList = new ArrayList<Dimension>();
 		for (int i = 0; i < shape.length; i++) {
 			if (shape[i] > 0) {
-				NcDimension dimension = new NcDimension(String.valueOf(shape[i]),
-						shape[i]);
-				dimensionList.add(dimension);
-				NcDimension groupDimension = (NcDimension) group
-				.findDimension(dimension.getName());
-				if (groupDimension == null) {
-					group.addDimension(dimension);
+				String dimensionName = String.valueOf(shape[i]);
+				Dimension dimension = null;
+				if (group != null) {
+					// reuse the dimension already declared by this group or by
+					// one of its ancestors instead of duplicating it
+					dimension = group.findDimension(dimensionName);
+					if (dimension == null) {
+						// a dimension added to a group has to be shared
+						dimension = new NcDimension(dimensionName, shape[i],
+								true);
+						group.addDimension(dimension);
+					}
+				} else {
+					dimension = new NcDimension(dimensionName, shape[i], false);
 				}
+				dimensionList.add(dimension);
 			}
 		}
 		setDimensions(dimensionList);
@@ -218,11 +227,31 @@ public class NcDataItem extends VariableDS implements IDataItem {
 
 	@Override
 	public NcAttribute getAttribute(final String name) {
-		Attribute attribute = super.findAttribute(name);
+		return adopt(super.findAttribute(name));
+	}
+
+	/**
+	 * Adapt an attribute of this variable to the GDM model. Netcdf 5 adds plain
+	 * ucar.nc2.Attribute instances of its own (the enhancement layer does so for
+	 * "units", for instance), and such an attribute is replaced here by its GDM
+	 * counterpart, so that an update made on the returned attribute still
+	 * applies to this variable.
+	 *
+	 * @param attribute
+	 *            Netcdf Attribute object, may be null
+	 * @return a GDM attribute, or null when the given attribute is null
+	 */
+	private NcAttribute adopt(final Attribute attribute) {
+		if (attribute == null) {
+			return null;
+		}
 		if (attribute instanceof NcAttribute) {
 			return (NcAttribute) attribute;
 		}
-		return null;
+		NcAttribute adopted = new NcAttribute(attribute);
+		// replaces the plain attribute carrying the same name
+		addAttribute(adopted);
+		return adopted;
 	}
 
 	@Override
@@ -271,9 +300,9 @@ public class NcDataItem extends VariableDS implements IDataItem {
 	public NcDataItem getSlice(final int dim, final int value)
 			throws InvalidRangeException {
 		try {
-			return (NcDataItem) super.slice(dim, value);
+			return new NcDataItem((VariableDS) super.slice(dim, value));
 		} catch (ucar.ma2.InvalidRangeException ex) {
-			throw new InvalidRangeException(ex.getMessage());
+			throw new InvalidRangeException(ex);
 		}
 	}
 
@@ -287,25 +316,33 @@ public class NcDataItem extends VariableDS implements IDataItem {
 		try {
 			return new NcDataItem((VariableDS) super.section(ncRangeList));
 		} catch (Exception e) {
-			throw new InvalidRangeException(e.getMessage());
+			throw new InvalidRangeException(e);
 		}
 	}
 
 	@Override
 	public NcGroup getParentGroup() {
-		return (NcGroup) super.getParentGroup();
+		Group parent = super.getParentGroup();
+		if (parent instanceof NcGroup) {
+			return (NcGroup) parent;
+		}
+		// a plain Netcdf group is no GDM group and adapting it would detach
+		// this data item from the group it really belongs to
+		return null;
 	}
 	
 	@Override
 	public List<IDimension> getDimensions(final int i) {
         List<IDimension> list = new ArrayList<IDimension>();
-        list.add((NcDimension) super.getDimension(i));
+        list.add(NcDimension.wrap(super.getDimension(i)));
         return list;
 	}
 
 	@Override
 	public NcAttribute findAttributeIgnoreCase(final String name) {
-		return (NcAttribute) super.findAttributeIgnoreCase(name);
+		// the Netcdf enhancement layer calls this while a variable is still
+		// being constructed, hence this variable is left untouched here
+		return NcAttribute.wrap(super.findAttributeIgnoreCase(name));
 	}
 
 	/**
@@ -357,7 +394,8 @@ public class NcDataItem extends VariableDS implements IDataItem {
 		List<?> attributeList = getAttributes();
 		for (Iterator<?> iterator = attributeList.iterator(); iterator
 				.hasNext();) {
-			NcAttribute attribute = (NcAttribute) iterator.next();
+			NcAttribute attribute = NcAttribute
+					.wrap((Attribute) iterator.next());
 			result += attribute.toString() + "\n";
 		}
 		result += "</DataItem>\n";
@@ -433,12 +471,12 @@ public class NcDataItem extends VariableDS implements IDataItem {
 
 	@Override
 	public List<IAttribute> getAttributeList() {
-		if (getAttributes() == null) {
+		if (attributes() == null) {
 			return null;
 		}
 		List<IAttribute> attributeList = new ArrayList<IAttribute>();
-		for (Attribute attribute : getAttributes()) {
-			attributeList.add((NcAttribute) attribute);
+		for (Attribute attribute : attributes()) {
+			attributeList.add(new NcAttribute(attribute));
 		}
 		return attributeList;
 	}
@@ -450,7 +488,7 @@ public class NcDataItem extends VariableDS implements IDataItem {
 		}
 		List<IDimension> dimensionList = new ArrayList<IDimension>();
 		for (Dimension dimension : getDimensions()) {
-			dimensionList.add((NcDimension) dimension);
+			dimensionList.add(NcDimension.wrap(dimension));
 		}
 		return dimensionList;
 	}
@@ -484,7 +522,10 @@ public class NcDataItem extends VariableDS implements IDataItem {
 	
     @Override
 	public void setDimension(IDimension dim, int ind) throws DimensionNotSupportedException {
-        super.setDimension(ind, (NcDimension) dim);
+        if (!(dim instanceof Dimension)) {
+            throw new DimensionNotSupportedException("not a netcdf dimension");
+        }
+        super.setDimension(ind, (Dimension) dim);
         
     }
 

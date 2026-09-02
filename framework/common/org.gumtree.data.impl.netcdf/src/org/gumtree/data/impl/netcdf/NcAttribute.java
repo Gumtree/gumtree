@@ -10,6 +10,10 @@
  ******************************************************************************/
 package org.gumtree.data.impl.netcdf;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.gumtree.data.Factory;
 import org.gumtree.data.impl.NcFactory;
 import org.gumtree.data.interfaces.IArray;
@@ -26,6 +30,36 @@ public class NcAttribute extends ucar.nc2.Attribute implements IAttribute {
 	 * The default name label.
 	 */
 	private static final String DEFAULT_NAME = "default";
+
+	/**
+	 * The Netcdf Attribute fields holding the value.
+	 */
+	private static final List<Field> VALUE_FIELDS = findValueFields();
+
+	/**
+	 * Look up the Netcdf Attribute fields holding the value. Netcdf 5 keeps the
+	 * String value of an attribute apart from its array value and its
+	 * setValues method only refreshes the one matching the given array, leaving
+	 * the other one stale, hence both have to be cleared before a new value is
+	 * set.
+	 *
+	 * @return the value fields, empty when the Netcdf implementation no longer
+	 *         declares them
+	 */
+	private static List<Field> findValueFields() {
+		List<Field> fields = new ArrayList<Field>();
+		for (String name : new String[] { "svalue", "values" }) {
+			try {
+				Field field = ucar.nc2.Attribute.class.getDeclaredField(name);
+				field.setAccessible(true);
+				fields.add(field);
+			} catch (Exception e) {
+				// nothing to clear, an update then leaves behind whichever
+				// value does not match the new one
+			}
+		}
+		return fields;
+	}
 
 	/**
 	 * Wrapper constructor.
@@ -119,6 +153,26 @@ public class NcAttribute extends ucar.nc2.Attribute implements IAttribute {
 		super(name);
 	}
 
+	/**
+	 * Adapt a Netcdf Attribute to the GDM model. Netcdf 5 stores plain
+	 * ucar.nc2.Attribute instances of its own making in a variable or a group,
+	 * so an attribute handed back by the Netcdf API cannot simply be cast.
+	 *
+	 * @param attribute
+	 *            Netcdf Attribute object, may be null
+	 * @return the given attribute when it already is a GDM attribute, a GDM
+	 *         copy of it otherwise, or null when the given attribute is null
+	 */
+	public static NcAttribute wrap(final ucar.nc2.Attribute attribute) {
+		if (attribute == null) {
+			return null;
+		}
+		if (attribute instanceof NcAttribute) {
+			return (NcAttribute) attribute;
+		}
+		return new NcAttribute(attribute);
+	}
+
 	@Override
 	public Class<?> getType() {
 		return getDataType().getPrimitiveClassType();
@@ -131,7 +185,23 @@ public class NcAttribute extends ucar.nc2.Attribute implements IAttribute {
 
 	@Override
 	public void setValue(final IArray value) {
-		setValues(((NcArray) value).getArray());
+		// netCDF-Java 5.x locks every Attribute in its constructors, so
+		// setValues() would always fail with "Cant modify". GDM attributes are
+		// mutable by contract, hence the lock is lifted for the update only.
+		final boolean wasImmutable = immutable;
+		immutable = false;
+		try {
+			for (Field field : VALUE_FIELDS) {
+				try {
+					field.set(this, null);
+				} catch (IllegalAccessException e) {
+					// see findValueFields
+				}
+			}
+			setValues(((NcArray) value).getArray());
+		} finally {
+			immutable = wasImmutable;
+		}
 	}
 
 	@Override

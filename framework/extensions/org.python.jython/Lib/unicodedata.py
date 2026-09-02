@@ -227,3 +227,13 @@ def init():
     init_east_asian_width(StringIO.StringIO(loader.get_data(os.path.join(my_path,'EastAsianWidth.txt'))))
 
 init()
+
+# The database loaded above is UCD 4.1.0.
+unidata_version = '4.1.0'
+
+# CPython exposes a frozen Unicode 3.2.0 database as `ucd_3_2_0` for
+# stringprep/idna. This build only carries the one database, so alias it
+# rather than leave `from unicodedata import ucd_3_2_0` unresolvable --
+# without it codecs.lookup('idna') fails with LookupError.
+import sys as _sys
+ucd_3_2_0 = _sys.modules[__name__]

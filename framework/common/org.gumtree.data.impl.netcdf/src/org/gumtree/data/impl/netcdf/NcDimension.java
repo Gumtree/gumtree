@@ -62,6 +62,27 @@ public class NcDimension extends ucar.nc2.Dimension implements IDimension {
 		super(name, length, false);
 	}
 
+	/**
+	 * Adapt a Netcdf Dimension to the GDM model. Netcdf 5 hands out plain
+	 * ucar.nc2.Dimension instances of its own making, a sliced or sectioned
+	 * variable carrying anonymous ones for instance, so a dimension coming from
+	 * the Netcdf API cannot simply be cast.
+	 *
+	 * @param dimension
+	 *            Netcdf Dimension object, may be null
+	 * @return the given dimension when it already is a GDM dimension, a GDM
+	 *         copy of it otherwise, or null when the given dimension is null
+	 */
+	public static NcDimension wrap(final ucar.nc2.Dimension dimension) {
+		if (dimension == null) {
+			return null;
+		}
+		if (dimension instanceof NcDimension) {
+			return (NcDimension) dimension;
+		}
+		return new NcDimension(dimension.getShortName(), dimension);
+	}
+
 	@Override
 	public IArray getCoordinateVariable() {
 		return coordinateVariable;

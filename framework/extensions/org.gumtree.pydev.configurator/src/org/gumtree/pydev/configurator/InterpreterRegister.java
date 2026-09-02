@@ -10,6 +10,7 @@ import org.gumtree.pydev.configurator.internal.Activator;
 import org.gumtree.util.eclipse.OsgiUtils;
 import org.gumtree.util.string.StringUtils;
 import org.osgi.framework.Bundle;
+import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IInterpreterInfo;
@@ -25,6 +26,17 @@ public class InterpreterRegister implements IStartup {
 
 	@Override
 	public void earlyStartup() {
+		// PyDev asks a helper process (pysrc/pycompletionserver.py, run by the
+		// configured interpreter) for the contents of compiled/builtin modules.
+		// From PyDev 13 that script is Python 3 only - it imports _thread,
+		// queue and xmlrpc.client - so it cannot run on the Jython 2.7 we
+		// register below. Every builtin module lookup therefore spent 5 x 5
+		// seconds waiting for a client that had already died, then logged
+		// "The python client still hasn't connected back to the eclipse java
+		// vm". Turn the shell based lookup off: it yields nothing here anyway,
+		// while source based completion and the Java class integration (the
+		// reason we register a Jython interpreter at all) are unaffected.
+		CompiledModule.COMPILED_MODULES_ENABLED = false;
 		try {
 			// Prepare interpreter info
 //			IInterpreterManager interpreterManager = PydevPlugin

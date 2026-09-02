@@ -157,7 +157,9 @@ public class NcGroup extends ucar.nc2.Group implements IGroup {
 			addGroup(group.clone());
 		}
 		for (IAttribute attribute : from.getAttributeList()) {
-			addAttribute(new NcAttribute((NcAttribute) attribute));
+			if (attribute instanceof Attribute) {
+				addAttribute(new NcAttribute((Attribute) attribute));
+			}
 		}
 		if (isRoot()) {
 			this.setParent(null);
@@ -394,17 +396,70 @@ public class NcGroup extends ucar.nc2.Group implements IGroup {
 
 	@Override
 	public NcAttribute getAttribute(final String name) {
-		return (NcAttribute) super.findAttribute(name);
+		return adopt(super.findAttribute(name));
+	}
+
+	/**
+	 * Adapt an attribute of this group to the GDM model. Netcdf 5 stores plain
+	 * ucar.nc2.Attribute instances of its own making, and such an attribute is
+	 * replaced here by its GDM counterpart, so that an update made on the
+	 * returned attribute still applies to this group.
+	 *
+	 * @param attribute
+	 *            Netcdf Attribute object, may be null
+	 * @return a GDM attribute, or null when the given attribute is null
+	 */
+	private NcAttribute adopt(final Attribute attribute) {
+		if (attribute == null) {
+			return null;
+		}
+		if (attribute instanceof NcAttribute) {
+			return (NcAttribute) attribute;
+		}
+		NcAttribute adopted = new NcAttribute(attribute);
+		// replaces the plain attribute carrying the same name
+		addAttribute(adopted);
+		return adopted;
 	}
 
 	@Override
 	public NcDataItem getDataItem(final String shortName) {
-		return (NcDataItem) findVariable(shortName);
+		return adopt(findVariable(shortName));
+	}
+
+	/**
+	 * Adapt a variable of this group to the GDM model. Netcdf 5 stores plain
+	 * variables of its own making, and such a variable is replaced here by its
+	 * GDM counterpart, so that an update made on the returned data item still
+	 * applies to this group.
+	 *
+	 * @param variable
+	 *            Netcdf Variable object, may be null
+	 * @return a GDM data item, or null when the given variable is null or
+	 *         cannot be adapted
+	 */
+	private NcDataItem adopt(final Variable variable) {
+		if (variable == null) {
+			return null;
+		}
+		if (variable instanceof NcDataItem) {
+			return (NcDataItem) variable;
+		}
+		if (!(variable instanceof VariableDS)) {
+			return null;
+		}
+		NcDataItem adopted = new NcDataItem((VariableDS) variable);
+		adopted.setParent(this);
+		adopted.setDataset(dataset);
+		// replaces the plain variable carrying the same name
+		variables.remove(variable);
+		variables.add(adopted);
+		return adopted;
 	}
 
 	@Override
 	public NcDimension getDimension(final String name) {
-		return (NcDimension) super.findDimension(name);
+		return NcDimension.wrap(super.findDimension(name));
 	}
 
 	@Override
@@ -874,7 +929,8 @@ public class NcGroup extends ucar.nc2.Group implements IGroup {
 		List<?> attributeList = getAttributes();
 		for (Iterator<?> iterator = attributeList.iterator(); iterator
 				.hasNext();) {
-			NcAttribute attribute = (NcAttribute) iterator.next();
+			NcAttribute attribute = NcAttribute
+					.wrap((Attribute) iterator.next());
 			result += attribute.toString() + "\n";
 		}
 		result += "</Group>\n";
@@ -1109,7 +1165,7 @@ public class NcGroup extends ucar.nc2.Group implements IGroup {
 		}
 		List<IAttribute> attributeList = new ArrayList<IAttribute>();
 		for (Attribute attribute : getAttributes()) {
-			attributeList.add((NcAttribute) attribute);
+			attributeList.add(NcAttribute.wrap(attribute));
 		}
 		return attributeList;
 	}
@@ -1133,7 +1189,7 @@ public class NcGroup extends ucar.nc2.Group implements IGroup {
 		}
 		List<IDimension> dimensionList = new ArrayList<IDimension>();
 		for (Dimension dimension : getDimensions()) {
-			dimensionList.add((NcDimension) dimension);
+			dimensionList.add(NcDimension.wrap(dimension));
 		}
 		return dimensionList;
 	}
