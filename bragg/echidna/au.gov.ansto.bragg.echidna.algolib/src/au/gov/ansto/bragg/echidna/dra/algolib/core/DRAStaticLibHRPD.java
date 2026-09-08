@@ -439,7 +439,7 @@ public class DRAStaticLibHRPD {
      * @param err An array to put the error values into.
      * @param stdDev An array to put the standard deviation values into.
      * @param numSlices How many slices should be considered.
-     * @param startpoint The atart point to consider with two d point (x1,y1).
+     * @param startpoint The start point to consider with two d point (x1,y1).
      * @param endpoint  the end point to consider  with two d point (x2,y2).
      * @param xOrigin  The x coodinate of beam center,  currently set xOrigin= 0.0. If it is special, input your value!
      * @param yOrigin  The y coodinate of beam center,  currently set xOrigin= 0.0. If it is special, input your value!
@@ -482,7 +482,7 @@ public class DRAStaticLibHRPD {
      * @param err An array to put the error values into.
      * @param stdDev An array to put the standard deviation values into.
      * @param numSlices How many slices should be considered.
-     * @param startpoint The atart point to consider with two d point (x1,y1).
+     * @param startpoint The start point to consider with two d point (x1,y1).
      * @param endpoint  the end point to consider  with two d point (x2,y2).
      * @param xOrigin  The x coodinate of beam center,  currently set xOrigin= 0.0. If it is special, input your value!
      * @param yOrigin  The y coodinate of beam center,  currently set xOrigin= 0.0. If it is special, input your value!
@@ -508,7 +508,7 @@ public class DRAStaticLibHRPD {
      * @param err An array to put the error values into.
      * @param stdDev An array to put the standard deviation values into.
      * @param numSlices How many slices should be considered.
-     * @param startpoint The atart point to consider with two d point (x1,y1).
+     * @param startpoint The start point to consider with two d point (x1,y1).
      * @param endpoint  the end point to consider  with two d point (x2,y2).
      * @param xOrigin  The x coodinate of beam center,  currently set xOrigin= 0.0. If it is special, input your value!
      * @param yOrigin  The y coodinate of beam center,  currently set xOrigin= 0.0. If it is special, input your value!
@@ -535,16 +535,16 @@ public class DRAStaticLibHRPD {
      * @param err An array to put the error values into.
      * @param stdDev An array to put the standard deviation values into.
      * @param numSlices How many slices should be considered.
-     * @param startpoint The atart point to consider with two d point (x1,y1).
+     * @param startpoint The start point to consider with two d point (x1,y1).
      * @param endpoint  the end point to consider  with two d point (x2,y2).
      * @param xOrigin  The x coodinate of beam center,  currently set xOrigin= 0.0. If it is special, input your value!
      * @param yOrigin  The y coodinate of beam center,  currently set xOrigin= 0.0. If it is special, input your value!
      * @param pos The position from the ditector to sample, default value is obtained from meta data. 
      *                         If there is any special, you can input hear. Otherwise input 0.0.
  	 * @param thetaVect: the detector tube 2 theta position (nScan * nTubes)
-	 * @return two vector arrays totals[2][xPexels]
-     *                 totals[0][xPexels]   present number of neutron in each integrated bin
-     *                 totals[1][xPexels]   present value of error in each integrated bin
+	 * @return two vector arrays totals[2][xPixels]
+     *                 totals[0][xPixels]   present number of neutron in each integrated bin
+     *                 totals[1][xPixels]   present value of error in each integrated bin
      *                 totals[2][numSlices]   present value of thetaVect in each integrated bin               
 	 * @throws ObjectAccessException
 	 */

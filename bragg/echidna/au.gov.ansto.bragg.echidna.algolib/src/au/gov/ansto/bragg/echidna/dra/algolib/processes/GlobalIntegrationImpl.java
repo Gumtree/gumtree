@@ -28,9 +28,9 @@ public class GlobalIntegrationImpl extends HRPDProcessor implements GlobalIntegr
      * Finds the global integration about a point.
      * @param data The data to be integrated.
 	 * @param numSlices How many slices should be considered.
-	 * @return two vector arrays totals[2][xPexels]
-     *                 totals[0][xPexels]   present number of neutron in each integrated bin
-     *                 totals[1][xPexels]   present value of error in each integrated bin
+	 * @return two vector arrays totals[2][xPixels]
+     *                 totals[0][xPixels]   present number of neutron in each integrated bin
+     *                 totals[1][xPixels]   present value of error in each integrated bin
      *                 totals[2][numSlices]   present value of thetaVect in each integrated bin
      */
     public  double[][] findGlobalIntegration(double[][] data, int numSlices, double[] thetaVect ) {

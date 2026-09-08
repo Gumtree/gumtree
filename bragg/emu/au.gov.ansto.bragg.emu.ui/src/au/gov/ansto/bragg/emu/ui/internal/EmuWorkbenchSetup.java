@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * This class is responsible for launching the special Pelican workbench layout during
+ * This class is responsible for launching the special Emu workbench layout during
  * start up.
  * 
  * @author Tony Lam
