@@ -19,9 +19,9 @@ public interface GlobalIntegration {
      * Points where data = 0 are considered to be masked.
 	 * @param numSlices How many slices should be considered.
 	 * @param thetaVect TODO
-	 * @return two vector arrays totals[2][xPexels]
-     *                 totals[0][xPexels]   present number of neutron in each integrated bin
-     *                 totals[1][xPexels]   present value of error in each integrated bin
+	 * @return two vector arrays totals[2][xPixels]
+     *                 totals[0][xPixels]   present number of neutron in each integrated bin
+     *                 totals[1][xPixels]   present value of error in each integrated bin
      */
     public  double[][] findGlobalIntegration(double[][] data, int numSlices, double[] thetaVect );
 

@@ -28,13 +28,13 @@ public class SquareRegionIntegrationImpl extends HIPDProcessor implements Square
      * Finds the square integration about a mask.
      * @param data The data to be integrated.
 	 * @param numSlices How many slices should be considered.
-	 * @param startpoint The atart point to consider with two d point (x1,y1).
+	 * @param startpoint The start point to consider with two d point (x1,y1).
 	 * @param endpoint  the end point to consider  with two d point (x2,y2).
 	 *
 	 * @param thetaVect: the theta vector for each detector tube.
-	 * @return two vector arrays totals[2][xPexels]
-     *                 totals[0][xPexels]   present number of neutron in each integrated bin
-     *                 totals[1][xPexels]   present value of error in each integrated bin
+	 * @return two vector arrays totals[2][xPixels]
+     *                 totals[0][xPixels]   present number of neutron in each integrated bin
+     *                 totals[1][xPixels]   present value of error in each integrated bin
      *                 totals[2][numSlices]   present value of thetaVect in each integrated bin
      */
     public  double[][] findSquareMask(double[][] data, int numSlices,

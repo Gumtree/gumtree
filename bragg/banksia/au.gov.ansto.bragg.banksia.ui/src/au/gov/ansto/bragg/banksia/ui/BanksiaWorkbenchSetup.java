@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * This class is responsible for launching the special Platypus workbench layout during
+ * This class is responsible for launching the special Banksia workbench layout during
  * start up.
  * 
  * @author nxi

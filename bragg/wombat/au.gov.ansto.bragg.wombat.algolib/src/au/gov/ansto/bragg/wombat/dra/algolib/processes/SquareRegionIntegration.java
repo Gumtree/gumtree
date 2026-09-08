@@ -20,7 +20,7 @@ public interface SquareRegionIntegration {
      * @param data The data to be integrated.
      * Points where data = 0 are considered to be masked.
 	 * @param numSlices How many slices should be considered.
-	 * @param startpoint The atart point to consider.
+	 * @param startpoint The start point to consider.
 	 * @param endpoint  the end point to consider.
 	 * @param thetaVect TODO
 	 * @return The integrated data set.

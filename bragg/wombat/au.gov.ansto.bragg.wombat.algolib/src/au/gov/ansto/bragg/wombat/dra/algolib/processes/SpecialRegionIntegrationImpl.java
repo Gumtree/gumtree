@@ -41,9 +41,9 @@ public class SpecialRegionIntegrationImpl extends HIPDProcessor  implements Spec
      * @param xCenter The beam center X coordinate.
      * @param yCenter The beam center Y coordinate.
      * @param dir The angle from the vertical to be considered as X for the output.
-    * @return two vector arrays totals[2][xPexels]
-     *                 totals[0][xPexels]   present number of neutron in each integrated bin
-     *                 totals[1][xPexels]   present value of error in each integrated bin
+    * @return two vector arrays totals[2][xPixels]
+     *                 totals[0][xPixels]   present number of neutron in each integrated bin
+     *                 totals[1][xPixels]   present value of error in each integrated bin
      */
     public  double[][] findMaskArea(double[][] data,
             int numSlices, double minDist, double maxDist, double xCenter,
