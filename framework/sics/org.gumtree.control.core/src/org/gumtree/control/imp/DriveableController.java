@@ -46,8 +46,9 @@ public class DriveableController extends DynamicController implements IDriveable
 	@Override
 	public boolean commitTargetValue() throws SicsException {
 //		return commitTargetWithDrive(null);
-		run();
-		return false;
+//		run();
+//		return false;
+		return super.commitTargetValue();
 	}
 	
 	@Override
