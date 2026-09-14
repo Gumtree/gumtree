@@ -1,4 +1,5 @@
 /.claude/
+/docs/
 
 # Compiled Java class files
 *.class
