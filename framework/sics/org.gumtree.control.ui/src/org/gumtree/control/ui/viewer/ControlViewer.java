@@ -162,7 +162,7 @@ public class ControlViewer {
 		treeViewer.setInput(SicsManager.getSicsModel());
 
 		// Setup drag source
-		DragSource ds = new DragSource(treeViewer.getTree(), DND.DROP_MOVE);
+		DragSource ds = new DragSource(treeViewer.getTree(), DND.DROP_MOVE | DND.DROP_COPY);
 	    ds.setTransfer(new Transfer[] { LocalSelectionTransfer.getTransfer() });
 	    ds.addDragListener(new DragSourceAdapter() {
 	    	public void dragFinished(DragSourceEvent event) {
