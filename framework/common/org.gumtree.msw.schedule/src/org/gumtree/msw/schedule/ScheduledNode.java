@@ -913,6 +913,20 @@ public class ScheduledNode {
 				owner.onChangedIndex(this);
 		}
 		else {
+			// [ISSUE-001] The source element decides whether this node has a row in the
+			// acquisition tree at all; values.get(enabled) is the per-branch tick the user
+			// made on that row. Once the source element is deselected the row disappears,
+			// so the tick can no longer be seen or undone - drop it here, otherwise it
+			// survives as a stale "enabled" that the schedule walker would still run.
+			// Defaults are deliberately left alone: AcquisitionComposite uses them for the
+			// BLOCKED_BEAM / EMPTY_BEAM rules and the bulk transmission toggle. This runs
+			// even while properties are locked so that the next walk starts clean.
+			if ((enabledProperty == property) && Boolean.FALSE.equals(newValue)) {
+				values.remove(property);
+				if (acquisitionValues != null)
+					acquisitionValues.remove(property);
+			}
+			
 			if (!propertiesLocked &&
 				(enabledProperty != null) && (newValue instanceof Boolean) &&
 				(enabledProperty == property)) {
