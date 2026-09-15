@@ -256,7 +256,23 @@ public class CommandLineTerminal extends ViewPart implements ICommandLineTermina
 			textDisplay = new TerminalText(testDisplayGroup, SWT.MULTI | SWT.V_SCROLL
 	                | SWT.H_SCROLL | SWT.FULL_SELECTION | SWT.READ_ONLY);
 			testDisplayGroup.layout(true);
+			handleTextDisplayCreated(textDisplay);
 		}
+	}
+
+	protected TerminalText getTextDisplay() {
+		return textDisplay;
+	}
+
+	/**
+	 * Called on the UI thread every time a new text display has been created for
+	 * this terminal. Subclasses may override to decorate the display, eg to
+	 * attach a drop target or a context menu.
+	 *
+	 * @param textDisplay the newly created text display
+	 */
+	protected void handleTextDisplayCreated(TerminalText textDisplay) {
+		// Subclasses may override
 	}
 
 	private ICommunicationAdapter getAdapter() {
