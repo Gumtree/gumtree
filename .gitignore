@@ -23,6 +23,7 @@ release.properties
 # Gradle
 .gradle/
 build/
+!/bragg/build/
 
 # Eclipse
 .metadata/

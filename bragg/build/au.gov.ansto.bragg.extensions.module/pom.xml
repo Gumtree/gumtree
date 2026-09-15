@@ -258,6 +258,7 @@
 		<profile>
 			<id>test</id>
 			<modules>
+				<module>${quokka.path}/au.gov.ansto.bragg.quokka.msw.tests</module>
 			</modules>
 		</profile>
 	</profiles>
