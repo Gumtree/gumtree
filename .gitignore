@@ -1,4 +1,5 @@
 /.claude/
+/docs/
 
 # Compiled Java class files
 *.class
@@ -38,3 +39,4 @@ tmp/
 
 # VS Code
 .vscode/
+opencode.json
