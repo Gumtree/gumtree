@@ -339,7 +339,7 @@ public class ControlTerminalView extends CommandLineTerminal {
 	}
 
 	/**
-	 * Prints every update event of a dropped device to the terminal text.
+	 * Prints every value update event of a dropped device to the terminal text.
 	 */
 	private class DeviceMonitor implements ISicsControllerListener {
 
@@ -367,22 +367,22 @@ public class ControlTerminalView extends CommandLineTerminal {
 
 		@Override
 		public void updateValue(Object oldValue, Object newValue) {
-			printMessage(label + " value = " + format(newValue, controller));
+			printMessage(label + " = " + format(newValue, controller));
 		}
 
 		@Override
 		public void updateTarget(Object oldValue, Object newValue) {
-			printMessage(label + " target = " + format(newValue, controller));
+			// Only value changes are monitored
 		}
 
 		@Override
 		public void updateState(ControllerState oldState, ControllerState newState) {
-			printMessage(label + " state = " + newState);
+			// Only value changes are monitored
 		}
 
 		@Override
 		public void updateEnabled(boolean isEnabled) {
-			printMessage(label + (isEnabled ? " enabled" : " disabled"));
+			// Only value changes are monitored
 		}
 	}
 }
