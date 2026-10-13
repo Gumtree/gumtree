@@ -16,6 +16,12 @@
             id="au.gov.ansto.bragg.kookaburra.ui.KKBScanPerspective"
             name="KKB-Scan">
       </perspective>
+	  <perspective
+            class="au.gov.ansto.bragg.kookaburra.ui.internal.KKBConfigPerspective"
+            icon="icons/project_view.gif"
+            id="au.gov.ansto.bragg.kookaburra.ui.KKBConfigPerspective"
+            name="KKB-Config">
+      </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.views">
@@ -37,6 +43,14 @@
              category="au.gov.ansto.bragg.kookaburra"
 	         allowMultiple = "false" 
 	         class="au.gov.ansto.bragg.kookaburra.ui.internal.KKBScanView">
+	  </view>
+      <view 
+	         id="au.gov.ansto.bragg.kookaburra.ui.KKBConfigView" 
+	         name="KKB-Config View"
+	         icon="icons/exp_per.gif"
+             category="au.gov.ansto.bragg.kookaburra"
+	         allowMultiple = "false" 
+	         class="au.gov.ansto.bragg.kookaburra.ui.internal.KKBConfigView">
 	  </view>
    </extension>
    <extension
