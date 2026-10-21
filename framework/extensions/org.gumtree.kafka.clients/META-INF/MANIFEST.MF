@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gumtree Kafka Clients
+Bundle-SymbolicName: org.gumtree.kafka.clients
+Bundle-Version: 1.13.0.qualifier
+Bundle-Vendor: ANSTO
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.apache.kafka.clients;bundle-version="3.9.1";visibility:=reexport,
+ org.gumtree.core;bundle-version="1.13.0",
+ org.slf4j.api;bundle-version="1.6.4",
+ org.eclipse.core.runtime;bundle-version="3.8.0"
+Export-Package: org.gumtree.kafka.clients
+Bundle-Activator: org.gumtree.kafka.clients.Activator
+Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/services/KafkaProducerService.xml,
+ OSGI-INF/services/KafkaConsumerService.xml
