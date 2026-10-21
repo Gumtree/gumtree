@@ -1,0 +1,28 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+<title>About</title>
+</head>
+<body lang="EN-US">
+<h2>About This Content</h2>
+
+<p>This bundle wraps the official Apache Kafka Java client and its runtime
+dependencies, unmodified, as an OSGi bundle.</p>
+
+<table border="1" cellpadding="4">
+<tr><th>Library</th><th>Version</th><th>License</th></tr>
+<tr><td><a href="https://kafka.apache.org/">Apache Kafka Clients</a> (org.apache.kafka:kafka-clients)</td><td>3.9.1</td><td><a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a></td></tr>
+<tr><td><a href="https://github.com/luben/zstd-jni">zstd-jni</a> (com.github.luben:zstd-jni)</td><td>1.5.6-4</td><td><a href="https://opensource.org/licenses/BSD-2-Clause">BSD 2-Clause</a></td></tr>
+<tr><td><a href="https://github.com/lz4/lz4-java">lz4-java</a> (org.lz4:lz4-java)</td><td>1.8.0</td><td><a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a></td></tr>
+<tr><td><a href="https://github.com/xerial/snappy-java">snappy-java</a> (org.xerial.snappy:snappy-java)</td><td>1.1.10.5</td><td><a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a></td></tr>
+<tr><td><a href="https://www.slf4j.org/">SLF4J API</a> (org.slf4j:slf4j-api), <code>org.slf4j.event.Level</code> and <code>EventConstants</code> only</td><td>1.7.36</td><td><a href="https://www.slf4j.org/license.html">MIT License</a></td></tr>
+</table>
+
+<p>The target platform provides <code>org.slf4j.api</code> 1.6.4, which lacks the
+<code>org.slf4j.event</code> package that Kafka 3.9 uses. The two classes of that
+package are embedded privately (slf4j-event-1.7.36.jar, extracted unchanged from
+slf4j-api-1.7.36.jar); all other slf4j packages are imported from the platform so
+Kafka log output goes to the Gumtree logging configuration.</p>
+</body>
+</html>

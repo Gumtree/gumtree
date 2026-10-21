@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.gumtree.kafka.feature"
+      label="Gumtree Extensions Kafka"
+      version="1.13.0.qualifier"
+      provider-name="Bragg Institute">
+
+   <description url="http://www.example.com/description">
+      Apache Kafka Java client (kafka-clients 3.9.1) packaged as an OSGi bundle.
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="https://www.apache.org/licenses/LICENSE-2.0">
+      Apache Kafka, lz4-java and snappy-java are licensed under the Apache License 2.0.
+zstd-jni is licensed under the BSD 2-Clause License. The embedded org.slf4j.event
+classes are licensed under the MIT License. See about.html in the
+org.apache.kafka.clients bundle for details.
+   </license>
+
+   <requires>
+      <import plugin="org.slf4j.api" version="1.6.4" match="greaterOrEqual"/>
+   </requires>
+
+   <plugin
+         id="org.apache.kafka.clients"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.gumtree.kafka.clients"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
