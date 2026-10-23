@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * This class is responsible for launching the special Platypus workbench layout during
+ * This class is responsible for launching the special Dingo workbench layout during
  * start up.
  * 
  * @author nxi

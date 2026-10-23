@@ -23,7 +23,7 @@ public interface OvalRegionIntegration {
     * @param err An array to put the error values into.
     * @param stdDev An array to put the standard deviation values into.
     * @param numSlices How many slices should be considered.
-    * @param startpoint The atart point to consider.
+    * @param startpoint The start point to consider.
     * @param endpoint  the end point to consider.
     * @param xCenter The beam center X coordinate.
     * @param yCenter The beam center Y coordinate.

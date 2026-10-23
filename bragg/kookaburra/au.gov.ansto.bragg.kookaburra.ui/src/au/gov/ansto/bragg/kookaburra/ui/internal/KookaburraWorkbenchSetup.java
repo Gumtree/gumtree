@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import au.gov.ansto.bragg.kookaburra.ui.KookaburraWorkbenchLauncher;
 
 /**
- * This class is responsible for launching the special Kowari workbench layout during
+ * This class is responsible for launching the special Kookaburra workbench layout during
  * start up.
  * 
  * @author Tony Lam

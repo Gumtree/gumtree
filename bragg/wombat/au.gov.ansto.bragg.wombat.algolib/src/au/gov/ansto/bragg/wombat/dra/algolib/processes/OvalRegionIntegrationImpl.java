@@ -25,15 +25,15 @@ public class OvalRegionIntegrationImpl extends HIPDProcessor implements OvalRegi
      * @param data The data to be used.
      * Points where data = 0 are considered to be masked.
 	 * @param numSlices How many slices should be considered.
-	 * @param startpoint The atart point to consider.
+	 * @param startpoint The start point to consider.
 	 * @param endpoint  the end point to consider.
 	 * @param xCenter The beam center X coordinate.
 	 * @param yCenter The beam center Y coordinate.
 	 * @param  pos   the distance from sample to detector
 	 * @param thetaVect  two theta vector for wombat detectors.
-     * @return two vector arrays totals[2][xPexels]
-     *                 totals[0][xPexels]   present number of neutron in each integrated bin
-     *                 totals[1][xPexels]   present value of error in each integrated bin
+     * @return two vector arrays totals[2][xPixels]
+     *                 totals[0][xPixels]   present number of neutron in each integrated bin
+     *                 totals[1][xPixels]   present value of error in each integrated bin
      */
     public  double[][] ovalMaskRegion (double[][] data, int numSlices,	FPoint startpoint,
             FPoint endpoint, double xCenter,   double yCenter,  double pos, double[] thetaVect) {

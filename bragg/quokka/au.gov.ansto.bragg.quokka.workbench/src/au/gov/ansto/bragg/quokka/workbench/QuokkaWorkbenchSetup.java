@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import au.gov.ansto.bragg.quokka.ui.QuokkaWorkbenchLauncher;
 
 /**
- * This class is responsible for launching the special Kowari workbench layout during
+ * This class is responsible for launching the special Quokka workbench layout during
  * start up.
  * 
  * @author Tony Lam

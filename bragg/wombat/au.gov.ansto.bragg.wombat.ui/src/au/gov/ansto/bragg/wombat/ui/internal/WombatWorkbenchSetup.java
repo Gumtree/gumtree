@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is responsible for launching the special Echidna workbench layout during
+ * This class is responsible for launching the special Wombat workbench layout during
  * start up.
  * 
  * @author Tony Lam

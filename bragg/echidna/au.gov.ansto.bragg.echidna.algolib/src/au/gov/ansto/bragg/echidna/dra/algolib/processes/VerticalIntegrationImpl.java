@@ -30,9 +30,9 @@ public class VerticalIntegrationImpl extends HRPDProcessor implements VerticalIn
 	 * @param xOrigin
 	 * @param yOrigin
 	 * @param dir The angle from the vertical to be considered as X for the output.
-	 * @return two vector arrays totals[2][xPexels]
-     *                 totals[0][xPexels]   present number of neutron in each integrated bin
-     *                 totals[1][xPexels]   present value of error in each integrated bin
+	 * @return two vector arrays totals[2][xPixels]
+     *                 totals[0][xPixels]   present number of neutron in each integrated bin
+     *                 totals[1][xPixels]   present value of error in each integrated bin
      *                 totals[2][numSlices]   present value of thetaVect in each integrated bin
      */
     public double[][] findVerticalIntegration(double[][] data, int numSlices,

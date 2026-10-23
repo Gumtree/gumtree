@@ -10,7 +10,7 @@ import au.gov.ansto.bragg.taipan.ui.TaipanAnalysisLauncher;
 import au.gov.ansto.bragg.taipan.ui.TaipanWorkbenchLauncher;
 
 /**
- * This class is responsible for launching the special Kowari workbench layout during
+ * This class is responsible for launching the special Taipan workbench layout during
  * start up.
  * 
  * @author Tony Lam

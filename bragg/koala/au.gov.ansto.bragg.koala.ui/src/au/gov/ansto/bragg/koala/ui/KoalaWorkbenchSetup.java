@@ -27,7 +27,7 @@ import au.gov.ansto.bragg.koala.ui.parts.KoalaMainPerspective;
 
 
 /**
- * This class is responsible for launching the special Platypus workbench layout during
+ * This class is responsible for launching the special Koala workbench layout during
  * start up.
  * 
  * @author nxi
