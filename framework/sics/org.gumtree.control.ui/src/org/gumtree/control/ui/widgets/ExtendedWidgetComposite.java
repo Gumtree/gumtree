@@ -57,8 +57,8 @@ public abstract class ExtendedWidgetComposite extends ExtendedComposite {
 
 	protected void bindSicsProxy() {
 		ISicsProxy proxy = SicsManager.getSicsProxy();
-		if (proxy.isConnected()) {
-			handleSicsConnect();
+		if (proxy.isModelAvailable()) {
+			handleModelUpdate();
 		}
 //		internalHandleSicsConnect();
 		proxyListener = new SicsProxyListenerAdapter() {
