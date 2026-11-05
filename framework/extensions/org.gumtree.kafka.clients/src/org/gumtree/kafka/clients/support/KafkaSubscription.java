@@ -3,7 +3,7 @@ package org.gumtree.kafka.clients.support;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -51,10 +51,10 @@ class KafkaSubscription implements IKafkaSubscription, Runnable {
 
 	private volatile boolean active = true;
 
-	KafkaSubscription(Properties config, List<String> topics, IKafkaMessageListener listener,
+	KafkaSubscription(Map<String, Object> config, List<String> topics, IKafkaMessageListener listener,
 			KafkaConsumerService owner) {
 		this.topics = Collections.unmodifiableList(topics);
-		this.groupId = config.getProperty(ConsumerConfig.GROUP_ID_CONFIG);
+		this.groupId = String.valueOf(config.get(ConsumerConfig.GROUP_ID_CONFIG));
 		this.listener = listener;
 		this.owner = owner;
 		// Created here so that bad settings fail in the caller, not in the thread.
@@ -69,7 +69,7 @@ class KafkaSubscription implements IKafkaSubscription, Runnable {
 		} finally {
 			current.setContextClassLoader(previous);
 		}
-		thread = new Thread(this, "Kafka consumer " + config.getProperty(ConsumerConfig.CLIENT_ID_CONFIG));
+		thread = new Thread(this, "Kafka consumer " + this.topics);
 		thread.setDaemon(true);
 	}
 
