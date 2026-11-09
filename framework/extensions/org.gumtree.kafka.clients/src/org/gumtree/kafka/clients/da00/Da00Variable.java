@@ -205,6 +205,33 @@ public final class Da00Variable {
 	}
 
 	/**
+	 * Converts 2D numeric data to double[] with its two dimensions swapped, for
+	 * example to turn data stored as [x][y] into the [y][x] (row = y) order that
+	 * an image plot expects. The result has shape {shape[1], shape[0]}.
+	 *
+	 * @throws IllegalStateException if the data is not 2D and numeric
+	 */
+	public double[] getDataAsDoubleTransposed() {
+		if (shape.length != 2) {
+			throw new IllegalStateException("Variable " + name + " is not 2D: shape " + Arrays.toString(shape));
+		}
+		double[] values = getDataAsDouble();
+		int rows = (int) shape[0];
+		int cols = (int) shape[1];
+		if (values.length != rows * cols) {
+			throw new IllegalStateException("Variable " + name + " has " + values.length
+					+ " elements but shape " + Arrays.toString(shape));
+		}
+		double[] result = new double[values.length];
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < cols; c++) {
+				result[c * rows + r] = values[r * cols + c];
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * @return the value of a scalar, or the first element of an array
 	 * @throws IllegalStateException for string, untyped or empty data
 	 */
