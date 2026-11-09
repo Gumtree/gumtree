@@ -1,15 +1,20 @@
 package org.gumtree.kafka.clients.support;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -35,6 +40,8 @@ class KafkaSubscription implements IKafkaSubscription, Runnable {
 
 	private static final long JOIN_TIMEOUT_MS = 10000;
 
+	private static final Duration POSITION_TIMEOUT = Duration.ofSeconds(5);
+
 	private final List<String> topics;
 
 	private final String groupId;
@@ -50,6 +57,14 @@ class KafkaSubscription implements IKafkaSubscription, Runnable {
 	private final Object backoffLock = new Object();
 
 	private volatile boolean active = true;
+
+	/** Set by the rebalance listener; used only on the polling thread. */
+	private boolean assigned;
+
+	private volatile boolean ready;
+
+	/** Released once ready, or on close so that waiters do not hang. */
+	private final CountDownLatch readyLatch = new CountDownLatch(1);
 
 	KafkaSubscription(Map<String, Object> config, List<String> topics, IKafkaMessageListener listener,
 			KafkaConsumerService owner) {
@@ -81,7 +96,16 @@ class KafkaSubscription implements IKafkaSubscription, Runnable {
 	public void run() {
 		logger.info("Subscribing to " + topics + " in group " + groupId);
 		try {
-			consumer.subscribe(topics);
+			consumer.subscribe(topics, new ConsumerRebalanceListener() {
+				@Override
+				public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+					assigned = true;
+				}
+
+				@Override
+				public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+				}
+			});
 			while (active) {
 				try {
 					ConsumerRecords<String, byte[]> records = consumer.poll(POLL_TIMEOUT);
@@ -90,6 +114,9 @@ class KafkaSubscription implements IKafkaSubscription, Runnable {
 							break;
 						}
 						deliver(record);
+					}
+					if (assigned && !ready) {
+						markReady();
 					}
 				} catch (WakeupException e) {
 					// close() was called
@@ -101,6 +128,7 @@ class KafkaSubscription implements IKafkaSubscription, Runnable {
 				}
 			}
 		} finally {
+			readyLatch.countDown();
 			try {
 				consumer.close(CLOSE_TIMEOUT);
 			} catch (Exception e) {
@@ -109,6 +137,22 @@ class KafkaSubscription implements IKafkaSubscription, Runnable {
 			owner.removeSubscription(this);
 			logger.info("Unsubscribed from " + topics + " in group " + groupId);
 		}
+	}
+
+	/**
+	 * Fixes the starting position on every assigned partition, then releases
+	 * waiters. Kafka otherwise looks the position up lazily, so with
+	 * auto.offset.reset=latest a message sent just after assignment could fall
+	 * before the position and be skipped. Called on the polling thread; if a
+	 * lookup fails, the loop's error handling retries on the next poll.
+	 */
+	private void markReady() {
+		for (TopicPartition partition : consumer.assignment()) {
+			consumer.position(partition, POSITION_TIMEOUT);
+		}
+		ready = true;
+		readyLatch.countDown();
+		logger.info("Subscription to " + topics + " in group " + groupId + " is ready");
 	}
 
 	private void deliver(ConsumerRecord<String, byte[]> record) {
@@ -147,11 +191,27 @@ class KafkaSubscription implements IKafkaSubscription, Runnable {
 	}
 
 	@Override
+	public boolean waitUntilReady(long timeoutMs) {
+		try {
+			readyLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+		return ready && active;
+	}
+
+	@Override
+	public boolean isReady() {
+		return ready && active;
+	}
+
+	@Override
 	public void close() {
 		if (!active) {
 			return;
 		}
 		active = false;
+		readyLatch.countDown();
 		consumer.wakeup();
 		synchronized (backoffLock) {
 			backoffLock.notifyAll();
