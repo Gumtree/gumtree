@@ -8,7 +8,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.apache.kafka.clients;bundle-version="3.9.1";visibility:=reexport,
  org.slf4j.api;bundle-version="1.6.4",
  org.eclipse.core.runtime;bundle-version="3.8.0"
-Export-Package: org.gumtree.kafka.clients
+Export-Package: org.gumtree.kafka.clients,
+ org.gumtree.kafka.clients.da00
 Bundle-Activator: org.gumtree.kafka.clients.Activator
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/services/KafkaProducerService.xml,
