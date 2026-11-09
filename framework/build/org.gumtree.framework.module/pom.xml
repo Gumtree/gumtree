@@ -106,6 +106,10 @@
 
 		<module>${extensions.path}/org.gumtree.e4tools.feature</module>
 
+		<module>${extensions.path}/org.apache.kafka.clients</module>
+		<module>${extensions.path}/org.gumtree.kafka.clients</module>
+		<module>${extensions.path}/org.gumtree.kafka.feature</module>
+
 
 
 		<module>${sics.path}/ch.psi.sics.hipadaba</module>
