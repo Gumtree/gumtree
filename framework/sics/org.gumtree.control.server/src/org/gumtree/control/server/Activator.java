@@ -6,6 +6,7 @@ import org.gumtree.control.core.ISicsProxy;
 import org.gumtree.control.core.SicsCoreProperties;
 import org.gumtree.control.core.SicsManager;
 import org.gumtree.control.model.ModelUtils;
+import org.gumtree.control.server.kafka.CollectionHistogramManager;
 import org.gumtree.control.server.log.ControlLogManager;
 import org.gumtree.util.eclipse.EclipseUtils;
 import org.osgi.framework.BundleActivator;
@@ -20,6 +21,12 @@ public class Activator implements BundleActivator {
 	private static Activator instance;
 	
 	private static final String PROP_SICS_LOGINMODE = "gumtree.sics.loginMode";
+
+	// Same as CollectionHistogramManager.PROPERTY_ENABLED; repeated so that the
+	// manager, which needs the optional Kafka bundle, is loaded only when enabled.
+	private static final String PROP_COLLECTION_HISTOGRAM = "gumtree.kafka.histogram.enabled";
+
+	private boolean collectionHistogramStarted;
 
 	private IEclipseContext eclipseContext;
 	
@@ -55,6 +62,22 @@ public class Activator implements BundleActivator {
 				}
 			}
 		}
+		startCollectionHistogram();
+	}
+
+	private void startCollectionHistogram() {
+		if (!Boolean.getBoolean(PROP_COLLECTION_HISTOGRAM)) {
+			return;
+		}
+		try {
+			// Starts in the background; see CollectionHistogramManager.
+			CollectionHistogramManager.start();
+			collectionHistogramStarted = true;
+		} catch (LinkageError e) {
+			logger.error("Collection histogram service needs the org.gumtree.kafka.clients bundle", e);
+		} catch (RuntimeException e) {
+			logger.error("Failed to start the collection histogram service", e);
+		}
 	}
 
 	private void connect() {
@@ -84,6 +107,14 @@ public class Activator implements BundleActivator {
 	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
 	public void stop(BundleContext bundleContext) throws Exception {
+		if (collectionHistogramStarted) {
+			try {
+				CollectionHistogramManager.stop();
+			} catch (RuntimeException e) {
+				logger.error("Failed to stop the collection histogram service", e);
+			}
+			collectionHistogramStarted = false;
+		}
 		if (eclipseContext != null) {
 			eclipseContext.dispose();
 			eclipseContext = null;
