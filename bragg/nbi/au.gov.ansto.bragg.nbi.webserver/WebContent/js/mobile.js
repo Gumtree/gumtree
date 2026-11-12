@@ -59,6 +59,10 @@ function compareNXalias( a, b ) {
 	return 0;
 }
 var refresh = function(){
+	if (typeof kafkaHistogram !== 'undefined') {
+		// Finds the service if it has started since; fetches a frame when paused.
+		kafkaHistogram.onRefresh();
+	}
 	var url = "ns/rest/hdbs?devices=";
 	if (nsItems.length > 0) {
 		for (var i = 0; i < nsItems.length; i++) {
@@ -441,7 +445,11 @@ jQuery(document).ready(function(){
 
 	$('#deviceList').listview('refresh');
 	$('#serviceList').listview('refresh');
-	
+
+	if (typeof kafkaHistogram !== 'undefined') {
+		kafkaHistogram.init();
+	}
+
 	$("#getDom").click(function() {
 		refresh();
 	});
@@ -516,6 +524,9 @@ jQuery(document).ready(function(){
 		} else {
 			clearInterval(timerObject.interval_id);
 			$("#intervalSlider").slider("disable");
+		}
+		if (typeof kafkaHistogram !== 'undefined') {
+			kafkaHistogram.setLive(isAutoRefresh);
 		}
 //		$("#intervalSlider").slider({disabled: !isAutoRefresh});
 	});

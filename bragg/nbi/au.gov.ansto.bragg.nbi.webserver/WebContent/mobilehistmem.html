@@ -25,6 +25,7 @@
 	<script src="js/jquery/jquery-1.10.2.min.js"></script>
 	<script src="js/jquery.mobile-1.3.2.min.js"></script>
 	<script src="js/instrumentsetup.js"></script>
+	<script src="js/kafkahistogram.js"></script>
 	<script src="js/mobilehistmem.js"></script>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -37,6 +38,31 @@
 	<ul class="ui-listview ui-listview-inset ui-corner-all ui-shadow" id="deviceList" data-role="listview" data-inset="true" data-divider-theme="d">
 	    <li data-role="list-divider">HISTOGRAM SNAPSHOT</li>
 	    <li><div data-role="fieldcontain" id="histmemDiv"></div></li>
+	</ul>
+	<!-- Live histogram from the Kafka collection histogram service (js/kafkahistogram.js);
+	     hidden unless histogram/rest answers. Same section as in mobile.html. -->
+	<ul class="ui-listview ui-listview-inset ui-corner-all ui-shadow" id="kafkaHistogramList" data-role="listview" data-inset="true" data-divider-theme="d" style="display: none">
+		<li data-role="list-divider">LIVE HISTOGRAM (KAFKA)</li>
+		<li><div class="div-inlist-left">Stream:</div> <div class="div-inlist" id="kafkaHistogramConnection">--</div></li>
+		<li><div class="div-inlist-left">Collection:</div> <div class="div-inlist" id="kafkaHistogramCollection">--</div></li>
+		<li>
+			<div id="kafkaHistogramImage">
+				<div id="kafkaHistogramTitle"></div>
+				<canvas id="kafkaHistogramCanvas" width="1" height="1"></canvas>
+				<div id="kafkaHistogramScale">
+					<span id="kafkaHistogramMin"></span>
+					<canvas id="kafkaHistogramBar" width="256" height="1"></canvas>
+					<span id="kafkaHistogramMax"></span>
+				</div>
+				<div id="kafkaHistogramInfo"></div>
+				<div id="kafkaHistogramReadout"></div>
+				<label for="kafkaHistogramLog" class="select">Intensity scale:</label>
+				<select id="kafkaHistogramLog" name="kafkaHistogramLog" data-mini="true">
+					<option value="linear" selected="selected">Linear</option>
+					<option value="log">Logarithmic</option>
+				</select>
+			</div>
+		</li>
 	</ul>
 	<hr>
 	<button id="getDom">Refresh Now</button>

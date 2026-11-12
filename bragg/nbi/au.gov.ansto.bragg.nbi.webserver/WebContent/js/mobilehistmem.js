@@ -102,7 +102,16 @@ jQuery(document).ready(function(){
 	
 	$("#getDom").click(function() {
 		refresh();
+		if (typeof kafkaHistogram !== 'undefined') {
+			// Finds the service if it has started since the page loaded.
+			kafkaHistogram.onRefresh();
+		}
 	});
+
+	if (typeof kafkaHistogram !== 'undefined') {
+		// No Auto Refresh switch on this page: the histogram streams live.
+		kafkaHistogram.init();
+	}
 
 	$("#statusMainButton").click(function() {
 		window.location = "mobile.html";
