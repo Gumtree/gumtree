@@ -48,4 +48,21 @@ public interface IKafkaConsumerService {
 	 */
 	public List<IKafkaSubscription> getSubscriptions();
 
+	/**
+	 * Reads the most recent messages of a topic once, without subscribing: up to
+	 * {@code count} messages from the end of each partition, as the topic stands
+	 * when called. Useful to find the current state, such as the last event,
+	 * before following new messages with {@link #subscribe}. Uses a temporary
+	 * connection outside any group, so nothing is committed; group.id is ignored.
+	 *
+	 * @param count
+	 *            the most messages to read from each partition
+	 * @param timeoutMs
+	 *            the longest time to spend; messages read by then are returned
+	 * @return the messages, oldest first by timestamp; empty if the topic does
+	 *         not exist or holds no messages
+	 * @throws org.apache.kafka.common.KafkaException if a setting is missing or invalid
+	 */
+	public List<KafkaMessage> readLatest(Map<String, ?> config, String topic, int count, long timeoutMs);
+
 }
