@@ -16,6 +16,18 @@
                path="/control/rest">
          </resource-mapping>
       </httpcontext>
+      <httpcontext
+            id="histogram">
+         <resource-mapping
+               path="/status/histogram/rest">
+         </resource-mapping>
+      </httpcontext>
+      <httpcontext
+            id="histogramRoot">
+         <resource-mapping
+               path="/histogram/rest">
+         </resource-mapping>
+      </httpcontext>
    </extension>
    <extension
          id="controlRestlet"
@@ -36,6 +48,24 @@
          <init-param
                name="org.restlet.application"
                value="org.gumtree.control.server.restlet.ControlRestletApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/status/histogram/rest"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="histogram">
+         <init-param
+               name="org.restlet.application"
+               value="org.gumtree.control.server.restlet.HistogramRestletApplication">
+         </init-param>
+      </servlet>
+      <servlet
+            alias="/histogram/rest"
+            class="org.restlet.ext.servlet.ServerServlet"
+            httpcontextId="histogramRoot">
+         <init-param
+               name="org.restlet.application"
+               value="org.gumtree.control.server.restlet.HistogramRestletApplication">
          </init-param>
       </servlet>
    </extension>
