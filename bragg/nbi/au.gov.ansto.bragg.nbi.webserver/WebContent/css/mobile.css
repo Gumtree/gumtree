@@ -78,3 +78,40 @@ img, object{
 #histmemDiv img {
 	margin-top: 8px;
 }
+
+/* Live histogram from the Kafka collection histogram service (js/kafkahistogram.js) */
+#kafkaHistogramImage {
+	width: 100%;
+	white-space: normal;
+}
+#kafkaHistogramCanvas {
+	display: block;
+	margin-top: 6px;
+	border: 1px solid #021a40;
+	image-rendering: pixelated;		/* sharp detector pixels when scaled up */
+	image-rendering: -moz-crisp-edges;
+	image-rendering: crisp-edges;
+	touch-action: none;				/* finger moves read values, not scroll */
+}
+#kafkaHistogramScale {
+	margin-top: 4px;
+	font-size: 0.85em;
+	white-space: nowrap;
+}
+#kafkaHistogramBar {
+	width: 50%;
+	max-width: 256px;
+	height: 10px;
+	vertical-align: middle;
+	margin: 0 6px;
+	border: 1px solid #999;
+}
+#kafkaHistogramTitle, #kafkaHistogramInfo, #kafkaHistogramReadout {
+	font-size: 0.85em;
+	font-weight: normal;
+	margin-top: 4px;
+}
+#kafkaHistogramReadout {
+	min-height: 1.2em;
+	color: #333;
+}
