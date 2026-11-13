@@ -47,6 +47,12 @@
 		<li><div class="div-inlist-left">Collection:</div> <div class="div-inlist" id="kafkaHistogramCollection">--</div></li>
 		<li>
 			<div id="kafkaHistogramImage">
+				<label for="kafkaHistogramView" class="select">Plot:</label>
+				<select id="kafkaHistogramView" name="kafkaHistogramView" data-mini="true">
+					<option value="xy" selected="selected">Total X-Y</option>
+					<option value="x">Total X</option>
+					<option value="y">Total Y</option>
+				</select>
 				<div id="kafkaHistogramTitle"></div>
 				<canvas id="kafkaHistogramCanvas" width="1" height="1"></canvas>
 				<div id="kafkaHistogramScale">

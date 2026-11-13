@@ -10,6 +10,10 @@
  * switched: while it is off, the stream is closed and "Refresh Now" fetches the
  * latest frame once.
  *
+ * The Plot selector (#kafkaHistogramView) shows the frame as Total X-Y (the 2D
+ * image), Total X (counts summed over Y, per X bin) or Total Y (summed over X,
+ * per Y bin).
+ *
  * An instrument can turn the section off with, in its instrumentsetup.js:
  *     var kafkaHistogramEnabled = false;
  */
@@ -27,6 +31,9 @@ var kafkaHistogram = (function() {
 	var polling = false;		// long-poll loop running (no EventSource)
 	var pollGeneration = 0;		// ends an old poll loop
 	var logScale = false;
+	var view = "xy";			// "xy" image, "x" Total X, "y" Total Y
+	var profile = null;			// the 1D plot drawn, for the readout
+	var PLOT_MARGIN = {left : 56, right : 10, top : 10, bottom : 32};	// CSS pixels
 	var lastFrameSequence = 0;
 	var lastStatus = null;
 	var image = null;			// what is drawn: {nx, ny, values, xName, yName, ...}
@@ -322,7 +329,8 @@ var kafkaHistogram = (function() {
 		render();
 	}
 
-	function scaled(value, lo, hi) {
+	/** Where value lies between lo and hi, 0 to 1, on the linear or log scale. */
+	function fraction(value, lo, hi) {
 		if (logScale) {
 			value = Math.log(1 + Math.max(0, value - lo));
 			hi = Math.log(1 + Math.max(0, hi - lo));
@@ -331,8 +339,19 @@ var kafkaHistogram = (function() {
 		if (hi <= lo) {
 			return 0;
 		}
-		var t = (value - lo) / (hi - lo);
-		return Math.max(0, Math.min(255, Math.round(t * 255)));
+		return Math.max(0, Math.min(1, (value - lo) / (hi - lo)));
+	}
+
+	/** The value at fraction t between lo and hi: the inverse of fraction(). */
+	function valueAt(t, lo, hi) {
+		if (logScale) {
+			return lo + Math.exp(t * Math.log(1 + Math.max(0, hi - lo))) - 1;
+		}
+		return lo + t * (hi - lo);
+	}
+
+	function scaled(value, lo, hi) {
+		return Math.round(fraction(value, lo, hi) * 255);
 	}
 
 	function render() {
@@ -344,6 +363,16 @@ var kafkaHistogram = (function() {
 			$("#kafkaHistogramInfo").text("This browser cannot draw the histogram");
 			return;
 		}
+		if (view === "x" || view === "y") {
+			renderProfile(canvas, view);
+		} else {
+			renderImage(canvas);
+		}
+	}
+
+	/** Total X-Y: the 2D image. */
+	function renderImage(canvas) {
+		profile = null;
 		canvas.width = image.nx;
 		canvas.height = image.ny;
 		var context = canvas.getContext("2d");
@@ -368,17 +397,165 @@ var kafkaHistogram = (function() {
 		context.putImageData(pixels, 0, 0);
 		resize();
 		renderColourBar();
-		$("#kafkaHistogramTitle").text(image.xName + " →, " + image.yName + " ↑  (" + image.nx + " × "
-				+ image.ny + ")");
-		$("#kafkaHistogramInfo").text("Frame " + formatTime(image.timeMs) + (image.running ? "" : " (final)")
-				+ ", total " + formatNumber(image.total) + " " + image.unit + ", max " + formatNumber(image.max));
+		$("#kafkaHistogramTitle").text("Total X-Y: " + image.xName + " →, " + image.yName + " ↑  (" + image.nx
+				+ " × " + image.ny + ")");
+		showInfo(image.max);
 		$("#kafkaHistogramCanvas").show();
 		$("#kafkaHistogramScale").show();
 	}
 
+	function showInfo(max) {
+		$("#kafkaHistogramInfo").text("Frame " + formatTime(image.timeMs) + (image.running ? "" : " (final)")
+				+ ", total " + formatNumber(image.total) + " " + image.unit + ", max " + formatNumber(max));
+	}
+
+	/** Sums the image along one axis: "x" gives one total per X bin, summed over Y. */
+	function project(axis) {
+		var n = axis === "x" ? image.nx : image.ny;
+		var sums = new Array(n);
+		var i;
+		for (i = 0; i < n; i++) {
+			sums[i] = 0;
+		}
+		for (var py = 0; py < image.ny; py++) {
+			for (var px = 0; px < image.nx; px++) {
+				var value = image.values[py * image.nx + px];
+				if (!isNaN(value)) {
+					sums[axis === "x" ? px : py] += value;
+				}
+			}
+		}
+		return sums;
+	}
+
+	/** Total X or Total Y: a step plot of the summed counts per bin. */
+	function renderProfile(canvas, axis) {
+		var sums = project(axis);
+		var n = sums.length;
+		var lo = 0;
+		var hi = 0;
+		for (var i = 0; i < n; i++) {
+			lo = Math.min(lo, sums[i]);
+			hi = Math.max(hi, sums[i]);
+		}
+		var max = hi;
+		if (hi <= lo) {
+			hi = lo + 1;	// all zero: still draw the axes
+		}
+		var axisName = axis === "x" ? image.xName : image.yName;
+		var otherName = axis === "x" ? image.yName : image.xName;
+
+		// Drawn at the screen's resolution, so lines and text stay sharp.
+		var cssWidth = Math.max(200, Math.floor(($("#kafkaHistogramImage").width() || 300) - 2));
+		var cssHeight = Math.round(Math.min(cssWidth * 0.6, Math.max(150, $(window).height() * MAX_HEIGHT_FRACTION)));
+		var ratio = window.devicePixelRatio || 1;
+		canvas.width = Math.round(cssWidth * ratio);
+		canvas.height = Math.round(cssHeight * ratio);
+		$(canvas).css({"width" : cssWidth + "px", "height" : cssHeight + "px"});
+		var context = canvas.getContext("2d");
+		context.setTransform(ratio, 0, 0, ratio, 0, 0);
+		context.fillStyle = "#ffffff";
+		context.fillRect(0, 0, cssWidth, cssHeight);
+
+		var m = PLOT_MARGIN;
+		var width = cssWidth - m.left - m.right;
+		var height = cssHeight - m.top - m.bottom;
+		function xOf(bin) {
+			return m.left + width * bin / n;
+		}
+		function yOf(value) {
+			return m.top + height * (1 - fraction(value, lo, hi));
+		}
+
+		// Grid and count axis
+		context.font = "11px sans-serif";
+		context.lineWidth = 1;
+		context.textAlign = "right";
+		context.textBaseline = "middle";
+		var t;
+		for (t = 0; t <= 4; t++) {
+			var y = Math.round(m.top + height * (1 - t / 4)) + 0.5;
+			context.strokeStyle = t === 0 ? "#021a40" : "#e0e0e0";
+			context.beginPath();
+			context.moveTo(m.left, y);
+			context.lineTo(m.left + width, y);
+			context.stroke();
+			context.fillStyle = "#333333";
+			context.fillText(formatTick(valueAt(t / 4, lo, hi)), m.left - 4, y);
+		}
+
+		// Bin axis: ticks at the centre of the first, quarter, ..., last bins
+		context.textAlign = "center";
+		context.textBaseline = "top";
+		var ticks = [0, Math.round((n - 1) / 4), Math.round((n - 1) / 2), Math.round(3 * (n - 1) / 4), n - 1];
+		var last = -1;
+		for (t = 0; t < ticks.length; t++) {
+			if (ticks[t] === last) {
+				continue;
+			}
+			last = ticks[t];
+			var x = Math.round(xOf(ticks[t] + 0.5)) + 0.5;
+			context.strokeStyle = "#021a40";
+			context.beginPath();
+			context.moveTo(x, m.top + height);
+			context.lineTo(x, m.top + height + 4);
+			context.stroke();
+			context.fillText(String(ticks[t]), x, m.top + height + 6);
+		}
+		context.fillText(axisName + " (summed over " + otherName + ")", m.left + width / 2, m.top + height + 19);
+		context.strokeStyle = "#021a40";
+		context.beginPath();
+		context.moveTo(m.left + 0.5, m.top);
+		context.lineTo(m.left + 0.5, m.top + height);
+		context.stroke();
+
+		// Step plot
+		var base = yOf(lo);
+		context.beginPath();
+		context.moveTo(xOf(0), base);
+		for (var b = 0; b < n; b++) {
+			var level = yOf(sums[b]);
+			context.lineTo(xOf(b), level);
+			context.lineTo(xOf(b + 1), level);
+		}
+		context.lineTo(xOf(n), base);
+		context.closePath();
+		var fill = lut[110];
+		var line = lut[50];
+		context.fillStyle = "rgba(" + fill[0] + "," + fill[1] + "," + fill[2] + ",0.35)";
+		context.fill();
+		context.strokeStyle = "rgb(" + line[0] + "," + line[1] + "," + line[2] + ")";
+		context.lineWidth = 1.5;
+		context.stroke();
+
+		profile = {axis : axis, name : axisName, otherName : otherName, sums : sums, n : n,
+				left : m.left, width : width};
+		$("#kafkaHistogramTitle").text("Total " + axisName + ": " + image.unit + " per " + axisName + " bin, summed over "
+				+ otherName + " (" + n + " bins" + (logScale ? ", log scale" : "") + ")");
+		showInfo(max);
+		$("#kafkaHistogramCanvas").show();
+		$("#kafkaHistogramScale").hide();
+	}
+
+	function formatTick(value) {
+		if (Math.abs(value) >= 10) {
+			return formatNumber(Math.round(value));
+		}
+		return formatNumber(Math.round(value * 10) / 10);
+	}
+
+	/** Window resized: the image only rescales, a 1D plot is redrawn to fit. */
+	function onResize() {
+		if (view === "xy") {
+			resize();
+		} else {
+			render();
+		}
+	}
+
 	/** Scales the canvas to the page, keeping square pixels. */
 	function resize() {
-		if (image === null) {
+		if (image === null || view !== "xy") {
 			return;
 		}
 		var width = $("#kafkaHistogramImage").width() || 300;
@@ -443,6 +620,15 @@ var kafkaHistogram = (function() {
 		if (original && original.touches && original.touches.length > 0) {
 			point = original.touches[0];
 		}
+		if (profile !== null) {
+			var bin = Math.floor((point.pageX - offset.left - profile.left) / profile.width * profile.n);
+			if (bin < 0 || bin >= profile.n) {
+				return;
+			}
+			$("#kafkaHistogramReadout").text(profile.name + " = " + bin + ": " + formatNumber(profile.sums[bin]) + " "
+					+ image.unit + " (summed over " + profile.otherName + ")");
+			return;
+		}
 		var x = (point.pageX - offset.left) / canvas.width();
 		var y = (point.pageY - offset.top) / canvas.height();
 		if (x < 0 || x >= 1 || y < 0 || y >= 1) {
@@ -469,8 +655,19 @@ var kafkaHistogram = (function() {
 				logScale = $(this).val() === "log";
 				render();
 			});
+			$("#kafkaHistogramView").on("change", function() {
+				var value = $(this).val();
+				view = value === "x" || value === "y" ? value : "xy";
+				$("#kafkaHistogramReadout").text("");
+				render();
+			});
+			if ($("#kafkaHistogramView").length > 0) {
+				// A browser may restore the last choice on reload.
+				view = $("#kafkaHistogramView").val() === "x" || $("#kafkaHistogramView").val() === "y"
+						? $("#kafkaHistogramView").val() : "xy";
+			}
 			$("#kafkaHistogramCanvas").on("mousemove touchstart touchmove", readout);
-			$(window).on("resize orientationchange", resize);
+			$(window).on("resize orientationchange", onResize);
 			checkAvailable();
 		},
 
