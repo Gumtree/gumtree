@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.gumtree.control.core.IDynamicController;
 import org.gumtree.control.core.ISicsController;
@@ -58,7 +59,14 @@ public class ControlLogManager {
 	public DateFormat logDateFormat;
 	public DateFormat fileDateFormat;
 	private ISicsProxyListener proxyListener;
-	
+	private final AtomicReference<ISicsProxy> registeredProxy = new AtomicReference<ISicsProxy>();
+	// Guards the shutter listener registration only. Lock order is:
+	// proxy listeners -> registrationLock -> controller listeners -> this (log files).
+	// Never call into the proxy or controllers while holding 'this'.
+	private final Object registrationLock = new Object();
+	private final Map<LogType, ISicsController> shutterControllers = new HashMap<LogType, ISicsController>();
+	private final Map<LogType, SicsControllerAdapter> shutterListeners = new HashMap<LogType, SicsControllerAdapter>();
+
 	/**
 	 * 
 	 */
@@ -118,53 +126,72 @@ public class ControlLogManager {
 		timeMonitorThread.start();
 	}
 
+	/**
+	 * Registers the log manager with the proxy. Safe to call repeatedly (the
+	 * connection monitor calls it on every connection attempt): the proxy
+	 * listener is only ever registered once.
+	 */
 	public void initiate(ISicsProxy sicsProxy) {
 		if (sicsProxy != null) {
-			sicsProxy.addProxyListener(getProxyListener());
+			ISicsProxy previous = registeredProxy.getAndSet(sicsProxy);
+			if (previous != sicsProxy) {
+				if (previous != null) {
+					previous.removeProxyListener(getProxyListener());
+				}
+				sicsProxy.addProxyListener(getProxyListener());
+			}
 			if (sicsProxy.isConnected()) {
 				log(LogType.STATUS, sicsProxy.getServerStatus().getText());
 				initModelListener(sicsProxy.getSicsModel());
 			}
 		}
 	}
-	
+
 	private void initModelListener(final ISicsModel sicsModel) {
-		ISicsController secondary = sicsModel.findController(System.getProperty(SICS_NODE_SECONDARY, DEFAULT_NODE_SECONDARY));
-		if (secondary != null) {
-			if (secondary instanceof IDynamicController) {
-				Object value;
-				try {
-					value = ((IDynamicController) secondary).getValue();
-				} catch (SicsModelException e) {
-					value = SHUTTER_UNKNOWN;
-				}
-				log(LogType.SECONDARY, convertShutterStatus(value));
-			}
-			secondary.addControllerListener(new SicsControllerAdapter() {
+		if (sicsModel == null) {
+			return;
+		}
+		synchronized (registrationLock) {
+			attachShutterListener(sicsModel, LogType.SECONDARY,
+					System.getProperty(SICS_NODE_SECONDARY, DEFAULT_NODE_SECONDARY));
+			attachShutterListener(sicsModel, LogType.TERTIARY,
+					System.getProperty(SICS_NODE_TERTIARY, DEFAULT_NODE_TERTIARY));
+		}
+	}
+
+	private void attachShutterListener(ISicsModel sicsModel, final LogType type, String path) {
+		SicsControllerAdapter listener = shutterListeners.get(type);
+		if (listener == null) {
+			listener = new SicsControllerAdapter() {
 				@Override
 				public void updateValue(Object oldValue, Object newValue) {
-					log(LogType.SECONDARY, convertShutterStatus(newValue));
+					log(type, convertShutterStatus(newValue));
 				}
-			});
+			};
+			shutterListeners.put(type, listener);
 		}
-		ISicsController tertiary = sicsModel.findController(System.getProperty(SICS_NODE_TERTIARY, DEFAULT_NODE_TERTIARY));
-		if (tertiary != null) {
-			if (tertiary instanceof IDynamicController) {
-				Object value;
-				try {
-					value = ((IDynamicController) tertiary).getValue();
-				} catch (SicsModelException e) {
-					value = SHUTTER_UNKNOWN;
-				}
-				log(LogType.TERTIARY, convertShutterStatus(value));
+		// detach from the controller of the previous model, if any
+		ISicsController oldController = shutterControllers.remove(type);
+		if (oldController != null) {
+			oldController.removeControllerListener(listener);
+		}
+		ISicsController controller = sicsModel.findController(path);
+		if (controller == null) {
+			return;
+		}
+		if (controller instanceof IDynamicController) {
+			Object value;
+			try {
+				value = ((IDynamicController) controller).getValue();
+			} catch (SicsModelException e) {
+				value = SHUTTER_UNKNOWN;
 			}
-			tertiary.addControllerListener(new SicsControllerAdapter() {
-				@Override
-				public void updateValue(Object oldValue, Object newValue) {
-					log(LogType.TERTIARY, convertShutterStatus(newValue));
-				}
-			});
+			log(type, convertShutterStatus(value));
 		}
+		// remove first in case the model reused the same controller instance
+		controller.removeControllerListener(listener);
+		controller.addControllerListener(listener);
+		shutterControllers.put(type, controller);
 	}
 
 	private String convertShutterStatus(Object value) {
@@ -185,60 +212,34 @@ public class ControlLogManager {
 		return proxyListener;
 	}
 	
-	private void createFiles(String parentPath) {
+	private synchronized void createFiles(String parentPath) {
 		Date date = new Date();
-		if (isShutterEnabled) {
-			for (LogType type : LogType.values()) {
-				File file = new File(parentPath + "/" + type.name() + "_" + fileDateFormat.format(date));
-				if (!file.exists()) {
-					try {
-						file.createNewFile();
-					} catch (IOException e) {
-						e.printStackTrace();
-						continue;
-					}
-				}
-				String lastEntry = lastLogEntries.get(type);
-				if (lastEntry != null) {
-					log(type, lastEntry);
-				}
-				try {
-					PrintWriter outputfile = new PrintWriter(new FileWriter(file, true), true);
-					PrintWriter oldFile = logFiles.get(type); 
-					logFiles.put(type, outputfile);
-					if (oldFile != null) {
-						oldFile.close();
-					}
-					if (lastEntry != null) {
-						log(type, lastEntry);
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		} else {
-			File file = new File(parentPath + "/" + LogType.STATUS.name() + "_" + fileDateFormat.format(date));
+		LogType[] types = isShutterEnabled ? LogType.values() : new LogType[] {LogType.STATUS};
+		for (LogType type : types) {
+			File file = new File(parentPath + "/" + type.name() + "_" + fileDateFormat.format(date));
 			if (!file.exists()) {
 				try {
 					file.createNewFile();
 				} catch (IOException e) {
 					e.printStackTrace();
-					return;
+					continue;
 				}
 			}
-			String lastEntry = lastLogEntries.get(LogType.STATUS);
+			String lastEntry = lastLogEntries.get(type);
+			// close off the old day's file with the current state
 			if (lastEntry != null) {
-				log(LogType.STATUS, lastEntry);
+				writeEntry(type, lastEntry);
 			}
 			try {
 				PrintWriter outputfile = new PrintWriter(new FileWriter(file, true), true);
-				PrintWriter oldFile = logFiles.get(LogType.STATUS); 
-				logFiles.put(LogType.STATUS, outputfile);
+				PrintWriter oldFile = logFiles.get(type);
+				logFiles.put(type, outputfile);
 				if (oldFile != null) {
 					oldFile.close();
 				}
+				// open the new day's file with the current state
 				if (lastEntry != null) {
-					log(LogType.STATUS, lastEntry);
+					writeEntry(type, lastEntry);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -246,19 +247,28 @@ public class ControlLogManager {
 		}
 	}
 
-	public void log(LogType type, String text) {
+	/**
+	 * Logs a status value. A value identical to the previous entry for the
+	 * same log type is skipped.
+	 */
+	public synchronized void log(LogType type, String text) {
+		if (text == null || text.equals(lastLogEntries.get(type))) {
+			return;
+		}
 		logger.debug(text);
+		writeEntry(type, text);
+	}
+
+	private void writeEntry(LogType type, String text) {
 		PrintWriter outputFile = logFiles.get(type);
-		if (outputFile != null && text != null) {
-			Date date = new Date();
-			outputFile.append(logDateFormat.format(date) + " \t" + text + "\n");
-//			outputFile.append(String.valueOf(System.currentTimeMillis()) + "\t" + text + "\n");
+		if (outputFile != null) {
+			outputFile.append(logDateFormat.format(new Date()) + " \t" + text + "\n");
 			outputFile.flush();
 			lastLogEntries.put(type, text);
 		}
 	}
 
-	public void close() {
+	public synchronized void close() {
 		for (Entry<LogType, PrintWriter> entry: logFiles.entrySet()){
 			entry.getValue().close();
 		}
