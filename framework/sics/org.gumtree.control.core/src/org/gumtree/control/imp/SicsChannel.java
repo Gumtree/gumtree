@@ -64,7 +64,9 @@ public class SicsChannel implements ISicsChannel {
 	
 	static final int POCH_TIMEOUT = 90*1000;
 	static final int COMMAND_WAIT_TIME = 3;
-	static final int SEND_TIMEOUT = 70*000;
+	// 0 = never block on send: when the queue to SICS is full the send fails
+	// at once instead of hanging the caller (a web request or a script).
+	static final int SEND_TIMEOUT = 0;
 	static final int RECEIVE_TIMEOUT = 5000;
 	static final int COMMAND_TIMEOUT = 100000;
 	static final int DESTROY_TIMEOUT = 10000;
@@ -304,7 +306,7 @@ public class SicsChannel implements ISicsChannel {
 		// blocked in recv with ETERM. The sockets must not be closed here:
 		// closing them from this thread while the subscriber thread is blocked
 		// on one makes ZContext.destroy() hang. Interrupting the destroy thread
-		// (the old code waited SEND_TIMEOUT = 70*000 = 0 ms) also left each
+		// (the old code waited SEND_TIMEOUT, which is 0 ms) also left each
 		// context's reaper and I/O threads running, one pair per failed
 		// reconnect attempt, until they used all the CPU.
 		isConnected = false;
@@ -455,7 +457,7 @@ public class SicsChannel implements ISicsChannel {
 			return reply;
 		}
 
-		void asyncRun() throws SicsExecutionException {
+		void asyncRun() throws SicsException {
 			isStarted = false;
 			JSONObject jcom = new JSONObject();
 			try {
@@ -475,7 +477,12 @@ public class SicsChannel implements ISicsChannel {
 //			System.err.println(timeStamp + " async send: " + jcom.toString());
 			String msg = jcom.toString();
 			logger.debug("asyncSend: " + msg);
-			clientSocket.send(msg);
+			if (!clientSocket.send(msg)) {
+				// SEND_TIMEOUT is 0, so a full queue fails here instead of blocking.
+				logger.debug("client socket broken");
+				finish();
+				throw new SicsCommunicationException("client socket broken");
+			}
 		}
 
 		void takeError(SicsException error) {
