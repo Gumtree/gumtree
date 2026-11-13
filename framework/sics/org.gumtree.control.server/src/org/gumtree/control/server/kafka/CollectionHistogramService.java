@@ -64,6 +64,8 @@ public class CollectionHistogramService {
 
 	private static final Logger logger = LoggerFactory.getLogger(CollectionHistogramService.class);
 
+	public static final String PROPERTY_BROKERS = "gumtree.kafka.histogram.brokers";
+
 	public static final String PROPERTY_PREFIX = "gumtree.kafka.histogram.";
 
 	private static final String TASK_TYPE = "HistogramTask";
@@ -137,12 +139,18 @@ public class CollectionHistogramService {
 	 * Settings, with defaults matching the AESS deployment on
 	 * geishm-vm4 and Echidna's 128 x 128 detector. Each can be set with the
 	 * system property {@value CollectionHistogramService#PROPERTY_PREFIX} plus
-	 * the name given; see {@link #fromSystemProperties()}.
+	 * the name given, on the command line or in the web server's
+	 * gumtree.properties, which Gumtree loads as system properties at start;
+	 * see {@link #fromSystemProperties()}.
 	 */
 	public static class Settings {
 
-		/** "brokers": Kafka bootstrap servers, host:port[,host:port...] */
-		public String brokers = "geishm-vm4.nbi.ansto.gov.au:9092";
+		/**
+		 * "brokers": Kafka bootstrap servers, host:port[,host:port...]. Set in
+		 * gumtree.properties of au.gov.ansto.bragg.nbi.webserver; this default
+		 * applies only when the property is not set.
+		 */
+		public String brokers = System.getProperty(PROPERTY_BROKERS);
 
 		/** "eventTopic": ControlEvent StartCollection/StopCollection */
 		public String eventTopic = "instrument.events";
