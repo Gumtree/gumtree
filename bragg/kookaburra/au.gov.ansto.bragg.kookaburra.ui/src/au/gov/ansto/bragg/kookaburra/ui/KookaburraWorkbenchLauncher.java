@@ -34,6 +34,8 @@ public class KookaburraWorkbenchLauncher extends AbstractLauncher {
 	
 	public static final String ID_PERSPECTIVE_KKBSCAN = "au.gov.ansto.bragg.kookaburra.ui.KKBScanPerspective";
 	
+	public static final String ID_PERSPECTIVE_KKBCONFIG = "au.gov.ansto.bragg.kookaburra.ui.KKBConfigPerspective";
+	
 	public static final String ID_PERSPECTIVE_EXPERIMENT = "au.gov.ansto.bragg.nbi.ui.SICSExperimentPerspective";
 	
 	// Use the default as buffer to hold the editor
@@ -161,13 +163,14 @@ public class KookaburraWorkbenchLauncher extends AbstractLauncher {
 			
 			if (PlatformUI.getWorkbench().getWorkbenchWindowCount() < 2) {
 				// open new window as editor buffer
-				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_SCRIPTING, 1, true);
+				mmManager.openWorkbenchWindow(ID_PERSPECTIVE_KKBCONFIG, 1, true);
 			} else {
 //			// position it
-				mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_SCRIPTING, 1, 1, mmManager.isMultiMonitorSystem());
+				mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_KKBCONFIG, 1, 1, mmManager.isMultiMonitorSystem());
 			}
+			mmManager.showPerspectiveOnOpenedWindow(ID_PERSPECTIVE_KKBSCAN, 1, 1, mmManager.isMultiMonitorSystem());
 //
-			mmManager.openWorkbenchWindow(ID_PERSPECTIVE_KKBSCAN, 1, true);
+			mmManager.openWorkbenchWindow(ID_PERSPECTIVE_SCRIPTING, 1, true);
 			
 //			IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
 //			for (IWorkbenchWindow window : windows) {
