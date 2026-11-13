@@ -67,6 +67,7 @@ public class SicsChannel implements ISicsChannel {
 	static final int SEND_TIMEOUT = 70*000;
 	static final int RECEIVE_TIMEOUT = 5000;
 	static final int COMMAND_TIMEOUT = 100000;
+	static final int DESTROY_TIMEOUT = 10000;
 	
 	private static Logger logger = LoggerFactory.getLogger(SicsChannel.class);
 	
@@ -298,75 +299,33 @@ public class SicsChannel implements ISicsChannel {
 	@Override
 	public void disconnect() {
 		logger.warn("disconnection called");
-		if (clientSocket != null) {
-			if (serverAddress != null) {
-				try {
-					logger.debug("client socket disconnecting");
-					clientSocket.disconnect(serverAddress);
-					clientSocket.unbind(serverAddress);
-				} catch (Exception e) {
-					logger.error("failed to disconnect client socket, ", e);
-				}
-			}
-			try {
-				clientSocket.close();
-				logger.debug("client socket closed");
-			} catch (Exception e) {
-				logger.error("failed to close client socket, ", e);
-			}
-		}
-		if (subscriberSocket != null) {
-			if (publisherAddress != null) {
-				try {
-					logger.debug("subscriber socket disconnecting");
-					subscriberSocket.unsubscribe("");
-					subscriberSocket.disconnect(publisherAddress);
-					subscriberSocket.unbind(publisherAddress);
-				} catch (Exception e) {
-					logger.error("failed to disconnect subscriber socket, ", e);
-				}
-			}
-			try {
-				subscriberSocket.close();
-				logger.debug("subscriber socket closed");
-			} catch (Exception e) {
-				logger.error("failed to close subscriber socket, ", e);
-			}
-		}
-		if (clientThread != null) {
-			logger.debug("interrupting client thread");
-	        clientThread.interrupt();
+		// Stop the client and subscriber loops first. ZContext.destroy() then
+		// closes the sockets and terminates the context, which wakes any thread
+		// blocked in recv with ETERM. The sockets must not be closed here:
+		// closing them from this thread while the subscriber thread is blocked
+		// on one makes ZContext.destroy() hang. Interrupting the destroy thread
+		// (the old code waited SEND_TIMEOUT = 70*000 = 0 ms) also left each
+		// context's reaper and I/O threads running, one pair per failed
+		// reconnect attempt, until they used all the CPU.
+		isConnected = false;
+		if (context == null || context.isClosed()) {
+			logger.warn("finished disconnecting routine");
+			return;
 		}
 		try {
-//			context.destroySocket(clientSocket);
-//			logger.debug("context destroy client");
-//			context.destroySocket(subscriberSocket);
-//			logger.debug("context destroy subscriber");
 			logger.debug("destroying context");
-			logger.error("context closed = " + context.isClosed());
-//			logger.error("context empty = " + context.isEmpty());
-//			context.close();
-			for (ZMQ.Socket socket : context.getSockets()) {
-				socket.close();
-			}
-			logger.error("socket number = " + context.getSockets().size());
-//			context.destroy();
 			Thread dt = destroyContext(context);
-			int ct = 0;
-			while(dt.isAlive() && ct < SEND_TIMEOUT) {
-				Thread.sleep(COMMAND_WAIT_TIME);
-				ct += COMMAND_WAIT_TIME;
+			dt.join(DESTROY_TIMEOUT);
+			if (dt.isAlive()) {
+				logger.error("ZMQ context still terminating after " + DESTROY_TIMEOUT + " ms");
+			} else {
+				logger.debug("context destroyed");
 			}
-			if (ct >= SEND_TIMEOUT) {
-				logger.debug("interrupting destroy thread");
-				dt.interrupt();
-			}
-			logger.debug("context destroyed");
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		} catch (Exception e) {
 			logger.error("failed to terminate ZMQ context, ", e);
 		}
-
-        isConnected = false;
         logger.warn("finished disconnecting routine");
 	}
 	
