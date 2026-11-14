@@ -300,12 +300,13 @@ public class ControlLogManager {
 	}
 
 	/**
-	 * Builds the missing monthly summaries of all completed months.
-	 * @return number of summaries written
+	 * Builds the missing monthly and yearly summaries of all completed months
+	 * and years.
+	 * @return number of summaries written, {monthly, yearly}
 	 */
-	public int prepareMonthlyStatistics(boolean overwrite) {
+	public int[] prepareStatistics(boolean overwrite) {
 		ControlLogStatistics stats = getStatistics();
-		return stats == null ? 0 : stats.prepareMonthlyStatistics(overwrite);
+		return stats == null ? new int[] {0, 0} : stats.prepareStatistics(overwrite);
 	}
 
 	public String getStartDate() {

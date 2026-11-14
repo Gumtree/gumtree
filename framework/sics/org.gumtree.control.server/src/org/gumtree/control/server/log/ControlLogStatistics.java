@@ -28,10 +28,12 @@ import org.slf4j.LoggerFactory;
  * <code>TERTIARY_yyyy-MM-dd</code>).
  * <p>
  * To avoid opening every daily file of a long period, the statistics of each
- * completed month are cached in <code>&lt;logFolder&gt;/monthly/STATISTICS_yyyy-MM</code>.
- * When a request covers a whole completed month the cached summary is used;
- * missing summaries are created on demand. They can also be prepared in advance
- * with {@link #prepareMonthlyStatistics(boolean)} or from the command line:
+ * completed month are cached in <code>&lt;logFolder&gt;/monthly/STATISTICS_yyyy-MM</code>,
+ * and those of each completed year (summed from the monthly summaries) in
+ * <code>&lt;logFolder&gt;/yearly/STATISTICS_yyyy</code>.
+ * When a request covers a whole completed year or month the cached summary is
+ * used; missing summaries are created on demand. They can also be prepared in
+ * advance with {@link #prepareStatistics(boolean)} or from the command line:
  * <pre>
  * java -cp org.gumtree.control.server.jar;slf4j-api.jar org.gumtree.control.server.log.ControlLogStatistics &lt;logFolder&gt; [-overwrite]
  * </pre>
@@ -42,6 +44,7 @@ import org.slf4j.LoggerFactory;
 public class ControlLogStatistics {
 
 	public static final String MONTHLY_FOLDER = "monthly";
+	public static final String YEARLY_FOLDER = "yearly";
 	public static final String MONTHLY_PREFIX = "STATISTICS_";
 	public static final String KEY_TOTAL = "TOTAL";
 	public static final String KEY_STATUS_PREFIX = "STATUS.";
@@ -57,6 +60,7 @@ public class ControlLogStatistics {
 	private static final String LOG_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 	private static final String FILE_DATE_PATTERN = "yyyy-MM-dd";
 	private static final String MONTH_PATTERN = "yyyy-MM";
+	private static final String YEAR_PATTERN = "yyyy";
 	/**
 	 * A month is only summarised once this long after it ended, so that the
 	 * closing entry written just after midnight into the last daily file is
@@ -68,12 +72,14 @@ public class ControlLogStatistics {
 
 	private final File logFolder;
 	private final File monthlyFolder;
+	private final File yearlyFolder;
 	private final Object monthlyLock = new Object();
 	private volatile String cachedStartDate;
 
 	public ControlLogStatistics(String logFolder) {
 		this.logFolder = new File(logFolder);
 		this.monthlyFolder = new File(this.logFolder, MONTHLY_FOLDER);
+		this.yearlyFolder = new File(this.logFolder, YEARLY_FOLDER);
 	}
 
 	/**
@@ -90,12 +96,28 @@ public class ControlLogStatistics {
 		String today = fileDateFormat.format(new Date());
 		Calendar cursor = toDay(start);
 		Calendar last = toDay(end);
+		Calendar firstLogMonth = getFirstLogMonth();
 		while (!cursor.after(last)) {
+			if (cursor.get(Calendar.DAY_OF_YEAR) == 1) {
+				Calendar nextYear = (Calendar) cursor.clone();
+				nextYear.add(Calendar.YEAR, 1);
+				if (!nextYear.after(dayAfter(last)) && isMonthComplete(nextYear)) {
+					// a year entirely before the first log has no data
+					if (nextYear.after(firstLogMonth)) {
+						merge(logCounts, getYearlyStatistics(cursor), includeShutter);
+					}
+					cursor = nextYear;
+					continue;
+				}
+			}
 			if (cursor.get(Calendar.DAY_OF_MONTH) == 1) {
 				Calendar nextMonth = (Calendar) cursor.clone();
 				nextMonth.add(Calendar.MONTH, 1);
 				if (!nextMonth.after(dayAfter(last)) && isMonthComplete(nextMonth)) {
-					merge(logCounts, getMonthlyStatistics(cursor), includeShutter);
+					// a month entirely before the first log has no data
+					if (nextMonth.after(firstLogMonth)) {
+						merge(logCounts, getMonthlyStatistics(cursor), includeShutter);
+					}
 					cursor = nextMonth;
 					continue;
 				}
@@ -108,6 +130,17 @@ public class ControlLogStatistics {
 	}
 
 	/**
+	 * Creates the monthly summaries, then the yearly summaries, of every
+	 * completed month and year since the first log file.
+	 *
+	 * @param overwrite if true, existing summaries are rebuilt
+	 * @return the number of summaries written, {monthly, yearly}
+	 */
+	public int[] prepareStatistics(boolean overwrite) {
+		return new int[] {prepareMonthlyStatistics(overwrite), prepareYearlyStatistics(overwrite)};
+	}
+
+	/**
 	 * Creates the monthly summary of every completed month since the first log
 	 * file.
 	 *
@@ -116,27 +149,53 @@ public class ControlLogStatistics {
 	 */
 	public int prepareMonthlyStatistics(boolean overwrite) {
 		int count = 0;
-		try {
-			Calendar month = toDay(new SimpleDateFormat(FILE_DATE_PATTERN).parse(getStartDate()));
-			month.set(Calendar.DAY_OF_MONTH, 1);
-			while (true) {
-				Calendar nextMonth = (Calendar) month.clone();
-				nextMonth.add(Calendar.MONTH, 1);
-				if (!isMonthComplete(nextMonth)) {
-					break;
-				}
-				synchronized (monthlyLock) {
-					File file = getMonthlyFile(month);
-					if (overwrite || loadMonthlyFile(file) == null) {
-						if (writeMonthlyFile(file, computeMonth(month)) ) {
-							count++;
-						}
+		Calendar month = getFirstLogMonth();
+		while (true) {
+			Calendar nextMonth = (Calendar) month.clone();
+			nextMonth.add(Calendar.MONTH, 1);
+			if (!isMonthComplete(nextMonth)) {
+				break;
+			}
+			synchronized (monthlyLock) {
+				File file = getMonthlyFile(month);
+				if (overwrite || loadSummaryFile(file) == null) {
+					if (writeSummaryFile(file, computeMonth(month))) {
+						count++;
 					}
 				}
-				month = nextMonth;
 			}
-		} catch (ParseException e) {
-			logger.error("failed to find the first log date", e);
+			month = nextMonth;
+		}
+		return count;
+	}
+
+	/**
+	 * Creates the yearly summary of every completed year since the first log
+	 * file, from the monthly summaries (which are created if missing). Call
+	 * {@link #prepareMonthlyStatistics(boolean)} first when rebuilding.
+	 *
+	 * @param overwrite if true, existing summaries are rebuilt
+	 * @return the number of summaries written
+	 */
+	public int prepareYearlyStatistics(boolean overwrite) {
+		int count = 0;
+		Calendar year = getFirstLogMonth();
+		year.set(Calendar.MONTH, Calendar.JANUARY);
+		while (true) {
+			Calendar nextYear = (Calendar) year.clone();
+			nextYear.add(Calendar.YEAR, 1);
+			if (!isMonthComplete(nextYear)) {
+				break;
+			}
+			synchronized (monthlyLock) {
+				File file = getYearlyFile(year);
+				if (overwrite || loadSummaryFile(file) == null) {
+					if (writeSummaryFile(file, computeYear(year))) {
+						count++;
+					}
+				}
+			}
+			year = nextYear;
 		}
 		return count;
 	}
@@ -148,13 +207,60 @@ public class ControlLogStatistics {
 	Map<String, Long> getMonthlyStatistics(Calendar monthStart) {
 		synchronized (monthlyLock) {
 			File file = getMonthlyFile(monthStart);
-			Map<String, Long> result = loadMonthlyFile(file);
+			Map<String, Long> result = loadSummaryFile(file);
 			if (result == null) {
 				result = computeMonth(monthStart);
-				writeMonthlyFile(file, result);
+				writeSummaryFile(file, result);
 			}
 			return result;
 		}
+	}
+
+	/**
+	 * Returns the statistics of a completed year, loaded from the yearly
+	 * summary file, which is created first (from the monthly summaries) if it
+	 * doesn't exist.
+	 */
+	Map<String, Long> getYearlyStatistics(Calendar yearStart) {
+		synchronized (monthlyLock) {
+			File file = getYearlyFile(yearStart);
+			Map<String, Long> result = loadSummaryFile(file);
+			if (result == null) {
+				result = computeYear(yearStart);
+				writeSummaryFile(file, result);
+			}
+			return result;
+		}
+	}
+
+	/**
+	 * Sums the monthly summaries of a year. Months before the first log file
+	 * are skipped, so no empty monthly summaries are created for them.
+	 */
+	private Map<String, Long> computeYear(Calendar yearStart) {
+		Map<String, Long> result = new HashMap<String, Long>();
+		Calendar firstLogMonth = getFirstLogMonth();
+		Calendar month = (Calendar) yearStart.clone();
+		int year = month.get(Calendar.YEAR);
+		while (month.get(Calendar.YEAR) == year) {
+			if (!month.before(firstLogMonth)) {
+				merge(result, getMonthlyStatistics(month), true);
+			}
+			month.add(Calendar.MONTH, 1);
+		}
+		return result;
+	}
+
+	private Calendar getFirstLogMonth() {
+		Calendar month;
+		try {
+			month = toDay(new SimpleDateFormat(FILE_DATE_PATTERN).parse(getStartDate()));
+		} catch (ParseException e) {
+			logger.error("failed to find the first log date", e);
+			month = toDay(new Date());
+		}
+		month.set(Calendar.DAY_OF_MONTH, 1);
+		return month;
 	}
 
 	/**
@@ -313,10 +419,15 @@ public class ControlLogStatistics {
 				+ new SimpleDateFormat(MONTH_PATTERN).format(monthStart.getTime()));
 	}
 
+	private File getYearlyFile(Calendar yearStart) {
+		return new File(yearlyFolder, MONTHLY_PREFIX
+				+ new SimpleDateFormat(YEAR_PATTERN).format(yearStart.getTime()));
+	}
+
 	/**
 	 * @return the statistics, or null if the file doesn't exist or is invalid
 	 */
-	private Map<String, Long> loadMonthlyFile(File file) {
+	private Map<String, Long> loadSummaryFile(File file) {
 		if (!file.isFile()) {
 			return null;
 		}
@@ -336,16 +447,17 @@ public class ControlLogStatistics {
 			}
 			return result;
 		} catch (Exception e) {
-			logger.warn("invalid monthly statistics file, will rebuild: " + file, e);
+			logger.warn("invalid statistics file, will rebuild: " + file, e);
 			return null;
 		} finally {
 			close(in);
 		}
 	}
 
-	private boolean writeMonthlyFile(File file, Map<String, Long> stats) {
-		if (!monthlyFolder.isDirectory() && !monthlyFolder.mkdirs()) {
-			logger.warn("failed to create folder " + monthlyFolder);
+	private boolean writeSummaryFile(File file, Map<String, Long> stats) {
+		File folder = file.getParentFile();
+		if (!folder.isDirectory() && !folder.mkdirs()) {
+			logger.warn("failed to create folder " + folder);
 			return false;
 		}
 		Properties properties = new Properties();
@@ -353,11 +465,11 @@ public class ControlLogStatistics {
 		for (Entry<String, Long> entry : stats.entrySet()) {
 			properties.setProperty(entry.getKey(), String.valueOf(entry.getValue()));
 		}
-		File temp = new File(monthlyFolder, file.getName() + ".tmp");
+		File temp = new File(folder, file.getName() + ".tmp");
 		OutputStream out = null;
 		try {
 			out = new FileOutputStream(temp);
-			properties.store(out, "Monthly control log statistics (durations in ms)");
+			properties.store(out, "Control log statistics (durations in ms)");
 		} catch (IOException e) {
 			logger.warn("failed to write " + temp, e);
 			close(out);
@@ -429,7 +541,7 @@ public class ControlLogStatistics {
 	}
 
 	/**
-	 * Prepares the monthly summaries manually.
+	 * Prepares the monthly and yearly summaries manually.
 	 * Usage: ControlLogStatistics &lt;logFolder&gt; [-overwrite]
 	 */
 	public static void main(String[] args) {
@@ -440,8 +552,13 @@ public class ControlLogStatistics {
 		boolean overwrite = args.length > 1 && "-overwrite".equals(args[1]);
 		ControlLogStatistics statistics = new ControlLogStatistics(args[0]);
 		long time = System.currentTimeMillis();
-		int count = statistics.prepareMonthlyStatistics(overwrite);
-		System.out.println(count + " monthly statistics file(s) written to "
-				+ statistics.monthlyFolder + " in " + (System.currentTimeMillis() - time) + " ms");
+		int monthly = statistics.prepareMonthlyStatistics(overwrite);
+		long monthTime = System.currentTimeMillis();
+		int yearly = statistics.prepareYearlyStatistics(overwrite);
+		long yearTime = System.currentTimeMillis();
+		System.out.println(monthly + " monthly statistics file(s) written to "
+				+ statistics.monthlyFolder + " in " + (monthTime - time) + " ms");
+		System.out.println(yearly + " yearly statistics file(s) written to "
+				+ statistics.yearlyFolder + " in " + (yearTime - monthTime) + " ms");
 	}
 }
