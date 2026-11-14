@@ -36,7 +36,8 @@ var kafkaHistogram = (function() {
 	var PLOT_MARGIN = {left : 56, right : 10, top : 10, bottom : 32};	// CSS pixels
 	var lastFrameSequence = 0;
 	var lastStatus = null;
-	var image = null;			// what is drawn: {nx, ny, values, xName, yName, ...}
+	var image = null;			// what is drawn: {nx, ny, values, xName, yName, taskId, ...}
+	var shownMax = 0;			// max of the plot shown, for the info line
 	var lut = buildColourMap();
 
 	// ---- Colour map: viridis, from 9 stops ----------------------------------
@@ -247,11 +248,29 @@ var kafkaHistogram = (function() {
 			colour = "#00c400";
 		}
 		$("#kafkaHistogramCollection").text(text).css("color", colour);
-		if (status.frameSequence === 0 && image !== null) {
-			// A new collection: the old image goes, its first frame is to come.
+		if (image === null) {
+			return;
+		}
+		if (status.taskId && status.taskId !== image.taskId && status.collectionRunning && status.frameSequence === 0) {
+			// A new collection is running: the old image goes, its first frame
+			// is to come. Otherwise (no collection, or the server restarted)
+			// the image of the last collection stays.
 			image = null;
 			clearImage();
+			return;
 		}
+		showInfo(shownMax);	// running or last collection
+	}
+
+	/** Whether the image is of a collection that is still running. */
+	function imageRunning() {
+		if (image === null || !image.running) {
+			return false;
+		}
+		// The final frame may not come (for example, the histogram service
+		// gave up), so the status of the same collection decides too.
+		return !(lastStatus !== null && (!lastStatus.taskId || (lastStatus.taskId === image.taskId
+				&& !lastStatus.collectionRunning)));
 	}
 
 	// ---- Drawing -------------------------------------------------------------
@@ -274,8 +293,8 @@ var kafkaHistogram = (function() {
 	}
 
 	function drawFrame(frame) {
-		if (frame.sequence <= lastFrameSequence && image !== null) {
-			return;	// already drawn
+		if (image !== null && frame.taskId === image.taskId && frame.sequence <= lastFrameSequence) {
+			return;	// already drawn (sequences start again when the server restarts)
 		}
 		lastFrameSequence = frame.sequence;
 		var variable = pickVariable(frame.variables);
@@ -324,7 +343,8 @@ var kafkaHistogram = (function() {
 			yName : axes.length === 2 ? (swap ? axes[1] : axes[0]) : "y",
 			unit : variable.unit || "counts",
 			timeMs : frame.timeMs,
-			running : frame.collectionRunning
+			running : frame.collectionRunning,
+			taskId : frame.taskId
 		};
 		render();
 	}
@@ -405,7 +425,8 @@ var kafkaHistogram = (function() {
 	}
 
 	function showInfo(max) {
-		$("#kafkaHistogramInfo").text("Frame " + formatTime(image.timeMs) + (image.running ? "" : " (final)")
+		shownMax = max;
+		$("#kafkaHistogramInfo").text((imageRunning() ? "Frame " : "Last collection, frame ") + formatTime(image.timeMs)
 				+ ", total " + formatNumber(image.total) + " " + image.unit + ", max " + formatNumber(max));
 	}
 

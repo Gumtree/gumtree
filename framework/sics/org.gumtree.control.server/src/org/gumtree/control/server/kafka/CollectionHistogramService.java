@@ -1,5 +1,8 @@
 package org.gumtree.control.server.kafka;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -198,6 +201,13 @@ public class CollectionHistogramService {
 		 */
 		public double catchUpMaxHours = 12;
 
+		/**
+		 * "catchUpStopped": when no collection is running at start, ask for the
+		 * final histogram of the last one, so that clients show it until the
+		 * next collection
+		 */
+		public boolean catchUpStopped = true;
+
 		/** "relaunch": relaunch the task when its frames stop */
 		public boolean relaunch = true;
 
@@ -230,6 +240,8 @@ public class CollectionHistogramService {
 			settings.catchUp = Boolean.parseBoolean(string("catchUp", String.valueOf(settings.catchUp)));
 			settings.catchUpEvents = (int) number("catchUpEvents", settings.catchUpEvents);
 			settings.catchUpMaxHours = number("catchUpMaxHours", settings.catchUpMaxHours);
+			settings.catchUpStopped = Boolean.parseBoolean(string("catchUpStopped",
+					String.valueOf(settings.catchUpStopped)));
 			settings.relaunch = Boolean.parseBoolean(string("relaunch", String.valueOf(settings.relaunch)));
 			settings.firstFrameSeconds = number("firstFrameSeconds", settings.firstFrameSeconds);
 			settings.silenceSeconds = number("silenceSeconds", settings.silenceSeconds);
@@ -549,7 +561,7 @@ public class CollectionHistogramService {
 	private void catchUp() {
 		// The event subscription is ready, so no event falls between it and
 		// this read; events seen by both are told apart by offset.
-		Event last = null;
+		List<Event> events = new ArrayList<Event>();
 		for (KafkaMessage message : consumerService.readLatest(consumerConfig(), settings.eventTopic,
 				settings.catchUpEvents, READY_TIMEOUT_MS)) {
 			Long readTo = catchUpReadTo.get(message.getPartition());
@@ -558,19 +570,55 @@ public class CollectionHistogramService {
 			}
 			Event event = parseEvent(message);
 			if (event != null) {
-				last = event;
+				events.add(event);
 			}
 		}
-		if (last == null || !START_COLLECTION.equals(last.action)) {
+		if (events.isEmpty()) {
 			return;
 		}
-		double ageHours = (nowNs() - last.timestampNs) / 3.6e12;
+		Collections.sort(events, new Comparator<Event>() {
+			public int compare(Event a, Event b) {
+				return a.timestampNs < b.timestampNs ? -1 : a.timestampNs > b.timestampNs ? 1 : 0;
+			}
+		});
+		Event last = events.get(events.size() - 1);
+		if (START_COLLECTION.equals(last.action)) {
+			if (tooOld(last)) {
+				return;
+			}
+			logger.info("Collection already running; catching up");
+			startTask(last.timestampNs);
+			return;
+		}
+		if (!settings.catchUpStopped) {
+			return;
+		}
+		// No collection running: show the last one, from its start to its stop.
+		Event start = null;
+		for (int i = events.size() - 2; i >= 0 && start == null; i--) {
+			if (START_COLLECTION.equals(events.get(i).action)) {
+				start = events.get(i);
+			}
+		}
+		if (start == null) {
+			logger.info("Not showing the last collection: its " + START_COLLECTION + " is not in the last "
+					+ settings.catchUpEvents + " events");
+			return;
+		}
+		if (tooOld(start) || last.timestampNs <= start.timestampNs) {
+			return;
+		}
+		logger.info("No collection running; asking for the histogram of the last one");
+		startStoppedTask(start.timestampNs, last.timestampNs);
+	}
+
+	private boolean tooOld(Event start) {
+		double ageHours = (nowNs() - start.timestampNs) / 3.6e12;
 		if (ageHours > settings.catchUpMaxHours) {
 			logger.info(String.format("Not catching up: the last %s was %.1f hours ago", START_COLLECTION, ageHours));
-			return;
+			return true;
 		}
-		logger.info("Collection already running; catching up");
-		startTask(last.timestampNs);
+		return false;
 	}
 
 	private void handleEvent(Event event) {
@@ -628,6 +676,30 @@ public class CollectionHistogramService {
 		for (Listener listener : listeners) {
 			try {
 				listener.collectionStarted(newTask.id, startTimeNs);
+			} catch (RuntimeException e) {
+				logger.error("Collection histogram listener failed", e);
+			}
+		}
+	}
+
+	/**
+	 * Launches the histogram of a collection that has already stopped, for its
+	 * final frame. Clients see it start and stop at once, then get the frame.
+	 */
+	private void startStoppedTask(long startTimeNs, long endTimeNs) {
+		Task newTask = new Task(startTimeNs);
+		newTask.endNs = endTimeNs;
+		newTask.endSentMs = System.currentTimeMillis(); // the first frame is the final one
+		task = newTask;
+		taskId = newTask.id;
+		latestHistogram = null;
+		collectionRunning = false;
+		newTask.launch();
+		logger.info("Launched histogram " + newTask.id + " from " + startTimeNs + " to " + endTimeNs);
+		for (Listener listener : listeners) {
+			try {
+				listener.collectionStarted(newTask.id, startTimeNs);
+				listener.collectionStopped(newTask.id, endTimeNs);
 			} catch (RuntimeException e) {
 				logger.error("Collection histogram listener failed", e);
 			}
