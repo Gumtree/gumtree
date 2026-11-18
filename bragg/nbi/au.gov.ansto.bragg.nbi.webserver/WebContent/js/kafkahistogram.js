@@ -61,19 +61,37 @@ var kafkaHistogram = (function() {
 	var shownMax = 0;			// max of the plot shown, for the info line
 	var lut = buildColourMap();
 
-	// ---- Colour map: viridis, from 9 stops ----------------------------------
+	// ---- Colour map: Gumtree's Nature scale ----------------------------------
 
+	/**
+	 * The Nature colour scale of org.gumtree.vis.hist2d.color.ColorScale
+	 * (getNatureColor), the default of Gumtree's 2D plots: black at zero, then
+	 * dark blue, blue, magenta, red, orange, yellow, and white at the top.
+	 * value is 0..1; returns [r, g, b], each 0..1.
+	 */
+	function natureColour(value) {
+		if (value <= 0) {
+			return [0, 0, 0];
+		} else if (value <= 1 / 6) {
+			return [0, 0, value * 5 + 1 / 6];
+		} else if (value <= 2 / 6) {
+			return [(value - 1 / 6) * 4, 0, 1];
+		} else if (value <= 4 / 6) {
+			return [value + 1 / 3, 0, 2 - value * 3];
+		} else if (value <= 5 / 6) {
+			return [1, value * 6 - 4, 0];
+		} else if (value <= 1) {
+			return [1, 1, value * 6 - 5];
+		}
+		return [1, 1, 1];
+	}
+
+	/** 256 colours of the Nature scale, from 0 to 1, as in ColorScale.getColor. */
 	function buildColourMap() {
-		var stops = [[68, 1, 84], [71, 44, 122], [59, 81, 139], [44, 113, 142], [33, 144, 141],
-				[39, 173, 129], [92, 200, 99], [170, 220, 50], [253, 231, 37]];
 		var table = new Array(256);
 		for (var i = 0; i < 256; i++) {
-			var t = i / 255 * (stops.length - 1);
-			var k = Math.min(Math.floor(t), stops.length - 2);
-			var f = t - k;
-			table[i] = [Math.round(stops[k][0] + (stops[k + 1][0] - stops[k][0]) * f),
-					Math.round(stops[k][1] + (stops[k + 1][1] - stops[k][1]) * f),
-					Math.round(stops[k][2] + (stops[k + 1][2] - stops[k][2]) * f)];
+			var rgb = natureColour(i / 255);
+			table[i] = [Math.floor(rgb[0] * 255), Math.floor(rgb[1] * 255), Math.floor(rgb[2] * 255)];
 		}
 		return table;
 	}
