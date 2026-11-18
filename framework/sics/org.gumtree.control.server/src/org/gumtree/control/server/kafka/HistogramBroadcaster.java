@@ -14,6 +14,7 @@ import org.gumtree.control.server.kafka.HistogramProjections.Bins;
 import org.gumtree.control.server.kafka.HistogramProjections.View;
 import org.gumtree.kafka.clients.da00.Da00DataArray;
 import org.gumtree.kafka.clients.da00.Da00Variable;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -181,6 +182,9 @@ public class HistogramBroadcaster implements CollectionHistogramService.Listener
 	/** The views the kinds of frame collected give */
 	private final List<String> views;
 
+	/** For each kind of window histogram (publish_clear), the seconds each frame covers */
+	private final Map<String, Double> windows;
+
 	private static final class CachedJson {
 
 		final long frameSequence;
@@ -227,10 +231,18 @@ public class HistogramBroadcaster implements CollectionHistogramService.Listener
 		Map<String, Bins> allBins = new HashMap<String, Bins>();
 		List<String> kinds = CollectionHistogramService.KINDS;
 		if (histogramRequests != null) {
+			Map<String, Double> allWindows = new HashMap<String, Double>();
 			kinds = new ArrayList<String>(histogramRequests.keySet());
-			for (String request : histogramRequests.values()) {
-				allBins.putAll(HistogramProjections.binsFromRequest(request));
+			for (Map.Entry<String, String> request : histogramRequests.entrySet()) {
+				allBins.putAll(HistogramProjections.binsFromRequest(request.getValue()));
+				double window = windowSeconds(request.getValue());
+				if (window > 0) {
+					allWindows.put(request.getKey(), Double.valueOf(window));
+				}
 			}
+			windows = Collections.unmodifiableMap(allWindows);
+		} else {
+			windows = Collections.emptyMap();
 		}
 		bins = Collections.unmodifiableMap(allBins);
 		List<String> collected = new ArrayList<String>();
@@ -242,6 +254,19 @@ public class HistogramBroadcaster implements CollectionHistogramService.Listener
 			}
 		}
 		views = Collections.unmodifiableList(collected);
+	}
+
+	/**
+	 * @return the seconds each frame of the requested histogram covers if it is
+	 *         cleared after each publish (publish_clear), else 0: accumulated
+	 */
+	private static double windowSeconds(String request) {
+		try {
+			JSONObject histogram = new JSONObject(request);
+			return histogram.optBoolean("publish_clear", false) ? histogram.optDouble("publish_period", 0) : 0;
+		} catch (JSONException e) {
+			return 0;
+		}
 	}
 
 	/**
@@ -400,7 +425,10 @@ public class HistogramBroadcaster implements CollectionHistogramService.Listener
 	 * One view of the snapshot's frames as a JSON object: sequence (of the frame
 	 * it is computed from), taskId (the collection's ID), kind (of that frame),
 	 * source, collectionRunning, time (ns, plus ms for JavaScript), unit (null
-	 * if not given), total (of all counts in that frame), views (the views
+	 * if not given), total (of all counts in that frame), windowSeconds (the
+	 * seconds that frame covers, for a histogram cleared after each publish
+	 * such as X-T; null for one accumulated since the collection's start, such
+	 * as X-Y), views (the views
 	 * the kinds of frame collected give, of xy, xt, yt, x, y, t: see
 	 * {@link #getViews()}), view (the one asked for), and, if available: horizontal (the axis across the plot), vertical
 	 * (the axis up it; absent for a 1D view), summedOver (names of the axes
@@ -439,7 +467,7 @@ public class HistogramBroadcaster implements CollectionHistogramService.Listener
 					cachedProjections.put(kind, projections);
 				}
 				cached = new CachedJson(source, viewJson(snapshot, kind, source, projections.projections, view,
-						views));
+						views, windows.get(kind)));
 				cachedJson.put(view, cached);
 			}
 			return cached.json;
@@ -447,7 +475,7 @@ public class HistogramBroadcaster implements CollectionHistogramService.Listener
 	}
 
 	private static String viewJson(Snapshot snapshot, String kind, long source, HistogramProjections projections,
-			String viewName, List<String> views) {
+			String viewName, List<String> views, Double windowSeconds) {
 		Da00DataArray array = snapshot.frames.get(kind);
 		View view = projections == null ? null : projections.getView(viewName);
 		StringBuilder json = new StringBuilder(256 + (view == null ? 0 : view.data.length * 6));
@@ -461,6 +489,12 @@ public class HistogramBroadcaster implements CollectionHistogramService.Listener
 		json.append(",\"unit\":").append(quote(projections == null ? null : projections.getUnit()));
 		json.append(",\"total\":");
 		appendNumber(json, projections == null ? 0 : projections.getTotal());
+		json.append(",\"windowSeconds\":");
+		if (windowSeconds == null) {
+			json.append("null");
+		} else {
+			appendNumber(json, windowSeconds.doubleValue());
+		}
 		json.append(",\"views\":");
 		appendNames(json, views);
 		json.append(",\"view\":").append(quote(viewName));

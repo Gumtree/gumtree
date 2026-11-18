@@ -10,7 +10,9 @@
  * switched: while it is off, the stream is closed and "Refresh Now" fetches the
  * latest frame once.
  *
- * The server collects three histograms, X-Y, X-T and Y-T. The Plot selector
+ * The server collects three histograms: X-Y, accumulated since the
+ * collection's start, and X-T and Y-T, each frame the counts of the last 2 s
+ * (100 frames of 20 ms, T in 1000 bins of 20 us). The Plot selector
  * (#kafkaHistogramView) shows Total X-Y (X across, Y up), Total X-T (X across,
  * T up) or Total Y-T (T across, Y up) as a 2D image, or Total X, Y or T as a
  * 1D plot. The server computes the plot and sends only the one shown
@@ -430,7 +432,8 @@ var kafkaHistogram = (function() {
 			unit : frame.unit || "counts",
 			timeMs : frame.timeMs,
 			running : frame.collectionRunning,
-			taskId : frame.taskId
+			taskId : frame.taskId,
+			windowSeconds : frame.windowSeconds || 0	// 0: accumulated since the start
 		};
 		render();
 	}
@@ -588,7 +591,31 @@ var kafkaHistogram = (function() {
 	function showInfo(max) {
 		shownMax = max;
 		$("#kafkaHistogramInfo").text((plotRunning() ? "Frame " : "Last collection, frame ") + formatTime(plot.timeMs)
-				+ ", total " + formatNumber(plot.total) + " " + plot.unit + ", max " + formatNumber(max));
+				+ ", " + coverageText() + ", total " + formatNumber(plot.total) + " " + plot.unit + ", max "
+				+ formatNumber(max));
+	}
+
+	/**
+	 * What the plot counts: "since the start" (X-Y), or for a window histogram
+	 * (X-T, Y-T) "last 2 s", with the number of T frames when the T axis is
+	 * known: "last 2 s (100 frames of 20 ms)".
+	 */
+	function coverageText() {
+		if (!plot.windowSeconds) {
+			return "since the start";
+		}
+		var text = "last " + formatNumber(plot.windowSeconds) + " s";
+		var axes = [plot.horizontal, plot.vertical];
+		for (var i = 0; i < axes.length; i++) {
+			var axis = axes[i];
+			if (axis && axis.name === "T" && typeof axis.step === "number" && axis.units === "usec") {
+				var frameUs = axis.size * axis.step;
+				text += " (" + formatNumber(Math.round(plot.windowSeconds * 1e6 / frameUs)) + " frames of "
+						+ formatNumber(frameUs / 1000) + " ms)";
+				break;
+			}
+		}
+		return text;
 	}
 
 	/** Total X, Y or T: a step plot of the summed counts per bin. */
