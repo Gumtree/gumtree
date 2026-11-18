@@ -49,7 +49,7 @@ var kafkaHistogram = (function() {
 	var source = null;			// EventSource
 	var polling = false;		// long-poll loop running (no EventSource)
 	var pollGeneration = 0;		// ends an old poll loop
-	var logScale = false;
+	var logScale = true;		// log colour and 1D scale by default
 	var offered = VIEWS.slice();	// the plots in the selector, from histmemTypes
 	var view = "xy";			// the plot chosen, one of offered
 	var profile = null;			// the 1D plot drawn, for the readout
@@ -61,37 +61,39 @@ var kafkaHistogram = (function() {
 	var shownMax = 0;			// max of the plot shown, for the info line
 	var lut = buildColourMap();
 
-	// ---- Colour map: Gumtree's Nature scale ----------------------------------
+	// ---- Colour map: the histogram server's rainbow ----------------------------
 
 	/**
-	 * The Nature colour scale of org.gumtree.vis.hist2d.color.ColorScale
-	 * (getNatureColor), the default of Gumtree's 2D plots: black at zero, then
-	 * dark blue, blue, magenta, red, orange, yellow, and white at the top.
-	 * value is 0..1; returns [r, g, b], each 0..1.
+	 * The colour scale of the histogram server's images (Total x-y histogram
+	 * PNGs): dark purple at the bottom, then blue, cyan, green, yellow, and red
+	 * at the top. Stops sampled from the colour bar of such an image, at their
+	 * fraction of its height. Bins with no counts are drawn black.
 	 */
-	function natureColour(value) {
-		if (value <= 0) {
-			return [0, 0, 0];
-		} else if (value <= 1 / 6) {
-			return [0, 0, value * 5 + 1 / 6];
-		} else if (value <= 2 / 6) {
-			return [(value - 1 / 6) * 4, 0, 1];
-		} else if (value <= 4 / 6) {
-			return [value + 1 / 3, 0, 2 - value * 3];
-		} else if (value <= 5 / 6) {
-			return [1, value * 6 - 4, 0];
-		} else if (value <= 1) {
-			return [1, 1, value * 6 - 5];
-		}
-		return [1, 1, 1];
-	}
+	var COLOUR_STOPS = [
+		[0, [34, 0, 68]],
+		[0.047, [51, 0, 170]],
+		[0.081, [34, 0, 238]],
+		[0.115, [0, 0, 255]],
+		[0.375, [0, 255, 255]],
+		[0.541, [0, 255, 0]],
+		[0.753, [255, 255, 0]],
+		[1, [255, 0, 0]]
+	];
 
-	/** 256 colours of the Nature scale, from 0 to 1, as in ColorScale.getColor. */
+	/** 256 colours along COLOUR_STOPS, linear between stops. */
 	function buildColourMap() {
 		var table = new Array(256);
+		var k = 0;
 		for (var i = 0; i < 256; i++) {
-			var rgb = natureColour(i / 255);
-			table[i] = [Math.floor(rgb[0] * 255), Math.floor(rgb[1] * 255), Math.floor(rgb[2] * 255)];
+			var t = i / 255;
+			while (k < COLOUR_STOPS.length - 2 && t > COLOUR_STOPS[k + 1][0]) {
+				k++;
+			}
+			var a = COLOUR_STOPS[k], b = COLOUR_STOPS[k + 1];
+			var f = (t - a[0]) / (b[0] - a[0]);
+			table[i] = [Math.round(a[1][0] + (b[1][0] - a[1][0]) * f),
+					Math.round(a[1][1] + (b[1][1] - a[1][1]) * f),
+					Math.round(a[1][2] + (b[1][2] - a[1][2]) * f)];
 		}
 		return table;
 	}
@@ -631,6 +633,8 @@ var kafkaHistogram = (function() {
 				var o = (row * grid.nx + px) * 4;
 				if (isNaN(value)) {
 					p[o] = p[o + 1] = p[o + 2] = 200;
+				} else if (value === 0) {
+					p[o] = p[o + 1] = p[o + 2] = 0;	// no counts: black, as in the server's images
 				} else {
 					var c = lut[scaled(value, grid.min, grid.max)];
 					p[o] = c[0];
@@ -903,6 +907,10 @@ var kafkaHistogram = (function() {
 				return;
 			}
 			clearImage();
+			if ($("#kafkaHistogramLog").length > 0) {
+				// Follow the selector, which a browser may restore on reload.
+				logScale = $("#kafkaHistogramLog").val() !== "linear";
+			}
 			$("#kafkaHistogramLog").on("change", function() {
 				logScale = $(this).val() === "log";
 				render();
