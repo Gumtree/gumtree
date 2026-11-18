@@ -59,7 +59,6 @@ var kafkaHistogram = (function() {
 	var plot = null;			// what is drawn: {view, horizontal, vertical, values, taskId, ...}
 	var grid = null;			// the 2D image as drawn, bins added in groups: {nx, ny, gx, gy, values}
 	var shownMax = 0;			// max of the plot shown, for the info line
-	var lut = buildColourMap();
 
 	// ---- Colour map: the histogram server's rainbow ----------------------------
 
@@ -97,6 +96,8 @@ var kafkaHistogram = (function() {
 		}
 		return table;
 	}
+
+	var lut = buildColourMap();	// after COLOUR_STOPS is set
 
 	// ---- Showing the section ------------------------------------------------
 
