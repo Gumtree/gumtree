@@ -33,16 +33,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Follows the histograms accumulated over the current collection: X-Y, X-T and
- * Y-T (see {@link Settings#xyHistogram}, {@link Settings#xtHistogram} and
- * {@link Settings#ytHistogram}), as the AESS instrument backend's Active view
- * does for one histogram (a-ess-data-acquisition-frontend-project,
- * aess-instrument-backend: histogram_runtime.py and kafka_producer.py):
+ * Follows the histograms of the current collection: X-Y, accumulated since the
+ * collection's start, and X-T and Y-T, each frame the counts of the last 2 s
+ * (100 frames of 20 ms) (see {@link Settings#xyHistogram},
+ * {@link Settings#xtHistogram} and {@link Settings#ytHistogram}), as the AESS
+ * instrument backend's Active view does for one histogram
+ * (a-ess-data-acquisition-frontend-project, aess-instrument-backend:
+ * histogram_runtime.py and kafka_producer.py):
  * <ol>
  * <li>A StartCollection ControlEvent on the event topic launches one histogram
  * task per histogram on the histogram service, starting at the event's time,
- * open-ended, never cleared, published to the output topic every publish
- * period.</li>
+ * open-ended, published to the output topic every publish period.</li>
  * <li>While the collection runs, the tasks' leases are renewed on the heartbeat
  * topic.</li>
  * <li>Each da00 frame the service publishes for a task goes to the
@@ -192,7 +193,13 @@ public class CollectionHistogramService {
 
 		private static final String T_UP = "\"vt_axis\": \"T\", \"vt_bins\": " + TIME_BINS;
 
-		private static final String REST = "\"dp_axis\": null, \"dp_bins\": null, \"publish_period\": 2.0";
+		private static final String NO_DEPTH = "\"dp_axis\": null, \"dp_bins\": null";
+
+		/** Published every 2 s, counting from the collection's start */
+		private static final String ACCUMULATED = NO_DEPTH + ", \"publish_period\": 2.0, \"publish_clear\": false";
+
+		/** Published every 2 s (100 frames of 20 ms), each the counts of those 2 s only */
+		private static final String WINDOW = NO_DEPTH + ", \"publish_period\": 2.0, \"publish_clear\": true";
 
 		/**
 		 * "brokers": Kafka bootstrap servers, host:port[,host:port...]. Set in
@@ -214,28 +221,35 @@ public class CollectionHistogramService {
 		public String outputTopic = "histogram.gumtree";
 
 		/**
-		 * "xyHistogram": the X-Y histogram to accumulate, as JSON, in the
-		 * histogram service's HistogramSpec format (as in
+		 * "xyHistogram": the X-Y histogram, as JSON, in the histogram service's
+		 * HistogramSpec format (as in
 		 * config/instruments/&lt;instrument&gt;/histogramtasks.json of the AESS
-		 * project): X across (hz_axis), Y up (vt_axis). publish_topic,
-		 * start_time, end_time, keep_alive and publish_clear are set by this
-		 * service. Set it empty to not collect this histogram.
+		 * project): X across (hz_axis), Y up (vt_axis), accumulated since the
+		 * collection's start (publish_clear false). publish_topic, start_time,
+		 * end_time and keep_alive are set by this service. Set it empty to not
+		 * collect this histogram.
+		 * <p>
+		 * publish_clear decides how a histogram is launched: false accumulates
+		 * from the collection's start; true makes each frame the counts of one
+		 * publish_period only, a window that starts when the task is launched
+		 * (see {@link Task#launch()}).
 		 */
-		public String xyHistogram = "{" + PANEL + ", " + X_ACROSS + ", " + Y_UP + ", " + REST + "}";
+		public String xyHistogram = "{" + PANEL + ", " + X_ACROSS + ", " + Y_UP + ", " + ACCUMULATED + "}";
 
 		/**
 		 * "xtHistogram": the X-T histogram, as for {@link #xyHistogram}: X
-		 * across, T up, T over a 20 ms frame in 1000 bins of 20 microseconds.
-		 * 128 x 1000 32-bit counts make 512 kB per frame, inside Kafka's
-		 * default message limit of 1 MB.
+		 * across in 128 bins, T up in 1000 bins of 20 microseconds over a 20 ms
+		 * frame. Each frame integrates the last 100 such 20 ms frames: it is
+		 * published every 2 s and then cleared. 128 x 1000 32-bit counts make
+		 * 512 kB per frame, inside Kafka's default message limit of 1 MB.
 		 */
-		public String xtHistogram = "{" + PANEL + ", " + X_ACROSS + ", " + T_UP + ", " + REST + "}";
+		public String xtHistogram = "{" + PANEL + ", " + X_ACROSS + ", " + T_UP + ", " + WINDOW + "}";
 
 		/**
-		 * "ytHistogram": the Y-T histogram, as for {@link #xyHistogram}: T
-		 * across, Y up, with T as in {@link #xtHistogram}.
+		 * "ytHistogram": the Y-T histogram, as {@link #xtHistogram} but T across
+		 * in 1000 bins and Y up in 128 bins.
 		 */
-		public String ytHistogram = "{" + PANEL + ", " + T_ACROSS + ", " + Y_UP + ", " + REST + "}";
+		public String ytHistogram = "{" + PANEL + ", " + T_ACROSS + ", " + Y_UP + ", " + WINDOW + "}";
 
 		/** "source": the Source field of the requests sent */
 		public String source = "Gumtree";
@@ -918,10 +932,23 @@ public class CollectionHistogramService {
 			return collection.isRunning();
 		}
 
+		/**
+		 * Asks for the histogram from the collection's start, or, for a window
+		 * histogram (publish_clear), from now: its frames hold only recent
+		 * counts, so replaying the collection so far would only delay them. For a
+		 * collection already stopped, a window histogram covers its last
+		 * publish period.
+		 */
 		void launch() {
 			launchedMs = lastRenewMs = System.currentTimeMillis();
-			sendQuietly(settings.commandTopic, launchBody(kind, id, collection.startNs, collection.endNs),
-					"launch " + this);
+			JSONObject spec = histogramSpecs.get(kind);
+			long startNs = collection.startNs;
+			if (spec.optBoolean("publish_clear", false)) {
+				long windowNs = (long) (spec.optDouble("publish_period", 0) * 1e9);
+				startNs = collection.isRunning() ? Math.max(startNs, nowNs())
+						: Math.max(startNs, collection.endNs - windowNs);
+			}
+			sendQuietly(settings.commandTopic, launchBody(kind, id, startNs, collection.endNs), "launch " + this);
 		}
 
 		void finish(long endTimeNs) {
@@ -1002,7 +1029,9 @@ public class CollectionHistogramService {
 		put(histogram, "publish_topic", settings.outputTopic);
 		put(histogram, "start_time", startNs);
 		put(histogram, "end_time", endNs); // 0: open-ended until StopCollection
-		put(histogram, "publish_clear", false); // accumulate over the collection
+		if (!histogram.has("publish_clear")) {
+			put(histogram, "publish_clear", false); // accumulate over the collection
+		}
 		if (endNs == 0) {
 			put(histogram, "keep_alive", settings.keepAliveSeconds);
 		} else {
