@@ -771,7 +771,10 @@ var kafkaHistogram = (function() {
 			context.moveTo(x, m.top + height);
 			context.lineTo(x, m.top + height + 4);
 			context.stroke();
-			context.fillText(tickText(axis, ticks[t]), x, m.top + height + 6);
+			// Kept inside the canvas: a long last label would be cut off.
+			var label = tickText(axis, ticks[t]);
+			var half = context.measureText(label).width / 2;
+			context.fillText(label, Math.min(x, cssWidth - 2 - half), m.top + height + 6);
 		}
 		context.fillText(axisTitle(axis) + (summed ? " (" + summed + ")" : ""), m.left + width / 2, m.top + height + 19);
 		context.strokeStyle = "#021a40";
@@ -780,23 +783,27 @@ var kafkaHistogram = (function() {
 		context.lineTo(m.left + 0.5, m.top + height);
 		context.stroke();
 
-		// Step plot
-		var base = yOf(lo);
+		// Curve through the bin centres, as in the histogram server's images;
+		// broken where a bin has no value.
 		context.beginPath();
-		context.moveTo(xOf(0), base);
+		var drawing = false;
 		for (var b = 0; b < n; b++) {
-			var level = yOf(isNaN(sums[b]) ? lo : sums[b]);
-			context.lineTo(xOf(b), level);
-			context.lineTo(xOf(b + 1), level);
+			if (isNaN(sums[b])) {
+				drawing = false;
+				continue;
+			}
+			var cx = xOf(b + 0.5);
+			var cy = yOf(sums[b]);
+			if (drawing) {
+				context.lineTo(cx, cy);
+			} else {
+				context.moveTo(cx, cy);
+				drawing = true;
+			}
 		}
-		context.lineTo(xOf(n), base);
-		context.closePath();
-		var fill = lut[110];
-		var line = lut[50];
-		context.fillStyle = "rgba(" + fill[0] + "," + fill[1] + "," + fill[2] + ",0.35)";
-		context.fill();
-		context.strokeStyle = "rgb(" + line[0] + "," + line[1] + "," + line[2] + ")";
-		context.lineWidth = 1.5;
+		context.strokeStyle = "#021a40";
+		context.lineWidth = 1.25;
+		context.lineJoin = "round";
 		context.stroke();
 
 		profile = {axis : axis, sums : sums, n : n, left : m.left, width : width};
