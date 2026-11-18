@@ -21,6 +21,13 @@
  * selector. An axis with more bins than the image has pixels, such as T in
  * 1000 bins, is shown with neighbouring bins added together.
  *
+ * The plots offered, their names and the one shown first come from histmemTypes
+ * in the instrument's instrumentsetup.js, in its order: TOTAL_HISTOGRAM_XY,
+ * _XT, _YT, _X, _Y and _T are Total X-Y, X-T, Y-T, X, Y and T, and the one with
+ * "isDefault" : true is shown first (else the first listed). Other types, such
+ * as RAW_TOTAL_HISTOGRAM_XT, are not offered here. Without histmemTypes, or with
+ * none of these in it, all six plots are offered and X-Y is shown first.
+ *
  * An instrument can turn the section off with, in its instrumentsetup.js:
  *     var kafkaHistogramEnabled = false;
  */
@@ -31,6 +38,8 @@ var kafkaHistogram = (function() {
 	var MAX_HEIGHT_FRACTION = 0.7;	// of the window height
 	var MAX_SQUARE_ASPECT = 4;		// 2D plots more elongated than this are stretched
 	var VIEW_TITLES = {xy : "X-Y", xt : "X-T", yt : "Y-T", x : "X", y : "Y", t : "T"};
+	var HISTMEM_TYPE_VIEWS = {TOTAL_HISTOGRAM_XY : "xy", TOTAL_HISTOGRAM_XT : "xt", TOTAL_HISTOGRAM_YT : "yt",
+			TOTAL_HISTOGRAM_X : "x", TOTAL_HISTOGRAM_Y : "y", TOTAL_HISTOGRAM_T : "t"};
 	var RETRY_MS = 5000;
 
 	var enabled = typeof kafkaHistogramEnabled === 'undefined' || kafkaHistogramEnabled;
@@ -41,7 +50,8 @@ var kafkaHistogram = (function() {
 	var polling = false;		// long-poll loop running (no EventSource)
 	var pollGeneration = 0;		// ends an old poll loop
 	var logScale = false;
-	var view = "xy";			// the plot chosen, one of VIEWS
+	var offered = VIEWS.slice();	// the plots in the selector, from histmemTypes
+	var view = "xy";			// the plot chosen, one of offered
 	var profile = null;			// the 1D plot drawn, for the readout
 	var PLOT_MARGIN = {left : 56, right : 10, top : 10, bottom : 32};	// CSS pixels
 	var lastFrameSequence = 0;
@@ -231,9 +241,48 @@ var kafkaHistogram = (function() {
 		setConnection("PAUSED", "#0000c4");
 	}
 
+	/**
+	 * Fills the Plot selector from the instrument's histmemTypes: the plots it
+	 * lists, in its order, with its names, and its default chosen.
+	 */
+	function setUpViewOptions() {
+		if (typeof histmemTypes === 'undefined' || !histmemTypes) {
+			return;
+		}
+		var views = [];
+		var titles = {};
+		var defaultView = null;
+		for (var i = 0; i < histmemTypes.length; i++) {
+			var v = HISTMEM_TYPE_VIEWS[histmemTypes[i].id];
+			if (v === undefined || views.indexOf(v) >= 0) {
+				continue;
+			}
+			views.push(v);
+			titles[v] = histmemTypes[i].text || "Total " + VIEW_TITLES[v];
+			if (histmemTypes[i].isDefault && defaultView === null) {
+				defaultView = v;
+			}
+		}
+		if (views.length === 0) {
+			return;	// none of the Total plots listed: offer all six
+		}
+		var select = $("#kafkaHistogramView");
+		select.empty();
+		for (var j = 0; j < views.length; j++) {
+			select.append($("<option></option>").val(views[j]).text(titles[views[j]]));
+		}
+		offered = views;
+		view = defaultView !== null ? defaultView : views[0];
+		select.val(view);
+		try {
+			select.selectmenu("refresh");
+		} catch (e) {
+		}
+	}
+
 	/** Shows another plot: asks the server for that view of the frame. */
 	function setView(newView) {
-		if (VIEWS.indexOf(newView) < 0 || newView === view) {
+		if (offered.indexOf(newView) < 0 || newView === view) {
 			return;
 		}
 		view = newView;
@@ -392,11 +441,17 @@ var kafkaHistogram = (function() {
 		updateViewOptions(views);
 		if (frame.data === null || frame.data === undefined) {
 			if (views.indexOf(view) < 0) {
-				// Not collected: show a plot that is.
-				if (views.length > 0) {
-					setView(views[0]);
+				// Not collected: show an offered plot that is.
+				var next = null;
+				for (var i = 0; i < offered.length && next === null; i++) {
+					if (views.indexOf(offered[i]) >= 0) {
+						next = offered[i];
+					}
+				}
+				if (next !== null) {
+					setView(next);
 				} else {
-					$("#kafkaHistogramInfo").text("No X, Y or T histogram collected");
+					$("#kafkaHistogramInfo").text("None of the plots offered is collected");
 				}
 			} else if (plot === null) {
 				// Collected, but its histogram has not arrived yet.
@@ -841,6 +896,7 @@ var kafkaHistogram = (function() {
 				// A browser may restore the last choice on reload.
 				view = $("#kafkaHistogramView").val();
 			}
+			setUpViewOptions();	// the instrument's list and default, if it has one
 			$("#kafkaHistogramCanvas").on("mousemove touchstart touchmove", readout);
 			$(window).on("resize orientationchange", onResize);
 			checkAvailable();
