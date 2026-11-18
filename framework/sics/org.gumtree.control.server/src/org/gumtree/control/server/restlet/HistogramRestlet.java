@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.gumtree.control.server.kafka.CollectionHistogramManager;
 import org.gumtree.control.server.kafka.HistogramBroadcaster;
 import org.gumtree.control.server.kafka.HistogramBroadcaster.Snapshot;
+import org.gumtree.control.server.kafka.HistogramProjections;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
@@ -28,10 +29,10 @@ import org.slf4j.LoggerFactory;
  * example /histogram/rest):
  * <dl>
  * <dt>status</dt>
- * <dd>The collection state as JSON: sequence, taskId, collectionRunning,
- * startTimeNs/Ms, endTimeNs/Ms (0 while running), frameSequence.</dd>
+ * <dd>The collection state as JSON (see
+ * {@link HistogramBroadcaster#toStatusJson}).</dd>
  * <dt>latest</dt>
- * <dd>The newest histogram frame as JSON (see
+ * <dd>The newest X-Y histogram frame as JSON (see
  * {@link HistogramBroadcaster#toFrameJson}), or 204 No Content if there is none.
  * With after=&lt;sequence&gt;, it long-polls: it answers as soon as there is a
  * frame with a larger sequence, or after wait=&lt;ms&gt; (default 30000, at most
@@ -45,6 +46,11 @@ import org.slf4j.LoggerFactory;
  * those in between. Each stream occupies a server thread, so at most
  * {@value #MAX_STREAMS} are served at a time.</dd>
  * </dl>
+ * latest and stream take view=&lt;name&gt; to send one view instead of the
+ * whole X-Y frame: xy, xt or yt (Total X-Y, X-T or Y-T) or x, y or t (Total
+ * X, Y or T); see {@link HistogramBroadcaster#toViewJson}. They then follow
+ * the frames that view is computed from, such as the X-T frames for xt and
+ * t.
  * As in {@link ControlRestlet}, status and latest return JSONP with
  * callback=&lt;name&gt; (or jsoncallback=), and application/json with
  * format=json, otherwise text/plain. Responses allow any origin (CORS), so pages
@@ -69,6 +75,8 @@ public class HistogramRestlet extends Restlet {
 	private static final String QUERY_AFTER = "after";
 
 	private static final String QUERY_WAIT = "wait";
+
+	private static final String QUERY_VIEW = "view";
 
 	private static final long DEFAULT_WAIT_MS = 30000;
 
@@ -110,18 +118,27 @@ public class HistogramRestlet extends Restlet {
 			return;
 		}
 		String part = path.split("/")[0];
+		String view = queryForm.getFirstValue(QUERY_VIEW);
+		if (view != null) {
+			view = view.trim().toLowerCase();
+			if (!HistogramProjections.ALL_VIEWS.contains(view)) {
+				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST, "view must be one of "
+						+ HistogramProjections.ALL_VIEWS);
+				return;
+			}
+		}
 		if (part.length() == 0 || part.equals(PART_STATUS)) {
 			writeJson(response, queryForm, HistogramBroadcaster.toStatusJson(broadcaster.snapshot()));
 		} else if (part.equals(PART_LATEST)) {
-			handleLatest(response, queryForm, broadcaster);
+			handleLatest(response, queryForm, broadcaster, view);
 		} else if (part.equals(PART_STREAM)) {
-			handleStream(response, broadcaster);
+			handleStream(response, broadcaster, view);
 		} else {
 			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
 		}
 	}
 
-	private void handleLatest(Response response, Form queryForm, HistogramBroadcaster broadcaster) {
+	private void handleLatest(Response response, Form queryForm, HistogramBroadcaster broadcaster, String view) {
 		Snapshot snapshot = broadcaster.snapshot();
 		String afterValue = queryForm.getFirstValue(QUERY_AFTER);
 		if (afterValue != null) {
@@ -140,7 +157,7 @@ public class HistogramRestlet extends Restlet {
 			try {
 				// Wait for a frame newer than after; other changes (such as a
 				// collection stop) also wake the wait, so check again.
-				while (snapshot != null && snapshot.frameSequence <= after) {
+				while (snapshot != null && snapshot.sequenceOf(view) <= after) {
 					long remaining = deadline - System.currentTimeMillis();
 					if (remaining <= 0) {
 						break;
@@ -150,12 +167,12 @@ public class HistogramRestlet extends Restlet {
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
-			if (snapshot == null || snapshot.frameSequence <= after) {
+			if (snapshot == null || snapshot.sequenceOf(view) <= after) {
 				response.setStatus(Status.SUCCESS_NO_CONTENT);
 				return;
 			}
 		}
-		String json = broadcaster.toFrameJson(snapshot);
+		String json = frameJson(broadcaster, snapshot, view);
 		if (json == null) {
 			response.setStatus(Status.SUCCESS_NO_CONTENT);
 			return;
@@ -163,7 +180,7 @@ public class HistogramRestlet extends Restlet {
 		writeJson(response, queryForm, json);
 	}
 
-	private void handleStream(Response response, final HistogramBroadcaster broadcaster) {
+	private void handleStream(Response response, final HistogramBroadcaster broadcaster, final String view) {
 		if (openStreams.incrementAndGet() > MAX_STREAMS) {
 			openStreams.decrementAndGet();
 			response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE, "Too many histogram streams open");
@@ -177,7 +194,7 @@ public class HistogramRestlet extends Restlet {
 				@Override
 				public void write(OutputStream out) throws IOException {
 					try {
-						stream(out, broadcaster);
+						stream(out, broadcaster, view);
 					} finally {
 						openStreams.decrementAndGet();
 					}
@@ -196,18 +213,18 @@ public class HistogramRestlet extends Restlet {
 	 * Writes events until the client goes away (the write fails), the service
 	 * stops, or the thread is interrupted.
 	 */
-	private static void stream(OutputStream out, HistogramBroadcaster broadcaster) throws IOException {
+	private static void stream(OutputStream out, HistogramBroadcaster broadcaster, String view) throws IOException {
 		Snapshot snapshot = broadcaster.snapshot();
 		write(out, "retry: 5000\n\n");
 		write(out, event("collection", snapshot.statusSequence, HistogramBroadcaster.toStatusJson(snapshot)));
-		String frame = broadcaster.toFrameJson(snapshot);
+		String frame = frameJson(broadcaster, snapshot, view);
 		if (frame != null) {
-			write(out, event("histogram", snapshot.frameSequence, frame));
+			write(out, event("histogram", snapshot.sequenceOf(view), frame));
 		}
 		out.flush();
 		long seen = snapshot.sequence;
 		long seenStatus = snapshot.statusSequence;
-		long seenFrame = snapshot.frameSequence;
+		long seenFrame = snapshot.sequenceOf(view);
 		try {
 			while (true) {
 				snapshot = broadcaster.awaitChange(seen, KEEP_ALIVE_MS);
@@ -221,12 +238,16 @@ public class HistogramRestlet extends Restlet {
 						write(out, event("collection", snapshot.statusSequence,
 								HistogramBroadcaster.toStatusJson(snapshot)));
 					}
-					if (snapshot.frameSequence > seenFrame && snapshot.frame != null) {
-						write(out, event("histogram", snapshot.frameSequence, broadcaster.toFrameJson(snapshot)));
+					long frameSequence = snapshot.sequenceOf(view);
+					if (frameSequence > seenFrame) {
+						String json = frameJson(broadcaster, snapshot, view);
+						if (json != null) {
+							write(out, event("histogram", frameSequence, json));
+						}
 					}
 					seen = snapshot.sequence;
 					seenStatus = snapshot.statusSequence;
-					seenFrame = snapshot.frameSequence;
+					seenFrame = snapshot.sequenceOf(view);
 				}
 				out.flush();
 			}
@@ -235,6 +256,14 @@ public class HistogramRestlet extends Restlet {
 		} catch (IOException e) {
 			logger.debug("Histogram stream closed: " + e.getMessage());
 		}
+	}
+
+	/**
+	 * @param view
+	 *            null for the whole frame
+	 */
+	private static String frameJson(HistogramBroadcaster broadcaster, Snapshot snapshot, String view) {
+		return view == null ? broadcaster.toFrameJson(snapshot) : broadcaster.toViewJson(snapshot, view);
 	}
 
 	private static String event(String name, long id, String json) {

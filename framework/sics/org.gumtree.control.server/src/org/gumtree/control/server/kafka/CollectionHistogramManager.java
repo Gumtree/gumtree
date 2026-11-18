@@ -51,7 +51,7 @@ public final class CollectionHistogramManager {
 		if (service != null) {
 			return;
 		}
-		final HistogramBroadcaster newBroadcaster = new HistogramBroadcaster();
+		final HistogramBroadcaster newBroadcaster = new HistogramBroadcaster(newService.getSettings().histograms());
 		newService.addListener(newBroadcaster);
 		service = newService;
 		broadcaster = newBroadcaster;

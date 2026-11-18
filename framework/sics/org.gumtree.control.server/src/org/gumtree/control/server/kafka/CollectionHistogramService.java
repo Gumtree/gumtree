@@ -1,12 +1,15 @@
 package org.gumtree.control.server.kafka;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -30,29 +33,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Follows the histogram accumulated over the current collection, as the AESS
- * instrument backend's Active view does (a-ess-data-acquisition-frontend-project,
+ * Follows the histograms accumulated over the current collection: X-Y, X-T and
+ * Y-T (see {@link Settings#xyHistogram}, {@link Settings#xtHistogram} and
+ * {@link Settings#ytHistogram}), as the AESS instrument backend's Active view
+ * does for one histogram (a-ess-data-acquisition-frontend-project,
  * aess-instrument-backend: histogram_runtime.py and kafka_producer.py):
  * <ol>
- * <li>A StartCollection ControlEvent on the event topic launches a histogram
- * task on the histogram service, starting at the event's time, open-ended,
- * never cleared, published to the output topic every publish period.</li>
- * <li>While the collection runs, the task's lease is renewed on the heartbeat
+ * <li>A StartCollection ControlEvent on the event topic launches one histogram
+ * task per histogram on the histogram service, starting at the event's time,
+ * open-ended, never cleared, published to the output topic every publish
+ * period.</li>
+ * <li>While the collection runs, the tasks' leases are renewed on the heartbeat
  * topic.</li>
- * <li>Each da00 frame the service publishes for the task goes to the
- * {@link Listener}s and is kept as {@link #getLatestHistogram()}.</li>
- * <li>A StopCollection ControlEvent sets the task's end time; the service then
- * publishes the final histogram and finishes.</li>
+ * <li>Each da00 frame the service publishes for a task goes to the
+ * {@link Listener}s with its kind ({@link #XY}, {@link #XT} or {@link #YT}),
+ * and is kept as {@link #getLatestHistogram(String)}.</li>
+ * <li>A StopCollection ControlEvent sets the tasks' end time; the service then
+ * publishes the final histograms and finishes.</li>
  * </ol>
  * In addition:
  * <ul>
  * <li>A collection already running at {@link #start()} is picked up from its
  * start time (the last Start/StopCollection on the event topic is a start).</li>
- * <li>When the task's frames stop arriving, as after a histogram service
+ * <li>When a task's frames stop arriving, as after a histogram service
  * restart, the same launch (same ID and start time) is sent again, with waits
- * that double up to a maximum. After a stop, the task is relaunched with its end
- * time until the final frame arrives, a few times at most.</li>
- * <li>{@link #stop()} terminates a task whose collection is still running.</li>
+ * that double up to a maximum. After a stop, a task is relaunched with its end
+ * time until its final frame arrives, a few times at most.</li>
+ * <li>{@link #stop()} terminates the tasks of a collection still running.</li>
  * </ul>
  * All state is kept on one worker thread; the Kafka listeners only parse
  * messages and hand them over. Listeners are called on that worker thread, so
@@ -70,6 +77,18 @@ public class CollectionHistogramService {
 	public static final String PROPERTY_BROKERS = "gumtree.kafka.histogram.brokers";
 
 	public static final String PROPERTY_PREFIX = "gumtree.kafka.histogram.";
+
+	/** The X-Y histogram: X across, Y up */
+	public static final String XY = "xy";
+
+	/** The X-T histogram: X across, T up */
+	public static final String XT = "xt";
+
+	/** The Y-T histogram: T across, Y up */
+	public static final String YT = "yt";
+
+	/** The kinds of histogram collected, in this order */
+	public static final List<String> KINDS = Collections.unmodifiableList(Arrays.asList(XY, XT, YT));
 
 	private static final String TASK_TYPE = "HistogramTask";
 
@@ -95,30 +114,38 @@ public class CollectionHistogramService {
 
 		/**
 		 * A collection started, or was found running at start-up, and its
-		 * histogram task was launched.
+		 * histogram tasks were launched.
 		 *
+		 * @param collectionId
+		 *            identifies the collection in the calls that follow
 		 * @param startTimeNs
 		 *            the collection's start, nanoseconds since the Unix epoch
 		 */
-		public void collectionStarted(String taskId, long startTimeNs);
+		public void collectionStarted(String collectionId, long startTimeNs);
 
 		/**
 		 * A histogram frame of the current collection arrived. Frames
-		 * accumulate from the collection's start, so each replaces the last.
+		 * accumulate from the collection's start, so each replaces the last of
+		 * its kind.
 		 *
+		 * @param kind
+		 *            {@link CollectionHistogramService#XY},
+		 *            {@link CollectionHistogramService#XT} or
+		 *            {@link CollectionHistogramService#YT}
 		 * @param collectionRunning
 		 *            false once the collection has stopped: the frame is then the
 		 *            final one, or close to it
 		 */
-		public void histogramReceived(String taskId, Da00DataArray histogram, boolean collectionRunning);
+		public void histogramReceived(String collectionId, String kind, Da00DataArray histogram,
+				boolean collectionRunning);
 
 		/**
-		 * The collection stopped. The final frame normally follows.
+		 * The collection stopped. The final frames normally follow.
 		 *
 		 * @param endTimeNs
 		 *            the collection's end, nanoseconds since the Unix epoch
 		 */
-		public void collectionStopped(String taskId, long endTimeNs);
+		public void collectionStopped(String collectionId, long endTimeNs);
 
 	}
 
@@ -127,13 +154,14 @@ public class CollectionHistogramService {
 	 */
 	public static class ListenerAdapter implements Listener {
 
-		public void collectionStarted(String taskId, long startTimeNs) {
+		public void collectionStarted(String collectionId, long startTimeNs) {
 		}
 
-		public void histogramReceived(String taskId, Da00DataArray histogram, boolean collectionRunning) {
+		public void histogramReceived(String collectionId, String kind, Da00DataArray histogram,
+				boolean collectionRunning) {
 		}
 
-		public void collectionStopped(String taskId, long endTimeNs) {
+		public void collectionStopped(String collectionId, long endTimeNs) {
 		}
 
 	}
@@ -147,6 +175,24 @@ public class CollectionHistogramService {
 	 * see {@link #fromSystemProperties()}.
 	 */
 	public static class Settings {
+
+		// Parts of the default histograms: Echidna's 128 x 128 detector, and T
+		// over a 20 ms frame in 1000 bins of 20 microseconds.
+		private static final String PANEL = "\"panel\": {\"base_id\": 0, \"nx\": 128, \"ny\": 128, \"along_y\": true}";
+
+		private static final String POSITION_BINS = "{\"minimum\": -0.5, \"step\": 1, \"maximum\": 127.5, \"units\": \"posn\"}";
+
+		private static final String TIME_BINS = "{\"minimum\": 0, \"step\": 20, \"maximum\": 20000, \"units\": \"usec\"}";
+
+		private static final String X_ACROSS = "\"hz_axis\": \"X\", \"hz_bins\": " + POSITION_BINS;
+
+		private static final String T_ACROSS = "\"hz_axis\": \"T\", \"hz_bins\": " + TIME_BINS;
+
+		private static final String Y_UP = "\"vt_axis\": \"Y\", \"vt_bins\": " + POSITION_BINS;
+
+		private static final String T_UP = "\"vt_axis\": \"T\", \"vt_bins\": " + TIME_BINS;
+
+		private static final String REST = "\"dp_axis\": null, \"dp_bins\": null, \"publish_period\": 2.0";
 
 		/**
 		 * "brokers": Kafka bootstrap servers, host:port[,host:port...]. Set in
@@ -164,26 +210,37 @@ public class CollectionHistogramService {
 		/** "heartbeatTopic": histogram service keep-alive renewals */
 		public String heartbeatTopic = "binit_heartbeat";
 
-		/** "outputTopic": where the service publishes this task's histogram */
+		/** "outputTopic": where the service publishes this service's histograms */
 		public String outputTopic = "histogram.gumtree";
 
 		/**
-		 * "histogram": the histogram to accumulate, as JSON: the instrument's X-Y
-		 * task from config/instruments/&lt;instrument&gt;/histogramtasks.json in
-		 * the AESS project. publish_topic, start_time, end_time, keep_alive and
-		 * publish_clear are set by the service.
+		 * "xyHistogram": the X-Y histogram to accumulate, as JSON, in the
+		 * histogram service's HistogramSpec format (as in
+		 * config/instruments/&lt;instrument&gt;/histogramtasks.json of the AESS
+		 * project): X across (hz_axis), Y up (vt_axis). publish_topic,
+		 * start_time, end_time, keep_alive and publish_clear are set by this
+		 * service. Set it empty to not collect this histogram.
 		 */
-		public String histogram = "{\"panel\": {\"base_id\": 0, \"nx\": 128, \"ny\": 128, \"along_y\": true},"
-				+ " \"hz_axis\": \"X\","
-				+ " \"hz_bins\": {\"minimum\": -0.5, \"step\": 1, \"maximum\": 127.5, \"units\": \"posn\"},"
-				+ " \"vt_axis\": \"Y\","
-				+ " \"vt_bins\": {\"minimum\": -0.5, \"step\": 1, \"maximum\": 127.5, \"units\": \"posn\"},"
-				+ " \"dp_axis\": null, \"dp_bins\": null, \"publish_period\": 2.0}";
+		public String xyHistogram = "{" + PANEL + ", " + X_ACROSS + ", " + Y_UP + ", " + REST + "}";
+
+		/**
+		 * "xtHistogram": the X-T histogram, as for {@link #xyHistogram}: X
+		 * across, T up, T over a 20 ms frame in 1000 bins of 20 microseconds.
+		 * 128 x 1000 32-bit counts make 512 kB per frame, inside Kafka's
+		 * default message limit of 1 MB.
+		 */
+		public String xtHistogram = "{" + PANEL + ", " + X_ACROSS + ", " + T_UP + ", " + REST + "}";
+
+		/**
+		 * "ytHistogram": the Y-T histogram, as for {@link #xyHistogram}: T
+		 * across, Y up, with T as in {@link #xtHistogram}.
+		 */
+		public String ytHistogram = "{" + PANEL + ", " + T_ACROSS + ", " + Y_UP + ", " + REST + "}";
 
 		/** "source": the Source field of the requests sent */
 		public String source = "Gumtree";
 
-		/** "keepAliveSeconds": lease of the open-ended task */
+		/** "keepAliveSeconds": lease of the open-ended tasks */
 		public double keepAliveSeconds = 30;
 
 		/** "renewSeconds": renew well inside the lease */
@@ -203,12 +260,12 @@ public class CollectionHistogramService {
 
 		/**
 		 * "catchUpStopped": when no collection is running at start, ask for the
-		 * final histogram of the last one, so that clients show it until the
+		 * final histograms of the last one, so that clients show them until the
 		 * next collection
 		 */
 		public boolean catchUpStopped = true;
 
-		/** "relaunch": relaunch the task when its frames stop */
+		/** "relaunch": relaunch a task when its frames stop */
 		public boolean relaunch = true;
 
 		/** "firstFrameSeconds": wait for the first frame after a launch */
@@ -233,7 +290,9 @@ public class CollectionHistogramService {
 			settings.commandTopic = string("commandTopic", settings.commandTopic);
 			settings.heartbeatTopic = string("heartbeatTopic", settings.heartbeatTopic);
 			settings.outputTopic = string("outputTopic", settings.outputTopic);
-			settings.histogram = string("histogram", settings.histogram);
+			settings.xyHistogram = histogram("xyHistogram", settings.xyHistogram);
+			settings.xtHistogram = histogram("xtHistogram", settings.xtHistogram);
+			settings.ytHistogram = histogram("ytHistogram", settings.ytHistogram);
 			settings.source = string("source", settings.source);
 			settings.keepAliveSeconds = number("keepAliveSeconds", settings.keepAliveSeconds);
 			settings.renewSeconds = number("renewSeconds", settings.renewSeconds);
@@ -250,9 +309,31 @@ public class CollectionHistogramService {
 			return settings;
 		}
 
+		/**
+		 * @return the histograms to collect, by kind, in the order of
+		 *         {@link CollectionHistogramService#KINDS}; those set empty are
+		 *         left out
+		 */
+		public Map<String, String> histograms() {
+			Map<String, String> histograms = new LinkedHashMap<String, String>();
+			String[] requests = { xyHistogram, xtHistogram, ytHistogram };
+			for (int i = 0; i < requests.length; i++) {
+				if (requests[i] != null && requests[i].trim().length() > 0) {
+					histograms.put(KINDS.get(i), requests[i].trim());
+				}
+			}
+			return histograms;
+		}
+
 		private static String string(String name, String defaultValue) {
 			String value = System.getProperty(PROPERTY_PREFIX + name);
 			return value == null || value.trim().length() == 0 ? defaultValue : value.trim();
+		}
+
+		/** Unlike other settings, a histogram set empty stays empty: not collected. */
+		private static String histogram(String name, String defaultValue) {
+			String value = System.getProperty(PROPERTY_PREFIX + name);
+			return value == null ? defaultValue : value.trim();
 		}
 
 		private static double number(String name, double defaultValue) {
@@ -274,7 +355,8 @@ public class CollectionHistogramService {
 
 	private final List<Listener> listeners = new CopyOnWriteArrayList<Listener>();
 
-	private JSONObject histogramSpec;
+	/** The histograms to collect, by kind, set at start */
+	private Map<String, JSONObject> histogramSpecs;
 
 	private IKafkaConsumerService consumerService;
 
@@ -292,14 +374,17 @@ public class CollectionHistogramService {
 	private CountDownLatch connected;
 
 	// Read by other threads
-	private volatile String taskId;
+	private volatile String collectionId;
+
+	/** The current collection's task IDs (its frames' source names) */
+	private volatile Map<String, String> taskKinds = Collections.emptyMap();
 
 	private volatile boolean collectionRunning;
 
-	private volatile Da00DataArray latestHistogram;
+	private final Map<String, Da00DataArray> latestHistograms = new ConcurrentHashMap<String, Da00DataArray>();
 
 	// Used only on the worker thread
-	private Task task;
+	private Collection collection;
 
 	/** Events up to these offsets, per partition, were handled by the catch-up */
 	private final Map<Integer, Long> catchUpReadTo = new HashMap<Integer, Long>();
@@ -340,17 +425,25 @@ public class CollectionHistogramService {
 	 * @throws IllegalStateException
 	 *             if already started, or the Kafka services are not available
 	 * @throws IllegalArgumentException
-	 *             if the histogram setting is not valid JSON
+	 *             if a histogram setting is not valid JSON, or all are empty
 	 */
 	public synchronized void start() {
 		if (worker != null) {
 			throw new IllegalStateException("Collection histogram service already started");
 		}
-		try {
-			histogramSpec = new JSONObject(settings.histogram);
-		} catch (JSONException e) {
-			throw new IllegalArgumentException("Histogram setting is not valid JSON: " + settings.histogram, e);
+		Map<String, JSONObject> specs = new LinkedHashMap<String, JSONObject>();
+		for (Map.Entry<String, String> histogram : settings.histograms().entrySet()) {
+			try {
+				specs.put(histogram.getKey(), new JSONObject(histogram.getValue()));
+			} catch (JSONException e) {
+				throw new IllegalArgumentException("The " + histogram.getKey()
+						+ " histogram setting is not valid JSON: " + histogram.getValue(), e);
+			}
 		}
+		if (specs.isEmpty()) {
+			throw new IllegalArgumentException("No histogram to collect: the histogram settings are all empty");
+		}
+		histogramSpecs = specs;
 		if (consumerService == null) {
 			consumerService = ServiceUtils.getService(IKafkaConsumerService.class);
 		}
@@ -414,12 +507,12 @@ public class CollectionHistogramService {
 				tick();
 			}
 		}, TICK_MS, TICK_MS, TimeUnit.MILLISECONDS);
-		logger.info("Collection histogram service started: events from " + settings.eventTopic
-				+ ", histograms to " + settings.outputTopic + " on " + settings.brokers);
+		logger.info("Collection histogram service started: events from " + settings.eventTopic + ", "
+				+ histogramSpecs.keySet() + " histograms to " + settings.outputTopic + " on " + settings.brokers);
 	}
 
 	/**
-	 * Terminates the task of a collection still running, and disconnects.
+	 * Terminates the tasks of a collection still running, and disconnects.
 	 * Safe to call more than once.
 	 */
 	public synchronized void stop() {
@@ -428,23 +521,26 @@ public class CollectionHistogramService {
 		}
 		Future<?> done = worker.submit(new Runnable() {
 			public void run() {
-				if (task != null && task.isRunning()) {
-					// Nobody follows it any more; it would otherwise lapse
-					// only after its lease.
-					sendQuietly(settings.commandTopic, body("terminate", task.id), "terminate histogram " + task.id);
+				if (collection != null && collection.isRunning()) {
+					// Nobody follows them any more; they would otherwise lapse
+					// only after their lease.
+					for (Task task : collection.tasks) {
+						sendQuietly(settings.commandTopic, body("terminate", task.id), "terminate " + task);
+					}
 				}
 			}
 		});
 		try {
 			done.get(STOP_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
-			logger.warn("Could not terminate the histogram task while stopping", e);
+			logger.warn("Could not terminate the histogram tasks while stopping", e);
 		}
 		worker.shutdownNow();
 		worker = null;
 		closeConnections();
-		task = null;
-		taskId = null;
+		collection = null;
+		collectionId = null;
+		taskKinds = Collections.emptyMap();
 		collectionRunning = false;
 		logger.info("Collection histogram service stopped");
 	}
@@ -464,18 +560,20 @@ public class CollectionHistogramService {
 	}
 
 	/**
-	 * @return the newest frame of the current (or last) collection, or null
+	 * @param kind
+	 *            {@link #XY}, {@link #XT} or {@link #YT}
+	 * @return the newest frame of that kind of the current (or last)
+	 *         collection, or null
 	 */
-	public Da00DataArray getLatestHistogram() {
-		return latestHistogram;
+	public Da00DataArray getLatestHistogram(String kind) {
+		return kind == null ? null : latestHistograms.get(kind);
 	}
 
 	/**
-	 * @return the ID of the current (or last) collection's histogram task, also
-	 *         the source name of its frames; null before the first collection
+	 * @return the ID of the current (or last) collection; null before the first
 	 */
-	public String getTaskId() {
-		return taskId;
+	public String getCollectionId() {
+		return collectionId;
 	}
 
 	public boolean isCollectionRunning() {
@@ -502,8 +600,8 @@ public class CollectionHistogramService {
 
 	private void onHistogram(KafkaMessage message) {
 		byte[] value = message.getValue();
-		String current = taskId;
-		if (current == null || !Da00DataArray.isDa00(value)) {
+		Map<String, String> current = taskKinds;
+		if (current.isEmpty() || !Da00DataArray.isDa00(value)) {
 			return;
 		}
 		final Da00DataArray histogram;
@@ -514,7 +612,7 @@ public class CollectionHistogramService {
 			return;
 		}
 		// Other tasks may publish to the same topic; take only ours.
-		if (!current.equals(histogram.getSourceName())) {
+		if (!current.containsKey(histogram.getSourceName())) {
 			return;
 		}
 		execute(new Runnable() {
@@ -553,7 +651,7 @@ public class CollectionHistogramService {
 				logger.error("Could not look for a running collection on " + settings.eventTopic, e);
 			}
 		}
-		if (task == null) {
+		if (collection == null) {
 			logger.info("Waiting for " + START_COLLECTION + " on " + settings.eventTopic);
 		}
 	}
@@ -587,7 +685,7 @@ public class CollectionHistogramService {
 				return;
 			}
 			logger.info("Collection already running; catching up");
-			startTask(last.timestampNs);
+			startCollection(last.timestampNs);
 			return;
 		}
 		if (!settings.catchUpStopped) {
@@ -608,8 +706,8 @@ public class CollectionHistogramService {
 		if (tooOld(start) || last.timestampNs <= start.timestampNs) {
 			return;
 		}
-		logger.info("No collection running; asking for the histogram of the last one");
-		startStoppedTask(start.timestampNs, last.timestampNs);
+		logger.info("No collection running; asking for the histograms of the last one");
+		startStoppedCollection(start.timestampNs, last.timestampNs);
 	}
 
 	private boolean tooOld(Event start) {
@@ -627,27 +725,28 @@ public class CollectionHistogramService {
 			return; // already seen by the catch-up
 		}
 		if (START_COLLECTION.equals(event.action)) {
-			if (task != null && task.isRunning()) {
-				finishTask(event.timestampNs); // a new start ends the last one
+			if (collection != null && collection.isRunning()) {
+				finishCollection(event.timestampNs); // a new start ends the last one
 			}
-			startTask(event.timestampNs);
-		} else if (task != null && task.isRunning()) {
-			finishTask(event.timestampNs);
+			startCollection(event.timestampNs);
+		} else if (collection != null && collection.isRunning()) {
+			finishCollection(event.timestampNs);
 		} else {
 			logger.info("Ignoring " + STOP_COLLECTION + ": no collection running");
 		}
 	}
 
 	private void handleHistogram(Da00DataArray histogram) {
-		Task current = task;
-		if (current == null || !current.id.equals(histogram.getSourceName())) {
-			return; // a late frame of a previous task
+		Collection current = collection;
+		Task task = current == null ? null : current.task(histogram.getSourceName());
+		if (task == null) {
+			return; // a late frame of a previous collection
 		}
-		current.frameArrived();
-		latestHistogram = histogram;
+		task.frameArrived();
+		latestHistograms.put(task.kind, histogram);
 		for (Listener listener : listeners) {
 			try {
-				listener.histogramReceived(current.id, histogram, current.isRunning());
+				listener.histogramReceived(current.id, task.kind, histogram, current.isRunning());
 			} catch (RuntimeException e) {
 				logger.error("Collection histogram listener failed", e);
 			}
@@ -656,8 +755,10 @@ public class CollectionHistogramService {
 
 	private void tick() {
 		try {
-			if (task != null) {
-				task.check();
+			if (collection != null) {
+				for (Task task : collection.tasks) {
+					task.check();
+				}
 			}
 		} catch (RuntimeException e) {
 			// An exception would cancel the schedule.
@@ -665,17 +766,36 @@ public class CollectionHistogramService {
 		}
 	}
 
-	private void startTask(long startTimeNs) {
-		Task newTask = new Task(startTimeNs);
-		task = newTask;
-		taskId = newTask.id; // frames of any previous task are ignored from now on
-		latestHistogram = null;
-		collectionRunning = true;
-		newTask.launch();
-		logger.info("Launched histogram " + newTask.id + " from " + startTimeNs);
+	/**
+	 * Makes a new collection current; frames of any previous one are ignored
+	 * from now on.
+	 *
+	 * @param endTimeNs
+	 *            0 for a collection still running
+	 */
+	private Collection newCollection(long startTimeNs, long endTimeNs) {
+		Collection newCollection = new Collection(startTimeNs, endTimeNs);
+		Map<String, String> kinds = new HashMap<String, String>();
+		for (Task task : newCollection.tasks) {
+			kinds.put(task.id, task.kind);
+		}
+		collection = newCollection;
+		collectionId = newCollection.id;
+		taskKinds = Collections.unmodifiableMap(kinds);
+		latestHistograms.clear();
+		collectionRunning = endTimeNs == 0;
+		return newCollection;
+	}
+
+	private void startCollection(long startTimeNs) {
+		Collection newCollection = newCollection(startTimeNs, 0);
+		for (Task task : newCollection.tasks) {
+			task.launch();
+		}
+		logger.info("Launched histograms " + newCollection.tasks + " from " + startTimeNs);
 		for (Listener listener : listeners) {
 			try {
-				listener.collectionStarted(newTask.id, startTimeNs);
+				listener.collectionStarted(newCollection.id, startTimeNs);
 			} catch (RuntimeException e) {
 				logger.error("Collection histogram listener failed", e);
 			}
@@ -683,36 +803,37 @@ public class CollectionHistogramService {
 	}
 
 	/**
-	 * Launches the histogram of a collection that has already stopped, for its
-	 * final frame. Clients see it start and stop at once, then get the frame.
+	 * Launches the histograms of a collection that has already stopped, for
+	 * their final frames. Clients see it start and stop at once, then get the
+	 * frames.
 	 */
-	private void startStoppedTask(long startTimeNs, long endTimeNs) {
-		Task newTask = new Task(startTimeNs);
-		newTask.endNs = endTimeNs;
-		newTask.endSentMs = System.currentTimeMillis(); // the first frame is the final one
-		task = newTask;
-		taskId = newTask.id;
-		latestHistogram = null;
-		collectionRunning = false;
-		newTask.launch();
-		logger.info("Launched histogram " + newTask.id + " from " + startTimeNs + " to " + endTimeNs);
+	private void startStoppedCollection(long startTimeNs, long endTimeNs) {
+		Collection newCollection = newCollection(startTimeNs, endTimeNs);
+		for (Task task : newCollection.tasks) {
+			task.endSentMs = System.currentTimeMillis(); // the first frame is the final one
+			task.launch();
+		}
+		logger.info("Launched histograms " + newCollection.tasks + " from " + startTimeNs + " to " + endTimeNs);
 		for (Listener listener : listeners) {
 			try {
-				listener.collectionStarted(newTask.id, startTimeNs);
-				listener.collectionStopped(newTask.id, endTimeNs);
+				listener.collectionStarted(newCollection.id, startTimeNs);
+				listener.collectionStopped(newCollection.id, endTimeNs);
 			} catch (RuntimeException e) {
 				logger.error("Collection histogram listener failed", e);
 			}
 		}
 	}
 
-	private void finishTask(long endTimeNs) {
-		task.finish(endTimeNs);
+	private void finishCollection(long endTimeNs) {
+		collection.endNs = endTimeNs;
+		for (Task task : collection.tasks) {
+			task.finish(endTimeNs);
+		}
 		collectionRunning = false;
-		logger.info("Collection stopped; ended histogram " + task.id + " at " + endTimeNs);
+		logger.info("Collection stopped; ended histograms " + collection.tasks + " at " + endTimeNs);
 		for (Listener listener : listeners) {
 			try {
-				listener.collectionStopped(task.id, endTimeNs);
+				listener.collectionStopped(collection.id, endTimeNs);
 			} catch (RuntimeException e) {
 				logger.error("Collection histogram listener failed", e);
 			}
@@ -720,17 +841,59 @@ public class CollectionHistogramService {
 	}
 
 	/**
-	 * The histogram task of one collection: launches it, keeps it alive while
-	 * the collection runs, and relaunches it when its frames stop arriving.
-	 * Used only on the worker thread. Times in ms are System.currentTimeMillis.
+	 * One collection: a histogram task for each kind collected, sharing its
+	 * start and end. Used only on the worker thread.
 	 */
-	private class Task {
+	private class Collection {
 
 		final String id = UUID.randomUUID().toString();
 
 		final long startNs;
 
 		long endNs; // 0 while the collection runs
+
+		final List<Task> tasks = new ArrayList<Task>();
+
+		Collection(long startNs, long endNs) {
+			this.startNs = startNs;
+			this.endNs = endNs;
+			for (String kind : histogramSpecs.keySet()) {
+				tasks.add(new Task(this, kind));
+			}
+		}
+
+		boolean isRunning() {
+			return endNs == 0;
+		}
+
+		/**
+		 * @return the task whose frames have this source name, or null
+		 */
+		Task task(String sourceName) {
+			for (Task task : tasks) {
+				if (task.id.equals(sourceName)) {
+					return task;
+				}
+			}
+			return null;
+		}
+
+	}
+
+	/**
+	 * The histogram task of one kind for a collection: launches it, keeps it
+	 * alive while the collection runs, and relaunches it when its frames stop
+	 * arriving. Used only on the worker thread. Times in ms are
+	 * System.currentTimeMillis.
+	 */
+	private class Task {
+
+		final String id = UUID.randomUUID().toString();
+
+		final Collection collection;
+
+		/** xy, xt or yt */
+		final String kind;
 
 		long endSentMs; // 0 until the end is sent
 
@@ -746,29 +909,30 @@ public class CollectionHistogramService {
 
 		int finishTries;
 
-		Task(long startNs) {
-			this.startNs = startNs;
+		Task(Collection collection, String kind) {
+			this.collection = collection;
+			this.kind = kind;
 		}
 
 		boolean isRunning() {
-			return endNs == 0;
+			return collection.isRunning();
 		}
 
 		void launch() {
 			launchedMs = lastRenewMs = System.currentTimeMillis();
-			sendQuietly(settings.commandTopic, launchBody(id, startNs, endNs), "launch histogram " + id);
+			sendQuietly(settings.commandTopic, launchBody(kind, id, collection.startNs, collection.endNs),
+					"launch " + this);
 		}
 
 		void finish(long endTimeNs) {
 			// The service then publishes the histogram up to the end, and
 			// finishes.
-			endNs = endTimeNs;
 			endSentMs = System.currentTimeMillis();
 			JSONObject update = new JSONObject();
 			put(update, "end_time", endTimeNs);
 			JSONObject body = body("update", id);
 			put(body, "update", update);
-			sendQuietly(settings.commandTopic, body, "end histogram " + id);
+			sendQuietly(settings.commandTopic, body, "end " + this);
 		}
 
 		void frameArrived() {
@@ -793,7 +957,7 @@ public class CollectionHistogramService {
 				put(update, "keep_alive", settings.keepAliveSeconds);
 				JSONObject body = body("update", id);
 				put(body, "update", update);
-				sendQuietly(settings.heartbeatTopic, body, "renew histogram " + id);
+				sendQuietly(settings.heartbeatTopic, body, "renew " + this);
 			}
 			if (!settings.relaunch) {
 				return;
@@ -804,14 +968,13 @@ public class CollectionHistogramService {
 			}
 			if (!isRunning()) {
 				if (finishTries >= settings.finishAttempts) {
-					logger.warn("No final histogram from " + id + " after " + finishTries
-							+ " relaunches; giving up");
+					logger.warn("No final frame from " + this + " after " + finishTries + " relaunches; giving up");
 					done = true;
 					return;
 				}
 				finishTries++;
 			}
-			logger.warn(String.format("No histogram from %s for %.0f s (service restarted?); relaunching", id,
+			logger.warn(String.format("No frame from %s for %.0f s (service restarted?); relaunching", this,
 					(now - since) / 1000.0));
 			launch();
 			// Allow for a replay after each launch, and back off while it
@@ -820,14 +983,19 @@ public class CollectionHistogramService {
 					settings.relaunchMaxSeconds);
 		}
 
+		@Override
+		public String toString() {
+			return kind + " histogram " + id;
+		}
+
 	}
 
 	// ---- Requests to the histogram service ----------------------------------
 
-	private JSONObject launchBody(String id, long startNs, long endNs) {
+	private JSONObject launchBody(String kind, String id, long startNs, long endNs) {
 		JSONObject histogram;
 		try {
-			histogram = new JSONObject(histogramSpec.toString());
+			histogram = new JSONObject(histogramSpecs.get(kind).toString());
 		} catch (JSONException e) {
 			throw new IllegalStateException(e); // was valid at start
 		}
@@ -956,6 +1124,8 @@ public class CollectionHistogramService {
 		// The output topic may not exist until the service first publishes to
 		// it; check for it often instead of every 5 minutes (Kafka's default).
 		config.put("metadata.max.age.ms", 5000);
+		// X-T and Y-T frames are about 512 kB; let a fetch hold several.
+		config.put("max.partition.fetch.bytes", 4 * 1024 * 1024);
 		return config;
 	}
 

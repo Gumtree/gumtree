@@ -1,8 +1,8 @@
 /**
  * Live histogram of the current collection, from the control server's Kafka
  * collection histogram service (org.gumtree.control.server, HistogramRestlet at
- * histogram/rest). Drawn as a 2D image in the #kafkaHistogramList section of
- * mobile.html, which stays hidden unless the service answers.
+ * histogram/rest). Drawn in the #kafkaHistogramList section of mobile.html,
+ * which stays hidden unless the service answers.
  *
  * Frames arrive through Server-Sent Events (histogram/rest/stream), or by
  * long-polling histogram/rest/latest in browsers without EventSource. mobile.js
@@ -10,9 +10,13 @@
  * switched: while it is off, the stream is closed and "Refresh Now" fetches the
  * latest frame once.
  *
- * The Plot selector (#kafkaHistogramView) shows the frame as Total X-Y (the 2D
- * image), Total X (counts summed over Y, per X bin) or Total Y (summed over X,
- * per Y bin).
+ * The server collects three histograms, X-Y, X-T and Y-T. The Plot selector
+ * (#kafkaHistogramView) shows Total X-Y (X across, Y up), Total X-T (X across,
+ * T up) or Total Y-T (T across, Y up) as a 2D image, or Total X, Y or T as a
+ * 1D plot. The server computes the plot and sends only the one shown
+ * (view=xy, xt, yt, x, y or t); plots not collected are disabled in the
+ * selector. An axis with more bins than the image has pixels, such as T in
+ * 1000 bins, is shown with neighbouring bins added together.
  *
  * An instrument can turn the section off with, in its instrumentsetup.js:
  *     var kafkaHistogramEnabled = false;
@@ -20,7 +24,10 @@
 var kafkaHistogram = (function() {
 
 	var BASE = "histogram/rest/";
+	var VIEWS = ["xy", "xt", "yt", "x", "y", "t"];
 	var MAX_HEIGHT_FRACTION = 0.7;	// of the window height
+	var MAX_SQUARE_ASPECT = 4;		// 2D plots more elongated than this are stretched
+	var VIEW_TITLES = {xy : "X-Y", xt : "X-T", yt : "Y-T", x : "X", y : "Y", t : "T"};
 	var RETRY_MS = 5000;
 
 	var enabled = typeof kafkaHistogramEnabled === 'undefined' || kafkaHistogramEnabled;
@@ -31,12 +38,13 @@ var kafkaHistogram = (function() {
 	var polling = false;		// long-poll loop running (no EventSource)
 	var pollGeneration = 0;		// ends an old poll loop
 	var logScale = false;
-	var view = "xy";			// "xy" image, "x" Total X, "y" Total Y
+	var view = "xy";			// the plot chosen, one of VIEWS
 	var profile = null;			// the 1D plot drawn, for the readout
 	var PLOT_MARGIN = {left : 56, right : 10, top : 10, bottom : 32};	// CSS pixels
 	var lastFrameSequence = 0;
 	var lastStatus = null;
-	var image = null;			// what is drawn: {nx, ny, values, xName, yName, taskId, ...}
+	var plot = null;			// what is drawn: {view, horizontal, vertical, values, taskId, ...}
+	var grid = null;			// the 2D image as drawn, bins added in groups: {nx, ny, gx, gy, values}
 	var shownMax = 0;			// max of the plot shown, for the info line
 	var lut = buildColourMap();
 
@@ -118,7 +126,7 @@ var kafkaHistogram = (function() {
 			return;
 		}
 		if (typeof window.EventSource !== 'undefined') {
-			source = new EventSource(BASE + "stream");
+			source = new EventSource(BASE + "stream?view=" + view);
 			source.addEventListener("collection", function(event) {
 				updateStatus(JSON.parse(event.data));
 			}, false);
@@ -160,7 +168,7 @@ var kafkaHistogram = (function() {
 		}
 		$.ajax({
 			url : BASE + "latest",
-			data : {"after" : lastFrameSequence, "wait" : 25000, "format" : "json",
+			data : {"after" : lastFrameSequence, "wait" : 25000, "view" : view, "format" : "json",
 				"timestamp" : new Date().getTime()},
 			dataType : "json",
 			timeout : 40000,
@@ -203,7 +211,7 @@ var kafkaHistogram = (function() {
 	function fetchLatest() {
 		$.ajax({
 			url : BASE + "latest",
-			data : {"format" : "json", "timestamp" : new Date().getTime()},
+			data : {"view" : view, "format" : "json", "timestamp" : new Date().getTime()},
 			dataType : "json",
 			success : function(frame, textStatus, xhr) {
 				if (xhr.status === 200 && frame) {
@@ -218,6 +226,55 @@ var kafkaHistogram = (function() {
 		});
 		refreshStatus();
 		setConnection("PAUSED", "#0000c4");
+	}
+
+	/** Shows another plot: asks the server for that view of the frame. */
+	function setView(newView) {
+		if (VIEWS.indexOf(newView) < 0 || newView === view) {
+			return;
+		}
+		view = newView;
+		$("#kafkaHistogramView").val(view);
+		try {
+			$("#kafkaHistogramView").selectmenu("refresh");
+		} catch (e) {
+		}
+		$("#kafkaHistogramReadout").text("");
+		lastFrameSequence = 0;
+		if (plot !== null) {
+			plot = null;
+			clearImage();
+			$("#kafkaHistogramInfo").text("Loading the plot");
+		}
+		if (!available) {
+			return;
+		}
+		if (live) {
+			// The stream and the poll loop carry one view; start again with the
+			// new one. The server sends the current frame first.
+			disconnect();
+			connect();
+		} else {
+			fetchLatest();
+		}
+	}
+
+	/** Disables the plots this histogram does not have. */
+	function updateViewOptions(views) {
+		var changed = false;
+		$("#kafkaHistogramView option").each(function() {
+			var disabled = views.indexOf($(this).val()) < 0;
+			if ($(this).prop("disabled") !== disabled) {
+				$(this).prop("disabled", disabled);
+				changed = true;
+			}
+		});
+		if (changed) {
+			try {
+				$("#kafkaHistogramView").selectmenu("refresh");
+			} catch (e) {
+			}
+		}
 	}
 
 	// ---- Collection state ----------------------------------------------------
@@ -248,100 +305,129 @@ var kafkaHistogram = (function() {
 			colour = "#00c400";
 		}
 		$("#kafkaHistogramCollection").text(text).css("color", colour);
-		if (image === null) {
+		if (plot === null) {
 			return;
 		}
-		if (status.taskId && status.taskId !== image.taskId && status.collectionRunning && status.frameSequence === 0) {
-			// A new collection is running: the old image goes, its first frame
+		if (status.taskId && status.taskId !== plot.taskId && status.collectionRunning && status.frameSequence === 0) {
+			// A new collection is running: the old plot goes, its first frame
 			// is to come. Otherwise (no collection, or the server restarted)
-			// the image of the last collection stays.
-			image = null;
+			// the plot of the last collection stays.
+			plot = null;
 			clearImage();
 			return;
 		}
 		showInfo(shownMax);	// running or last collection
 	}
 
-	/** Whether the image is of a collection that is still running. */
-	function imageRunning() {
-		if (image === null || !image.running) {
+	/** Whether the plot is of a collection that is still running. */
+	function plotRunning() {
+		if (plot === null || !plot.running) {
 			return false;
 		}
 		// The final frame may not come (for example, the histogram service
 		// gave up), so the status of the same collection decides too.
-		return !(lastStatus !== null && (!lastStatus.taskId || (lastStatus.taskId === image.taskId
+		return !(lastStatus !== null && (!lastStatus.taskId || (lastStatus.taskId === plot.taskId
 				&& !lastStatus.collectionRunning)));
+	}
+
+	// ---- Axes ----------------------------------------------------------------
+
+	/** Whether the axis has bins worth showing in its units, rather than bin numbers. */
+	function hasUnits(axis) {
+		return typeof axis.minimum === "number" && typeof axis.step === "number" && axis.units
+				&& axis.units !== "posn";
+	}
+
+	/** The axis name with its units, for example "T (usec)". */
+	function axisTitle(axis) {
+		return axis.name + (hasUnits(axis) ? " (" + axis.units + ")" : "");
+	}
+
+	/** One bin of an axis, for the readout: "12", or "4000–6000 usec". */
+	function binText(axis, bin) {
+		if (!hasUnits(axis)) {
+			return String(bin);
+		}
+		var low = axis.minimum + bin * axis.step;
+		return formatNumber(low) + "–" + formatNumber(low + axis.step) + " " + axis.units;
+	}
+
+	/** Bins first to last of an axis, for the readout: "12", "12–14", or "4000–4060 usec". */
+	function binsText(axis, first, last) {
+		if (first === last) {
+			return binText(axis, first);
+		}
+		if (!hasUnits(axis)) {
+			return first + "–" + last;
+		}
+		return formatNumber(axis.minimum + first * axis.step) + "–" + formatNumber(axis.minimum + (last + 1) * axis.step)
+				+ " " + axis.units;
+	}
+
+	/** A tick label at the centre of a bin: its number, or its value in units. */
+	function tickText(axis, bin) {
+		if (!hasUnits(axis)) {
+			return String(bin);
+		}
+		return formatTick(axis.minimum + (bin + 0.5) * axis.step);
+	}
+
+	function summedText() {
+		return plot.summedOver.length > 0 ? "summed over " + plot.summedOver.join(", ") : "";
 	}
 
 	// ---- Drawing -------------------------------------------------------------
 
-	/** The variable to draw: "signal" if there is one, else the first 2D numeric one. */
-	function pickVariable(variables) {
-		var i;
-		for (i = 0; i < variables.length; i++) {
-			if (variables[i].name === "signal" && variables[i].shape.length === 2) {
-				return variables[i];
-			}
-		}
-		for (i = 0; i < variables.length; i++) {
-			var v = variables[i];
-			if (v.shape.length === 2 && v.dataType !== "c_string" && v.data !== null && typeof v.data === "object") {
-				return v;
-			}
-		}
-		return null;
-	}
-
 	function drawFrame(frame) {
-		if (image !== null && frame.taskId === image.taskId && frame.sequence <= lastFrameSequence) {
+		if (frame.view !== view) {
+			return;	// from the stream of a plot no longer shown
+		}
+		if (plot !== null && frame.taskId === plot.taskId && frame.sequence <= lastFrameSequence) {
 			return;	// already drawn (sequences start again when the server restarts)
 		}
-		lastFrameSequence = frame.sequence;
-		var variable = pickVariable(frame.variables);
-		if (variable === null) {
-			$("#kafkaHistogramInfo").text("No 2D data in this histogram");
+		var views = frame.views || [];
+		updateViewOptions(views);
+		if (frame.data === null || frame.data === undefined) {
+			if (views.indexOf(view) < 0) {
+				// Not collected: show a plot that is.
+				if (views.length > 0) {
+					setView(views[0]);
+				} else {
+					$("#kafkaHistogramInfo").text("No X, Y or T histogram collected");
+				}
+			} else if (plot === null) {
+				// Collected, but its histogram has not arrived yet.
+				$("#kafkaHistogramInfo").text("Waiting for the " + VIEW_TITLES[view] + " histogram");
+			}
 			return;
 		}
-		var rows = variable.shape[0];
-		var cols = variable.shape[1];
-		var axes = variable.axes || [];
-		// The image draws its first dimension down the screen. Data stored as
-		// [X][Y] is swapped so that X runs across and Y up, as in Gumtree.
-		var swap = axes.length === 2 && axes[0].toLowerCase() === "x" && axes[1].toLowerCase() === "y";
-		var nx = swap ? rows : cols;
-		var ny = swap ? cols : rows;
-		var data = variable.data;
-		var values = new Array(nx * ny);	// values[py * nx + px], py = 0 at the bottom
-		var total = 0;
+		lastFrameSequence = frame.sequence;
+		var values = frame.data;
 		var max = -Infinity;
 		var min = Infinity;
-		for (var py = 0; py < ny; py++) {
-			for (var px = 0; px < nx; px++) {
-				var value = swap ? data[px * cols + py] : data[py * cols + px];
-				if (value === null || value === undefined) {
-					value = NaN;
-				} else {
-					total += value;
-					if (value > max) {
-						max = value;
-					}
-					if (value < min) {
-						min = value;
-					}
+		for (var i = 0; i < values.length; i++) {
+			var value = values[i];
+			if (value === null || value === undefined) {
+				values[i] = NaN;
+			} else {
+				if (value > max) {
+					max = value;
 				}
-				values[py * nx + px] = value;
+				if (value < min) {
+					min = value;
+				}
 			}
 		}
-		image = {
-			nx : nx,
-			ny : ny,
-			values : values,
+		plot = {
+			view : frame.view,
+			horizontal : frame.horizontal,
+			vertical : frame.vertical || null,	// null for a 1D plot
+			summedOver : frame.summedOver || [],
+			values : values,	// 2D: values[v * horizontal.size + h], v = 0 at the bottom
 			min : min === Infinity ? 0 : min,
 			max : max === -Infinity ? 0 : max,
-			total : total,
-			xName : axes.length === 2 ? (swap ? axes[0] : axes[1]) : "x",
-			yName : axes.length === 2 ? (swap ? axes[1] : axes[0]) : "y",
-			unit : variable.unit || "counts",
+			total : frame.total,
+			unit : frame.unit || "counts",
 			timeMs : frame.timeMs,
 			running : frame.collectionRunning,
 			taskId : frame.taskId
@@ -375,7 +461,7 @@ var kafkaHistogram = (function() {
 	}
 
 	function render() {
-		if (image === null) {
+		if (plot === null) {
 			return;
 		}
 		var canvas = document.getElementById("kafkaHistogramCanvas");
@@ -383,30 +469,93 @@ var kafkaHistogram = (function() {
 			$("#kafkaHistogramInfo").text("This browser cannot draw the histogram");
 			return;
 		}
-		if (view === "x" || view === "y") {
-			renderProfile(canvas, view);
+		if (plot.vertical === null) {
+			renderProfile(canvas);
 		} else {
 			renderImage(canvas);
 		}
 	}
 
-	/** Total X-Y: the 2D image. */
+	/**
+	 * The size of the 2D image on the page, in CSS pixels. Square bins when the
+	 * image is not too elongated (X-Y); otherwise (X-T, Y-T) it fills the width,
+	 * and is about square when the long axis runs up.
+	 */
+	function imageSize(nx, ny) {
+		var width = $("#kafkaHistogramImage").width() || 300;
+		var maxHeight = Math.max(150, $(window).height() * MAX_HEIGHT_FRACTION);
+		var aspect = nx / ny;
+		if (aspect <= MAX_SQUARE_ASPECT && aspect >= 1 / MAX_SQUARE_ASPECT) {
+			var scale = Math.min(width / nx, maxHeight / ny);
+			if (scale >= 1) {
+				scale = Math.floor(scale);	// whole pixels look sharper
+			}
+			return {width : Math.round(nx * scale), height : Math.round(ny * scale)};
+		}
+		var cssWidth = Math.floor(width - 2);
+		var cssHeight = ny > nx ? Math.min(maxHeight, cssWidth) : Math.min(maxHeight, Math.max(150, cssWidth * 0.5));
+		return {width : cssWidth, height : Math.round(cssHeight)};
+	}
+
+	/**
+	 * Adds bins together in groups of gx across and gy up, so that the image
+	 * has no more cells than the screen has pixels. Scaled down instead, it
+	 * would leave bins out.
+	 */
+	function groupBins(gx, gy) {
+		var nx = plot.horizontal.size;
+		var ny = plot.vertical.size;
+		var cx = Math.ceil(nx / gx);
+		var cy = Math.ceil(ny / gy);
+		var values = new Array(cx * cy);
+		var i;
+		for (i = 0; i < values.length; i++) {
+			values[i] = NaN;
+		}
+		for (var py = 0; py < ny; py++) {
+			for (var px = 0; px < nx; px++) {
+				var value = plot.values[py * nx + px];
+				if (!isNaN(value)) {
+					var k = Math.floor(py / gy) * cx + Math.floor(px / gx);
+					values[k] = isNaN(values[k]) ? value : values[k] + value;
+				}
+			}
+		}
+		var min = Infinity;
+		var max = -Infinity;
+		for (i = 0; i < values.length; i++) {
+			if (!isNaN(values[i])) {
+				min = Math.min(min, values[i]);
+				max = Math.max(max, values[i]);
+			}
+		}
+		return {nx : cx, ny : cy, gx : gx, gy : gy, values : values, min : min === Infinity ? 0 : min,
+			max : max === -Infinity ? 0 : max};
+	}
+
+	/** Total X-Y, X-T or Y-T: a 2D image, the horizontal axis across, the vertical up. */
 	function renderImage(canvas) {
 		profile = null;
-		canvas.width = image.nx;
-		canvas.height = image.ny;
+		var nx = plot.horizontal.size;
+		var ny = plot.vertical.size;
+		var size = imageSize(nx, ny);
+		var ratio = window.devicePixelRatio || 1;
+		grid = groupBins(Math.max(1, Math.ceil(nx / (size.width * ratio))),
+				Math.max(1, Math.ceil(ny / (size.height * ratio))));
+		canvas.width = grid.nx;
+		canvas.height = grid.ny;
 		var context = canvas.getContext("2d");
-		var pixels = context.createImageData(image.nx, image.ny);
+		var pixels = context.createImageData(grid.nx, grid.ny);
 		var p = pixels.data;
-		for (var row = 0; row < image.ny; row++) {
-			var py = image.ny - 1 - row;	// y up
-			for (var px = 0; px < image.nx; px++) {
-				var value = image.values[py * image.nx + px];
-				var o = (row * image.nx + px) * 4;
+		for (var row = 0; row < grid.ny; row++) {
+			var py = grid.ny - 1 - row;	// up
+			for (var px = 0; px < grid.nx; px++) {
+				var value = grid.values[py * grid.nx + px];
+				var o = (row * grid.nx + px) * 4;
 				if (isNaN(value)) {
 					p[o] = p[o + 1] = p[o + 2] = 200;
 				} else {
-					var c = lut[scaled(value, image.min, image.max)];
+					var c = lut[scaled(value, grid.min, grid.max)];
 					p[o] = c[0];
 					p[o + 1] = c[1];
 					p[o + 2] = c[2];
@@ -415,56 +564,51 @@ var kafkaHistogram = (function() {
 			}
 		}
 		context.putImageData(pixels, 0, 0);
-		resize();
+		$("#kafkaHistogramCanvas").css({"width" : size.width + "px", "height" : size.height + "px"});
 		renderColourBar();
-		$("#kafkaHistogramTitle").text("Total X-Y: " + image.xName + " →, " + image.yName + " ↑  (" + image.nx
-				+ " × " + image.ny + ")");
-		showInfo(image.max);
+		var notes = [];
+		var summed = summedText();
+		if (summed) {
+			notes.push(summed);
+		}
+		if (grid.gx > 1) {
+			notes.push(plot.horizontal.name + " in groups of " + grid.gx + " bins");
+		}
+		if (grid.gy > 1) {
+			notes.push(plot.vertical.name + " in groups of " + grid.gy + " bins");
+		}
+		$("#kafkaHistogramTitle").text("Total " + VIEW_TITLES[plot.view] + ": " + axisTitle(plot.horizontal) + " →, "
+				+ axisTitle(plot.vertical) + " ↑  (" + nx + " × " + ny + (notes.length > 0 ? ", " + notes.join(", ") : "")
+				+ ")");
+		showInfo(grid.max);
 		$("#kafkaHistogramCanvas").show();
 		$("#kafkaHistogramScale").show();
 	}
 
 	function showInfo(max) {
 		shownMax = max;
-		$("#kafkaHistogramInfo").text((imageRunning() ? "Frame " : "Last collection, frame ") + formatTime(image.timeMs)
-				+ ", total " + formatNumber(image.total) + " " + image.unit + ", max " + formatNumber(max));
+		$("#kafkaHistogramInfo").text((plotRunning() ? "Frame " : "Last collection, frame ") + formatTime(plot.timeMs)
+				+ ", total " + formatNumber(plot.total) + " " + plot.unit + ", max " + formatNumber(max));
 	}
 
-	/** Sums the image along one axis: "x" gives one total per X bin, summed over Y. */
-	function project(axis) {
-		var n = axis === "x" ? image.nx : image.ny;
-		var sums = new Array(n);
-		var i;
-		for (i = 0; i < n; i++) {
-			sums[i] = 0;
-		}
-		for (var py = 0; py < image.ny; py++) {
-			for (var px = 0; px < image.nx; px++) {
-				var value = image.values[py * image.nx + px];
-				if (!isNaN(value)) {
-					sums[axis === "x" ? px : py] += value;
-				}
-			}
-		}
-		return sums;
-	}
-
-	/** Total X or Total Y: a step plot of the summed counts per bin. */
-	function renderProfile(canvas, axis) {
-		var sums = project(axis);
+	/** Total X, Y or T: a step plot of the summed counts per bin. */
+	function renderProfile(canvas) {
+		var axis = plot.horizontal;
+		var sums = plot.values;
 		var n = sums.length;
 		var lo = 0;
 		var hi = 0;
 		for (var i = 0; i < n; i++) {
-			lo = Math.min(lo, sums[i]);
-			hi = Math.max(hi, sums[i]);
+			if (!isNaN(sums[i])) {
+				lo = Math.min(lo, sums[i]);
+				hi = Math.max(hi, sums[i]);
+			}
 		}
 		var max = hi;
 		if (hi <= lo) {
 			hi = lo + 1;	// all zero: still draw the axes
 		}
-		var axisName = axis === "x" ? image.xName : image.yName;
-		var otherName = axis === "x" ? image.yName : image.xName;
+		var summed = summedText();
 
 		// Drawn at the screen's resolution, so lines and text stay sharp.
 		var cssWidth = Math.max(200, Math.floor(($("#kafkaHistogramImage").width() || 300) - 2));
@@ -521,9 +665,9 @@ var kafkaHistogram = (function() {
 			context.moveTo(x, m.top + height);
 			context.lineTo(x, m.top + height + 4);
 			context.stroke();
-			context.fillText(String(ticks[t]), x, m.top + height + 6);
+			context.fillText(tickText(axis, ticks[t]), x, m.top + height + 6);
 		}
-		context.fillText(axisName + " (summed over " + otherName + ")", m.left + width / 2, m.top + height + 19);
+		context.fillText(axisTitle(axis) + (summed ? " (" + summed + ")" : ""), m.left + width / 2, m.top + height + 19);
 		context.strokeStyle = "#021a40";
 		context.beginPath();
 		context.moveTo(m.left + 0.5, m.top);
@@ -535,7 +679,7 @@ var kafkaHistogram = (function() {
 		context.beginPath();
 		context.moveTo(xOf(0), base);
 		for (var b = 0; b < n; b++) {
-			var level = yOf(sums[b]);
+			var level = yOf(isNaN(sums[b]) ? lo : sums[b]);
 			context.lineTo(xOf(b), level);
 			context.lineTo(xOf(b + 1), level);
 		}
@@ -549,10 +693,10 @@ var kafkaHistogram = (function() {
 		context.lineWidth = 1.5;
 		context.stroke();
 
-		profile = {axis : axis, name : axisName, otherName : otherName, sums : sums, n : n,
-				left : m.left, width : width};
-		$("#kafkaHistogramTitle").text("Total " + axisName + ": " + image.unit + " per " + axisName + " bin, summed over "
-				+ otherName + " (" + n + " bins" + (logScale ? ", log scale" : "") + ")");
+		profile = {axis : axis, sums : sums, n : n, left : m.left, width : width};
+		grid = null;
+		$("#kafkaHistogramTitle").text("Total " + VIEW_TITLES[plot.view] + ": " + plot.unit + " per " + axis.name + " bin"
+				+ (summed ? ", " + summed : "") + " (" + n + " bins" + (logScale ? ", log scale" : "") + ")");
 		showInfo(max);
 		$("#kafkaHistogramCanvas").show();
 		$("#kafkaHistogramScale").hide();
@@ -565,30 +709,9 @@ var kafkaHistogram = (function() {
 		return formatNumber(Math.round(value * 10) / 10);
 	}
 
-	/** Window resized: the image only rescales, a 1D plot is redrawn to fit. */
+	/** Window resized: redrawn to fit (an image's bin groups depend on its size). */
 	function onResize() {
-		if (view === "xy") {
-			resize();
-		} else {
-			render();
-		}
-	}
-
-	/** Scales the canvas to the page, keeping square pixels. */
-	function resize() {
-		if (image === null || view !== "xy") {
-			return;
-		}
-		var width = $("#kafkaHistogramImage").width() || 300;
-		var maxHeight = Math.max(150, $(window).height() * MAX_HEIGHT_FRACTION);
-		var scale = Math.min(width / image.nx, maxHeight / image.ny);
-		if (scale >= 1) {
-			scale = Math.floor(scale);	// whole pixels look sharper
-		}
-		$("#kafkaHistogramCanvas").css({
-			"width" : Math.round(image.nx * scale) + "px",
-			"height" : Math.round(image.ny * scale) + "px"
-		});
+		render();
 	}
 
 	function renderColourBar() {
@@ -607,8 +730,8 @@ var kafkaHistogram = (function() {
 			pixels.data[i * 4 + 3] = 255;
 		}
 		context.putImageData(pixels, 0, 0);
-		$("#kafkaHistogramMin").text(formatNumber(image.min));
-		$("#kafkaHistogramMax").text(formatNumber(image.max) + (logScale ? " (log)" : ""));
+		$("#kafkaHistogramMin").text(formatNumber(grid.min));
+		$("#kafkaHistogramMax").text(formatNumber(grid.max) + (logScale ? " (log)" : ""));
 	}
 
 	function clearImage() {
@@ -631,7 +754,7 @@ var kafkaHistogram = (function() {
 
 	/** Shows the counts under the pointer or finger. */
 	function readout(event) {
-		if (image === null) {
+		if (plot === null) {
 			return;
 		}
 		var canvas = $("#kafkaHistogramCanvas");
@@ -641,13 +764,17 @@ var kafkaHistogram = (function() {
 		if (original && original.touches && original.touches.length > 0) {
 			point = original.touches[0];
 		}
+		var summed = summedText();
 		if (profile !== null) {
 			var bin = Math.floor((point.pageX - offset.left - profile.left) / profile.width * profile.n);
 			if (bin < 0 || bin >= profile.n) {
 				return;
 			}
-			$("#kafkaHistogramReadout").text(profile.name + " = " + bin + ": " + formatNumber(profile.sums[bin]) + " "
-					+ image.unit + " (summed over " + profile.otherName + ")");
+			$("#kafkaHistogramReadout").text(profile.axis.name + " = " + binText(profile.axis, bin) + ": "
+					+ formatNumber(profile.sums[bin]) + " " + plot.unit + (summed ? " (" + summed + ")" : ""));
+			return;
+		}
+		if (grid === null) {
 			return;
 		}
 		var x = (point.pageX - offset.left) / canvas.width();
@@ -655,11 +782,14 @@ var kafkaHistogram = (function() {
 		if (x < 0 || x >= 1 || y < 0 || y >= 1) {
 			return;
 		}
-		var px = Math.floor(x * image.nx);
-		var py = image.ny - 1 - Math.floor(y * image.ny);
-		var value = image.values[py * image.nx + px];
-		$("#kafkaHistogramReadout").text(image.xName + " = " + px + ", " + image.yName + " = " + py + ": "
-				+ (isNaN(value) ? "--" : formatNumber(value)) + " " + image.unit);
+		var cx = Math.floor(x * grid.nx);
+		var cy = grid.ny - 1 - Math.floor(y * grid.ny);
+		var value = grid.values[cy * grid.nx + cx];
+		var lastX = Math.min(plot.horizontal.size, (cx + 1) * grid.gx) - 1;
+		var lastY = Math.min(plot.vertical.size, (cy + 1) * grid.gy) - 1;
+		$("#kafkaHistogramReadout").text(plot.horizontal.name + " = " + binsText(plot.horizontal, cx * grid.gx, lastX)
+				+ ", " + plot.vertical.name + " = " + binsText(plot.vertical, cy * grid.gy, lastY) + ": "
+				+ (isNaN(value) ? "--" : formatNumber(value)) + " " + plot.unit + (summed ? " (" + summed + ")" : ""));
 	}
 
 	// ---- Public ----------------------------------------------------------------
@@ -677,15 +807,11 @@ var kafkaHistogram = (function() {
 				render();
 			});
 			$("#kafkaHistogramView").on("change", function() {
-				var value = $(this).val();
-				view = value === "x" || value === "y" ? value : "xy";
-				$("#kafkaHistogramReadout").text("");
-				render();
+				setView($(this).val());
 			});
-			if ($("#kafkaHistogramView").length > 0) {
+			if (VIEWS.indexOf($("#kafkaHistogramView").val()) >= 0) {
 				// A browser may restore the last choice on reload.
-				view = $("#kafkaHistogramView").val() === "x" || $("#kafkaHistogramView").val() === "y"
-						? $("#kafkaHistogramView").val() : "xy";
+				view = $("#kafkaHistogramView").val();
 			}
 			$("#kafkaHistogramCanvas").on("mousemove touchstart touchmove", readout);
 			$(window).on("resize orientationchange", onResize);
