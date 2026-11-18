@@ -10,9 +10,10 @@
  * switched: while it is off, the stream is closed and "Refresh Now" fetches the
  * latest frame once.
  *
- * The server collects three histograms: X-Y, accumulated since the
- * collection's start, and X-T and Y-T, each frame the counts of the last 2 s
- * (100 frames of 20 ms, T in 1000 bins of 20 us). The Plot selector
+ * The server collects three histograms, X-Y, X-T and Y-T (T in 1000 bins of
+ * 20 us over a 20 ms frame), each accumulated since the collection's start. If
+ * one is configured to clear after each publish instead, the info line says
+ * what time it covers (windowSeconds). The Plot selector
  * (#kafkaHistogramView) shows Total X-Y (X across, Y up), Total X-T (X across,
  * T up) or Total Y-T (T across, Y up) as a 2D image, or Total X, Y or T as a
  * 1D plot. The server computes the plot and sends only the one shown

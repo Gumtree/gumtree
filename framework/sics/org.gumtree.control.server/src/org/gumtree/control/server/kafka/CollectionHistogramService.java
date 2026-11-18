@@ -33,9 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Follows the histograms of the current collection: X-Y, accumulated since the
- * collection's start, and X-T and Y-T, each frame the counts of the last 2 s
- * (100 frames of 20 ms) (see {@link Settings#xyHistogram},
+ * Follows the histograms of the current collection, X-Y, X-T and Y-T, each
+ * accumulated since the collection's start (see {@link Settings#xyHistogram},
  * {@link Settings#xtHistogram} and {@link Settings#ytHistogram}), as the AESS
  * instrument backend's Active view does for one histogram
  * (a-ess-data-acquisition-frontend-project, aess-instrument-backend:
@@ -198,9 +197,6 @@ public class CollectionHistogramService {
 		/** Published every 2 s, counting from the collection's start */
 		private static final String ACCUMULATED = NO_DEPTH + ", \"publish_period\": 2.0, \"publish_clear\": false";
 
-		/** Published every 2 s (100 frames of 20 ms), each the counts of those 2 s only */
-		private static final String WINDOW = NO_DEPTH + ", \"publish_period\": 2.0, \"publish_clear\": true";
-
 		/**
 		 * "brokers": Kafka bootstrap servers, host:port[,host:port...]. Set in
 		 * gumtree.properties of au.gov.ansto.bragg.nbi.webserver; this default
@@ -239,17 +235,17 @@ public class CollectionHistogramService {
 		/**
 		 * "xtHistogram": the X-T histogram, as for {@link #xyHistogram}: X
 		 * across in 128 bins, T up in 1000 bins of 20 microseconds over a 20 ms
-		 * frame. Each frame integrates the last 100 such 20 ms frames: it is
-		 * published every 2 s and then cleared. 128 x 1000 32-bit counts make
-		 * 512 kB per frame, inside Kafka's default message limit of 1 MB.
+		 * frame, accumulated since the collection's start. 128 x 1000 32-bit
+		 * counts make 512 kB per frame, inside Kafka's default message limit of
+		 * 1 MB.
 		 */
-		public String xtHistogram = "{" + PANEL + ", " + X_ACROSS + ", " + T_UP + ", " + WINDOW + "}";
+		public String xtHistogram = "{" + PANEL + ", " + X_ACROSS + ", " + T_UP + ", " + ACCUMULATED + "}";
 
 		/**
 		 * "ytHistogram": the Y-T histogram, as {@link #xtHistogram} but T across
 		 * in 1000 bins and Y up in 128 bins.
 		 */
-		public String ytHistogram = "{" + PANEL + ", " + T_ACROSS + ", " + Y_UP + ", " + WINDOW + "}";
+		public String ytHistogram = "{" + PANEL + ", " + T_ACROSS + ", " + Y_UP + ", " + ACCUMULATED + "}";
 
 		/** "source": the Source field of the requests sent */
 		public String source = "Gumtree";
