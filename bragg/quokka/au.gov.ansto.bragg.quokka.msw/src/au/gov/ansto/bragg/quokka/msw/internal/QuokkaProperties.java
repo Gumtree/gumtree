@@ -67,7 +67,7 @@ public final class QuokkaProperties {
 				"watlow_rm:sics.drive(\"/sample/watlow_rm/setpoint\", value);" +
 				"xcs:sics.drive(\"/sample/xcs/humidity\", value);" +
 				"Meerstetter all channels:sics.drive_all_ms(value);" +
-				"Meerstetter bundled channels:sics.drive_ms_bundle(name, value);" +
+				"Meerstetter bundled channels:sics.make_ms_bundle(\"bundle1\", [1,2,3])#sics.drive_ms_bundle(\"bundle1\", value);" +
 				"Meerstetter channels:sics.drive_ms(id_as_int_or_list, value);" +
 				"");
 
