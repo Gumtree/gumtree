@@ -701,6 +701,10 @@ public class EnvironmentsComposite extends Composite {
 				if (environmentTemplates.containsKey(selection)) {
 					String setupScript = "";
 					String driveScript = environmentTemplates.get(selection);
+					if (driveScript.contains("#")) {
+						setupScript = driveScript.split("#")[0];
+						driveScript = driveScript.split("#")[1];
+					}
 					if (
 							!Objects.equals(setupScript, selectedEnvironment.get(Environment.SETUP_SCRIPT)) ||
 							!Objects.equals(driveScript, selectedEnvironment.get(Environment.DRIVE_SCRIPT)))
