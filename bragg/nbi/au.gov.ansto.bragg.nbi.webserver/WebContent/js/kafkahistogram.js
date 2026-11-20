@@ -557,22 +557,20 @@ var kafkaHistogram = (function() {
 	}
 
 	/**
-	 * The size of the 2D image on the page, in CSS pixels. Square bins when the
-	 * image is not too elongated (X-Y); otherwise (X-T, Y-T) it fills the width,
-	 * and is about square when the long axis runs up.
+	 * The size of the 2D image on the page, in CSS pixels. It fills the width,
+	 * like the 1D plots. When the image is not too elongated (X-Y), its bins
+	 * are square unless that would make it taller than the window allows, in
+	 * which case it is shorter; otherwise (X-T, Y-T) it is about square when the
+	 * long axis runs up.
 	 */
 	function imageSize(nx, ny) {
 		var width = $("#kafkaHistogramImage").width() || 300;
 		var maxHeight = Math.max(150, $(window).height() * MAX_HEIGHT_FRACTION);
 		var aspect = nx / ny;
-		if (aspect <= MAX_SQUARE_ASPECT && aspect >= 1 / MAX_SQUARE_ASPECT) {
-			var scale = Math.min(width / nx, maxHeight / ny);
-			if (scale >= 1) {
-				scale = Math.floor(scale);	// whole pixels look sharper
-			}
-			return {width : Math.round(nx * scale), height : Math.round(ny * scale)};
-		}
 		var cssWidth = Math.floor(width - 2);
+		if (aspect <= MAX_SQUARE_ASPECT && aspect >= 1 / MAX_SQUARE_ASPECT) {
+			return {width : cssWidth, height : Math.round(Math.min(maxHeight, cssWidth / aspect))};
+		}
 		var cssHeight = ny > nx ? Math.min(maxHeight, cssWidth) : Math.min(maxHeight, Math.max(150, cssWidth * 0.5));
 		return {width : cssWidth, height : Math.round(cssHeight)};
 	}
