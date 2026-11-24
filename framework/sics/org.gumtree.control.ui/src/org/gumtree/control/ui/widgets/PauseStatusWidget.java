@@ -115,11 +115,11 @@ public class PauseStatusWidget extends ExtendedWidgetComposite {
 	}
 
 	protected void handleSicsConnect() {
-		updateUI(null);
 	}
 	
 	@Override
 	protected void handleModelUpdate() {
+		updateUI(null);
 	}
 	
 	@Override

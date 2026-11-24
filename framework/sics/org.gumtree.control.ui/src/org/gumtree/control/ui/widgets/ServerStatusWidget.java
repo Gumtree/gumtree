@@ -41,11 +41,11 @@ public class ServerStatusWidget extends ExtendedWidgetComposite {
 
 	@Override
 	protected void handleSicsConnect() {
-		updateUI(null);
 	}
 
 	@Override
 	protected void handleModelUpdate() {
+		updateUI(null);
 	}
 	
 	@Override

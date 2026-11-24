@@ -41,13 +41,6 @@ public class InterruptWidget extends ExtendedWidgetComposite {
 
 	@Override
 	protected void handleSicsConnect() {
-		SafeUIRunner.asyncExec(new SafeRunnable() {
-			public void run() throws Exception {
-				if (interruptButton != null) {
-					interruptButton.setEnabled(true);
-				};
-			}
-		});
 	}
 
 	@Override
@@ -63,6 +56,13 @@ public class InterruptWidget extends ExtendedWidgetComposite {
 
 	@Override
 	protected void handleModelUpdate() {
+		SafeUIRunner.asyncExec(new SafeRunnable() {
+			public void run() throws Exception {
+				if (interruptButton != null) {
+					interruptButton.setEnabled(true);
+				};
+			}
+		});
 	}
 	
 	@Override
