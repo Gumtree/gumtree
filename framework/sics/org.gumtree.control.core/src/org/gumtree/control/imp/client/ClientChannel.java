@@ -166,6 +166,9 @@ public class ClientChannel implements ISicsChannel {
 
 	@Override
 	public void asyncSend(String command, ISicsCallback callback, boolean progressOn) throws SicsException {
+		if (command == null || command.trim().length() == 0) {
+			return;
+		}
 		cid++;
 		logger.debug("asyncRun: " + command);
 		SicsCommand sicsCommand = new SicsCommand(cid, command, callback, -1, progressOn);
